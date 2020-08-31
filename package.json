@@ -1,0 +1,37 @@
+{
+  "name": "devconnector",
+  "version": "1.0.0",
+  "description": "App built as part of the MERN Stack Front To Back course by Brad Traversy on O'Reilly",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d4ydr34mzzz/devconnector.git"
+  },
+  "author": "d4ydr34mzzz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/d4ydr34mzzz/devconnector/issues"
+  },
+  "homepage": "https://github.com/d4ydr34mzzz/devconnector#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "connect-flash": "^0.1.1",
+    "connect-mongo": "^3.2.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "express-validator": "^6.6.1",
+    "method-override": "^3.0.0",
+    "moment": "^2.27.0",
+    "mongoose": "^5.10.2",
+    "passport": "^0.4.1",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0"
+  }
+}
