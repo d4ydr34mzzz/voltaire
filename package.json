@@ -4,7 +4,8 @@
   "description": "App built as part of the MERN Stack Front To Back course by Brad Traversy on O'Reilly",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
