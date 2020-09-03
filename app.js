@@ -1,9 +1,11 @@
 const express = require("express");
-const app = express();
+const session = require("express-session");
 const mongoose = require("mongoose");
+const passport = require("passport");
 const apiPostsRouter = require("./routes/api/posts.js");
 const apiProfileRouter = require("./routes/api/profile.js");
 const apiUsersRouter = require("./routes/api/users");
+const app = express();
 const port = process.env.PORT || 3000;
 require("dotenv").config();
 
@@ -22,6 +24,13 @@ mongoose
   .catch((error) => {
     console.log("There was an error connecting to MongoDB: " + error);
   });
+
+// Configure the strategies
+require("./config/passport.js")(passport);
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.get("/", (req, res) => {
   res.send("Foxglove");
