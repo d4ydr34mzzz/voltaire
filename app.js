@@ -2,6 +2,7 @@ const express = require("express");
 const session = require("express-session");
 const mongoose = require("mongoose");
 const passport = require("passport");
+const apiAuthRouter = require("./routes/api/auth.js");
 const apiPostsRouter = require("./routes/api/posts.js");
 const apiProfileRouter = require("./routes/api/profile.js");
 const apiUsersRouter = require("./routes/api/users");
@@ -35,6 +36,8 @@ app.use(passport.session());
 app.get("/", (req, res) => {
   res.send("Foxglove");
 });
+
+app.use("/api/auth", apiAuthRouter);
 
 app.use("/api/posts", apiPostsRouter);
 
