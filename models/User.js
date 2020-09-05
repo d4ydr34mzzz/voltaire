@@ -29,7 +29,7 @@ const externalAccountSchema = new Schema({
 // Define the user schema
 const userSchema = new Schema({
   // _id holds the user's email
-  _id: {
+  email: {
     type: String,
     required: true,
   },

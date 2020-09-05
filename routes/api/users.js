@@ -50,7 +50,7 @@ router.post(
     }
 
     console.log(req.body);
-    User.findById(req.body.email).then((user) => {
+    User.findOne({ email: req.body.email }).then((user) => {
       if (user) {
         res.status(403).json({ errors: [{ msg: "Email already exists" }] });
       } else {
@@ -67,7 +67,7 @@ router.post(
             });
 
             const newUser = {
-              _id: req.body.email,
+              email: req.body.email,
               firstName: req.body.firstName,
               lastName: req.body.lastName,
               internalAuth: { password: hash },

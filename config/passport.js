@@ -14,7 +14,7 @@ module.exports = function (passport) {
         usernameField: "email",
       },
       function (email, password, done) {
-        User.findById(email, function (err, user) {
+        User.findOne({ email: email }, function (err, user) {
           if (err) {
             return done(err);
           }
@@ -57,7 +57,7 @@ module.exports = function (passport) {
       },
       function (accessToken, refreshToken, profile, done) {
         console.log(profile);
-        User.findById(profile.emails[0].value, function (err, user) {
+        User.findOne({ email: profile.emails[0].value }, function (err, user) {
           if (err) {
             return done(err);
           }
@@ -74,7 +74,7 @@ module.exports = function (passport) {
             }
           } else {
             const newUser = {
-              _id: profile.emails[0].value,
+              email: profile.emails[0].value,
               firstName: profile.name.givenName,
               lastName: profile.name.familyName,
               internalAuth: undefined,
@@ -99,7 +99,7 @@ module.exports = function (passport) {
 
   // Serialize a user instance to the session
   passport.serializeUser(function (user, done) {
-    done(null, user._id);
+    done(null, user.id);
   });
 
   // Deserialize a user instance from the session
