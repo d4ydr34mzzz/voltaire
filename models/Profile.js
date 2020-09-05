@@ -1,7 +1,12 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-// Define the profile schema
+/**
+ * Define the profile schema
+ * References:
+ * {@link https://mongoosejs.com/docs/populate.html}
+ * {@link https://mongoosejs.com/docs/schematypes.html#dates}
+ */
 const profileSchema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
