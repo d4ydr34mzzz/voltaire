@@ -323,4 +323,228 @@ router.post(
   }
 );
 
+/**
+ * @route POST /api/profile/experience
+ * @access private
+ * @description Post request route handler for the /api/profile/experience path (add an experience entry to the current user's profile)
+ */
+router.post(
+  "/experience",
+  ensureAuthenticated,
+  [
+    body("title").not().isEmpty().withMessage("Title is required"),
+    body("company").not().isEmpty().withMessage("Company is required"),
+    body("from")
+      .not()
+      .isEmpty()
+      .withMessage("A from date is required")
+      .bail()
+      .isISO8601()
+      .withMessage("Invalid date format")
+      .bail()
+      .toDate(),
+    body("to")
+      .if((value, { req }) => {
+        return req.body.to;
+      })
+      .isISO8601()
+      .withMessage("Invalid date format")
+      .bail()
+      .toDate(),
+    body("current")
+      .isBoolean()
+      .bail()
+      .toBoolean()
+      .if((value, { req }) => {
+        return !req.body.current;
+      })
+      .custom((value, { req }) => {
+        return req.body.to;
+      })
+      .withMessage(
+        "A to date is required if you aren't currently working here"
+      ),
+    body("current")
+      .isBoolean()
+      .bail()
+      .toBoolean()
+      .custom((value, { req }) => {
+        return !(req.body.current && req.body.to);
+      })
+      .withMessage(
+        "A to date and currently attending cannot be set simultaneously"
+      ),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        if (!profile) {
+          res.status(404).json({
+            errors: [
+              {
+                msg: "Profile does not exist",
+              },
+            ],
+          });
+        } else {
+          const newExperience = {
+            title: req.body.title,
+            company: req.body.company,
+            location: req.body.location,
+            from: req.body.from,
+            to: req.body.to,
+            current: req.body.current,
+            description: req.body.description,
+          };
+
+          profile.experience.unshift(newExperience);
+          profile
+            .save()
+            .then((profile) => {
+              res.json(profile);
+            })
+            .catch((err) => {
+              res.status(500).json({
+                errors: [
+                  {
+                    msg:
+                      "There was an issue processing the request. Please try again later.",
+                  },
+                ],
+              });
+            });
+        }
+      })
+      .catch((err) => {
+        res.status(500).json({
+          errors: [
+            {
+              msg:
+                "There was an issue processing the request. Please try again later.",
+            },
+          ],
+        });
+      });
+  }
+);
+
+/**
+ * @route POST /api/profile/education
+ * @access private
+ * @description Post request route handler for the /api/profile/education path (add an education entry to the current user's profile)
+ */
+router.post(
+  "/education",
+  ensureAuthenticated,
+  [
+    body("school").not().isEmpty().withMessage("School is required"),
+    body("degree").not().isEmpty().withMessage("Degree is required"),
+    body("fieldOfStudy")
+      .not()
+      .isEmpty()
+      .withMessage("Field of study is required"),
+    body("from")
+      .not()
+      .isEmpty()
+      .withMessage("A from date is required")
+      .bail()
+      .isISO8601()
+      .withMessage("Invalid date format")
+      .bail()
+      .toDate(),
+    body("to")
+      .if((value, { req }) => {
+        return req.body.to;
+      })
+      .isISO8601()
+      .withMessage("Invalid date format")
+      .bail()
+      .toDate(),
+    body("current")
+      .isBoolean()
+      .bail()
+      .toBoolean()
+      .if((value, { req }) => {
+        return !req.body.current;
+      })
+      .custom((value, { req }) => {
+        return req.body.to;
+      })
+      .withMessage(
+        "A to date is required if you aren't currently studying here"
+      ),
+    body("current")
+      .isBoolean()
+      .bail()
+      .toBoolean()
+      .custom((value, { req }) => {
+        return !(req.body.current && req.body.to);
+      })
+      .withMessage(
+        "A to date and currently attending cannot be set simultaneously"
+      ),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        if (!profile) {
+          res.status(404).json({
+            errors: [
+              {
+                msg: "Profile does not exist",
+              },
+            ],
+          });
+        } else {
+          const newEducation = {
+            school: req.body.school,
+            degree: req.body.degree,
+            fieldOfStudy: req.body.fieldOfStudy,
+            from: req.body.from,
+            to: req.body.to,
+            current: req.body.current,
+            description: req.body.description,
+          };
+
+          profile.education.unshift(newEducation);
+          profile
+            .save()
+            .then((profile) => {
+              res.json(profile);
+            })
+            .catch((err) => {
+              res.status(500).json({
+                errors: [
+                  {
+                    msg:
+                      "There was an issue processing the request. Please try again later.",
+                  },
+                ],
+              });
+            });
+        }
+      })
+      .catch((err) => {
+        res.status(500).json({
+          errors: [
+            {
+              msg:
+                "There was an issue processing the request. Please try again later.",
+            },
+          ],
+        });
+      });
+  }
+);
+
 module.exports = router;

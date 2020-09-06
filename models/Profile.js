@@ -81,6 +81,7 @@ const profileSchema = new Schema({
       },
       fieldOfStudy: {
         type: String,
+        required: true,
       },
       from: {
         type: Date,
