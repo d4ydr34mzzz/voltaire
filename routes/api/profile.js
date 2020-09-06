@@ -61,6 +61,105 @@ router.get("/", ensureAuthenticated, (req, res) => {
 });
 
 /**
+ * @route GET /api/profile/handle/:handle
+ * @access private
+ * @description Get request route handler for the /api/profile/handle/:handle path (return the user profile associated with the given handle)
+ */
+router.get("/handle/:handle", ensureAuthenticated, (req, res) => {
+  Profile.findOne({ handle: req.params.handle })
+    .populate("user", ["firstName", "lastName", "picture"])
+    .then((profile) => {
+      if (!profile) {
+        res.status(404).json({
+          errors: [
+            {
+              msg: "Profile does not exist",
+            },
+          ],
+        });
+      } else {
+        res.json(profile);
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({
+        errors: [
+          {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
+        ],
+      });
+    });
+});
+
+/**
+ * @route GET /api/profile/user/:user_id
+ * @access private
+ * @description Get request route handler for the /api/profile/user/:user_id path (return the user profile associated with the given user_id)
+ */
+router.get("/user/:user_id", ensureAuthenticated, (req, res) => {
+  Profile.findOne({ user: req.params.user_id })
+    .populate("user", ["firstName", "lastName", "picture"])
+    .then((profile) => {
+      if (!profile) {
+        res.status(404).json({
+          errors: [
+            {
+              msg: "Profile does not exist",
+            },
+          ],
+        });
+      } else {
+        res.json(profile);
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({
+        errors: [
+          {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
+        ],
+      });
+    });
+});
+
+/**
+ * @route GET /api/profile/all
+ * @access private
+ * @description Get request route handler for the /api/profile/handle/:handle path (return all the profiles)
+ */
+router.get("/all", ensureAuthenticated, (req, res) => {
+  Profile.find()
+    .populate("user", ["firstName", "lastName", "picture"])
+    .then((profiles) => {
+      if (!profiles) {
+        res.status(404).json({
+          errors: [
+            {
+              msg: "There are no profiles",
+            },
+          ],
+        });
+      } else {
+        res.json(profiles);
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({
+        errors: [
+          {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
+        ],
+      });
+    });
+});
+
+/**
  * @route POST /api/profile
  * @access private
  * @description Post request route handler for the /api/profile path (initialize or update the current user's profile)
