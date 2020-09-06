@@ -15,6 +15,12 @@ require("dotenv").config();
 // Get the appropriate MongoDB URI (development, testing, or production)
 const { mongoURI } = require("./config/database.js");
 
+/**
+ * From https://mongoosejs.com/docs/deprecations.html#findandmodify: "Make Mongoose use `findOneAndUpdate()`. Note
+ * that this option is `true` by default, you need to set it to false."
+ */
+mongoose.set("useFindAndModify", false);
+
 // Connect to MongoDB
 mongoose
   .connect(mongoURI, {
