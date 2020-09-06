@@ -302,7 +302,9 @@ router.post(
             });
           });
       } else {
-        Profile.findOneAndUpdate({ user: req.user.id }, newProfile)
+        Profile.findOneAndUpdate({ user: req.user.id }, newProfile, {
+          new: true,
+        })
           .then((profile) => {
             res.json(profile);
           })
