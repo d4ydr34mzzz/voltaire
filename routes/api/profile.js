@@ -547,4 +547,112 @@ router.post(
   }
 );
 
+// TODO: Add routes to edit education and experience entries?
+
+/**
+ * @route DELETE /api/profile/education/:education_id
+ * @access private
+ * @description Post request route handler for the /api/profile/education/:education_id path (delete an education entry from the current user's profile)
+ */
+router.delete("/education/:education_id", ensureAuthenticated, (req, res) => {
+  Profile.findOne({ user: req.user.id })
+    .then((profile) => {
+      if (!profile) {
+        res.status(404).json({
+          errors: [
+            {
+              msg: "Profile does not exist",
+            },
+          ],
+        });
+      } else {
+        const educationIndex = profile.education
+          .map((experience) => {
+            return experience.id;
+          })
+          .indexOf(req.params.education_id);
+
+        profile.education.splice(educationIndex, 1);
+        profile
+          .save()
+          .then((profile) => {
+            res.json(profile);
+          })
+          .catch((err) => {
+            res.status(500).json({
+              errors: [
+                {
+                  msg:
+                    "There was an issue processing the request. Please try again later.",
+                },
+              ],
+            });
+          });
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({
+        errors: [
+          {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
+        ],
+      });
+    });
+});
+
+/**
+ * @route DELETE /api/profile/experience/:experience_id
+ * @access private
+ * @description Post request route handler for the /api/profile/experience/:experience_id path (delete an experience entry from the current user's profile)
+ */
+router.delete("/experience/:experience_id", ensureAuthenticated, (req, res) => {
+  Profile.findOne({ user: req.user.id })
+    .then((profile) => {
+      if (!profile) {
+        res.status(404).json({
+          errors: [
+            {
+              msg: "Profile does not exist",
+            },
+          ],
+        });
+      } else {
+        const experienceIndex = profile.experience
+          .map((experience) => {
+            return experience.id;
+          })
+          .indexOf(req.params.experience_id);
+
+        profile.experience.splice(experienceIndex, 1);
+        profile
+          .save()
+          .then((profile) => {
+            res.json(profile);
+          })
+          .catch((err) => {
+            res.status(500).json({
+              errors: [
+                {
+                  msg:
+                    "There was an issue processing the request. Please try again later.",
+                },
+              ],
+            });
+          });
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({
+        errors: [
+          {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
+        ],
+      });
+    });
+});
+
 module.exports = router;
