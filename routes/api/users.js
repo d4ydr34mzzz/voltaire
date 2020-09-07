@@ -5,13 +5,20 @@ const gravatar = require("gravatar");
 const passport = require("passport");
 const router = express.Router();
 const { body, validationResult } = require("express-validator");
+const { ensureAuthenticated } = require("../../helpers/auth.js");
 const saltRounds = 10;
 
 // Run the code in User.js (no exports)
 require("../../models/User.js");
 
+// Run the code in Profile.js (no exports)
+require("../../models/Profile.js");
+
 // Retrieve the User model defined in User.js
 const User = mongoose.model("User");
+
+// Retrieve the Profile model defined in Profile.js
+const Profile = mongoose.model("Profile");
 
 /**
  * @route GET /api/users/test
@@ -120,5 +127,51 @@ router.post(
   },
   passport.authenticate("local", { successRedirect: "/" })
 );
+
+/**
+ * @route DELETE /api/users/:user_id
+ * @access private
+ * @description Delete request route handler for the /api/users/:user_id path (delete a user from DevConnector)
+ */
+router.delete("/:user_id", ensureAuthenticated, (req, res) => {
+  if (req.user.id !== req.params.user_id) {
+    return res.status(403).json({
+      errors: [
+        {
+          msg: "Forbidden request",
+        },
+      ],
+    });
+  } else {
+    Profile.findOneAndRemove({ user: req.user.id })
+      .then((profile) => {
+        User.findOneAndRemove({ _id: req.user.id })
+          .then((user) => {
+            req.logOut();
+            res.json(user);
+          })
+          .catch((err) => {
+            res.status(500).json({
+              errors: [
+                {
+                  msg:
+                    "There was an issue processing the request. Please try again later.",
+                },
+              ],
+            });
+          });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          errors: [
+            {
+              msg:
+                "There was an issue processing the request. Please try again later.",
+            },
+          ],
+        });
+      });
+  }
+});
 
 module.exports = router;

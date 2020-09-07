@@ -552,7 +552,7 @@ router.post(
 /**
  * @route DELETE /api/profile/education/:education_id
  * @access private
- * @description Post request route handler for the /api/profile/education/:education_id path (delete an education entry from the current user's profile)
+ * @description Delete request route handler for the /api/profile/education/:education_id path (delete an education entry from the current user's profile)
  */
 router.delete("/education/:education_id", ensureAuthenticated, (req, res) => {
   Profile.findOne({ user: req.user.id })
@@ -605,7 +605,7 @@ router.delete("/education/:education_id", ensureAuthenticated, (req, res) => {
 /**
  * @route DELETE /api/profile/experience/:experience_id
  * @access private
- * @description Post request route handler for the /api/profile/experience/:experience_id path (delete an experience entry from the current user's profile)
+ * @description Delete request route handler for the /api/profile/experience/:experience_id path (delete an experience entry from the current user's profile)
  */
 router.delete("/experience/:experience_id", ensureAuthenticated, (req, res) => {
   Profile.findOne({ user: req.user.id })
