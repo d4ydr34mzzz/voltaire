@@ -242,7 +242,81 @@ router.post("/unlike/:post_id", ensureAuthenticated, (req, res) => {
     });
 });
 
+/**
+ * @route POST /api/posts/:post_id/comment
+ * @access private
+ * @description Post request route handler for the /api/posts/:post_id/comment path (comment on the post with post_id as the current user)
+ */
+router.post(
+  "/:post_id/comment",
+  ensureAuthenticated,
+  [
+    body("text")
+      .not()
+      .isEmpty()
+      .withMessage("Comment content is required")
+      .isLength({ min: 10, max: 1000 })
+      .withMessage("Comments must be between 10 and 1000 characters"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    Post.findById(req.params.post_id)
+      .then((post) => {
+        if (!post) {
+          res.status(404).json({
+            errors: [
+              {
+                msg: "Post does not exist",
+              },
+            ],
+          });
+        } else {
+          const newComment = {
+            user: req.user.id,
+            text: req.body.text,
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            avatar: req.body.avatar,
+          };
+
+          post.comments.unshift(newComment);
+          post
+            .save()
+            .then((post) => {
+              res.json(post);
+            })
+            .catch((err) => {
+              res.status(500).json({
+                errors: [
+                  {
+                    msg:
+                      "There was an issue processing the request. Please try again later.",
+                  },
+                ],
+              });
+            });
+        }
+      })
+      .catch((err) => {
+        res.status(500).json({
+          errors: [
+            {
+              msg:
+                "There was an issue processing the request. Please try again later.",
+            },
+          ],
+        });
+      });
+  }
+);
+
 // TODO: Add a put request route handler for /api/posts/:post_id to allow the current user to edit one of their posts
+
+// TODO: Add a put request route handler for /api/posts/:post_id/comments/:comment_id to allow the current user to edit their comments
 
 /**
  * @route DELETE /api/posts/:post_id
@@ -277,5 +351,79 @@ router.delete("/:post_id", ensureAuthenticated, (req, res) => {
       });
     });
 });
+
+/**
+ * @route DELETE /api/posts/:post_id/comments/:comment_id
+ * @access private
+ * @description Post request route handler for the /api/posts/:post_id/comments/:comment_id path (delete a comment with comment_id belonging to the current user from the post with post_id)
+ */
+router.delete(
+  "/:post_id/comments/:comment_id",
+  ensureAuthenticated,
+  (req, res) => {
+    Post.findById(req.params.post_id)
+      .then((post) => {
+        if (!post) {
+          res.status(404).json({
+            errors: [
+              {
+                msg: "Post does not exist",
+              },
+            ],
+          });
+        } else {
+          if (
+            post.comments.filter((comment) => {
+              return (
+                comment._id.toString() === req.params.comment_id &&
+                comment.user.toString() === req.user.id
+              );
+            }).length === 0
+          ) {
+            res.status(404).json({
+              errors: [
+                {
+                  msg: "Comment does not exist",
+                },
+              ],
+            });
+          } else {
+            const commentIndex = post.comments
+              .map((comment) => {
+                return comment._id;
+              })
+              .indexOf(req.params.comment_id);
+
+            post.comments.splice(commentIndex, 1);
+            post
+              .save()
+              .then((post) => {
+                res.json(post);
+              })
+              .catch((err) => {
+                res.status(500).json({
+                  errors: [
+                    {
+                      msg:
+                        "There was an issue processing the request. Please try again later.",
+                    },
+                  ],
+                });
+              });
+          }
+        }
+      })
+      .catch((err) => {
+        res.status(500).json({
+          errors: [
+            {
+              msg:
+                "There was an issue processing the request. Please try again later.",
+            },
+          ],
+        });
+      });
+  }
+);
 
 module.exports = router;
