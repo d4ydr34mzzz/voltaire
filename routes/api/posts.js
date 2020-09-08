@@ -131,6 +131,117 @@ router.post(
   }
 );
 
+/**
+ * @route POST /api/posts/like/:post_id
+ * @access private
+ * @description Post request route handler for the /api/posts/like/:post_id path (like the post with post_id as the current user)
+ */
+router.post("/like/:post_id", ensureAuthenticated, (req, res) => {
+  Post.findById(req.params.post_id)
+    .then((post) => {
+      if (
+        post.likes.filter((like) => {
+          return like.user.toString() === req.user.id;
+        }).length > 0
+      ) {
+        res.status(403).json({
+          errors: [
+            {
+              msg: "You have already liked this post",
+            },
+          ],
+        });
+      } else {
+        const newLike = {
+          user: req.user.id,
+        };
+        post.likes.unshift(newLike);
+        post
+          .save()
+          .then((post) => {
+            res.json(post);
+          })
+          .catch((err) => {
+            res.status(500).json({
+              errors: [
+                {
+                  msg:
+                    "There was an issue processing the request. Please try again later.",
+                },
+              ],
+            });
+          });
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({
+        errors: [
+          {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
+        ],
+      });
+    });
+});
+
+/**
+ * @route POST /api/posts/unlike/:post_id
+ * @access private
+ * @description Post request route handler for the /api/posts/unlike/:post_id path (unlike the post with post_id as the current user)
+ */
+router.post("/unlike/:post_id", ensureAuthenticated, (req, res) => {
+  Post.findById(req.params.post_id)
+    .then((post) => {
+      if (
+        post.likes.filter((like) => {
+          return like.user.toString() === req.user.id;
+        }).length === 0
+      ) {
+        res.status(403).json({
+          errors: [
+            {
+              msg: "You have not liked this post",
+            },
+          ],
+        });
+      } else {
+        const likeIndex = post.likes
+          .map((like) => {
+            return like.user.toString();
+          })
+          .indexOf(req.user.id);
+
+        post.likes.splice(likeIndex, 1);
+        post
+          .save()
+          .then((post) => {
+            res.json(post);
+          })
+          .catch((err) => {
+            res.status(500).json({
+              errors: [
+                {
+                  msg:
+                    "There was an issue processing the request. Please try again later.",
+                },
+              ],
+            });
+          });
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({
+        errors: [
+          {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
+        ],
+      });
+    });
+});
+
 // TODO: Add a put request route handler for /api/posts/:post_id to allow the current user to edit one of their posts
 
 /**
