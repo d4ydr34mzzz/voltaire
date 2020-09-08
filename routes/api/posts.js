@@ -13,7 +13,7 @@ const Post = mongoose.model("Post");
 /**
  * @route GET /api/posts/test
  * @access public
- * @description Get request route handler for the /api/posts/test path (i.e. check if the API endpoint is working)
+ * @description Get request route handler for the /api/posts/test path (check if the API endpoint is working)
  */
 router.get("/test", (req, res) => {
   res.json({ msg: "posts API endpoint works" });
@@ -54,7 +54,7 @@ router.get("/", ensureAuthenticated, (req, res) => {
 /**
  * @route GET /api/posts/:post_id
  * @access private
- * @description Get request route handler for the /api/posts/:post_id path (retrieve a single post by it's id)
+ * @description Get request route handler for the /api/posts/:post_id path (retrieve a single post by it's post_id)
  */
 router.get("/:post_id", ensureAuthenticated, (req, res) => {
   Post.findById(req.params.post_id)
@@ -321,7 +321,7 @@ router.post(
 /**
  * @route DELETE /api/posts/:post_id
  * @access private
- * @description Delete request route handler for the /api/posts/:post_id path (delete a single post belonging to the current user by it's id)
+ * @description Delete request route handler for the /api/posts/:post_id path (delete a single post belonging to the current user by it's post_id)
  */
 router.delete("/:post_id", ensureAuthenticated, (req, res) => {
   Post.deleteOne({ _id: req.params.post_id, user: req.user.id })

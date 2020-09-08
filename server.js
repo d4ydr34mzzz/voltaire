@@ -58,16 +58,16 @@ require("./config/passport.js")(passport);
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get("/", (req, res) => {
-  res.send("Foxglove");
-});
-
+// Mount the router module for auth on the /api/auth path in the main app
 app.use("/api/auth", apiAuthRouter);
 
+// Mount the router module for posts on the /api/posts path in the main app
 app.use("/api/posts", apiPostsRouter);
 
+// Mount the router module for profile on the /api/profile path in the main app
 app.use("/api/profile", apiProfileRouter);
 
+// Mount the router module for users on the /api/users path in the main app
 app.use("/api/users", apiUsersRouter);
 
 app.listen(port, () => {
