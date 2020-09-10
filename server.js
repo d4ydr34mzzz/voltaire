@@ -9,7 +9,7 @@ const apiPostsRouter = require("./routes/api/posts.js");
 const apiProfileRouter = require("./routes/api/profile.js");
 const apiUsersRouter = require("./routes/api/users");
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 require("dotenv").config();
 
 // Get the appropriate MongoDB URI (development, testing, or production)
