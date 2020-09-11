@@ -9,3 +9,25 @@
 .nav-link:hover {
   color: white !important;
 }
+
+.clear {
+  clear: both;
+}
+
+.sign-up-prompt {
+  text-align: center;
+  font-size: 1rem;
+}
+
+.card--login-and-register-modal-adjustment {
+  top: 10rem;
+  border-radius: 5px;
+}
+
+#showcase {
+  background-image: url("./images/showcase_background_pexels_02.jpg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  min-height: 100vh;
+}
