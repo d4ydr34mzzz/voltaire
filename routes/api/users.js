@@ -53,7 +53,7 @@ router.post(
   (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json(errors.mapped());
     }
 
     console.log(req.body);
@@ -121,7 +121,7 @@ router.post(
   function (req, res, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json(errors);
+      return res.status(400).json(errors.mapped());
     }
     next();
   },
