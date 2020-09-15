@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import classNames from "classnames";
 
+// TODO: Convert the class component into a function component to use hooks (ex. useDispatch() and useSelector() from react-redux)?
 class Register extends Component {
   constructor(props) {
     super(props);
@@ -27,11 +30,29 @@ class Register extends Component {
   }
 
   handleSubmit(event) {
-    console.log(this.state);
+    const newUser = {
+      firstName: this.state.firstName,
+      lastName: this.state.lastName,
+      email: this.state.email,
+      password: this.state.password,
+      confirmPassword: this.state.confirmPassword,
+    };
+
+    axios
+      .post("/api/users/register", newUser)
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        this.setState({ errors: error.response.data });
+        console.log(this.state.errors);
+      });
+
     event.preventDefault();
   }
 
   render() {
+    const { errors } = this.state;
     return (
       <div className="row">
         <div className="col-md-6 mx-auto">
@@ -44,55 +65,82 @@ class Register extends Component {
                   <input
                     name="firstName"
                     type="text"
-                    className="form-control"
+                    className={classNames("form-control", {
+                      "is-invalid": errors.firstName,
+                    })}
                     id="firstName"
                     value={this.state.fistName}
                     onChange={this.handleInputChange}
                   />
+                  {errors.firstName && (
+                    <div class="invalid-feedback">{errors.firstName.msg}</div>
+                  )}
                 </div>
                 <div className="form-group">
                   <label htmlFor="lastName">Last name</label>
                   <input
                     name="lastName"
                     type="text"
-                    className="form-control"
+                    className={classNames("form-control", {
+                      "is-invalid": errors.lastName,
+                    })}
                     id="lastName"
                     value={this.state.lastName}
                     onChange={this.handleInputChange}
                   />
+                  {errors.lastName && (
+                    <div class="invalid-feedback">{errors.lastName.msg}</div>
+                  )}
                 </div>
                 <div className="form-group">
                   <label htmlFor="email">Email address</label>
                   <input
                     name="email"
                     type="email"
-                    className="form-control"
+                    className={classNames("form-control", {
+                      "is-invalid": errors.email,
+                    })}
                     id="email"
                     value={this.state.email}
                     onChange={this.handleInputChange}
                   />
+                  {errors.email && (
+                    <div class="invalid-feedback">{errors.email.msg}</div>
+                  )}
                 </div>
                 <div className="form-group">
                   <label htmlFor="password">Password</label>
                   <input
                     name="password"
                     type="password"
-                    className="form-control"
+                    className={classNames("form-control", {
+                      "is-invalid": errors.password,
+                    })}
                     id="password"
                     value={this.state.password}
                     onChange={this.handleInputChange}
                   />
+                  {errors.password && (
+                    <div class="invalid-feedback">{errors.password.msg}</div>
+                  )}
                 </div>
                 <div className="form-group">
                   <label htmlFor="confirmPassword">Confirm password</label>
                   <input
                     name="confirmPassword"
                     type="password"
-                    className="form-control"
+                    className={classNames("form-control", {
+                      "is-invalid": errors.confirmPassword,
+                    })}
                     id="confirmPassword"
                     value={this.state.confirmPassword}
                     onChange={this.handleInputChange}
                   />
+                  {errors.confirmPassword && (
+                    <div class="invalid-feedback">
+                      {errors.confirmPassword.msg}
+                    </div>
+                  )}
                 </div>
                 <button
                   type="submit"
