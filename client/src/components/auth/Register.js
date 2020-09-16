@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import classNames from "classnames";
+import { connect } from "react-redux";
+import { registerUser } from "./authSlice.js";
+import { withRouter } from "react-router-dom";
 
 // TODO: Convert the class component into a function component to use hooks (ex. useDispatch() and useSelector() from react-redux)?
 class Register extends Component {
@@ -30,6 +32,8 @@ class Register extends Component {
   }
 
   handleSubmit(event) {
+    event.preventDefault();
+
     const newUser = {
       firstName: this.state.firstName,
       lastName: this.state.lastName,
@@ -38,21 +42,11 @@ class Register extends Component {
       confirmPassword: this.state.confirmPassword,
     };
 
-    axios
-      .post("/api/users/register", newUser)
-      .then((response) => {
-        console.log(response.data);
-      })
-      .catch((error) => {
-        this.setState({ errors: error.response.data });
-        console.log(this.state.errors);
-      });
-
-    event.preventDefault();
+    this.props.registerUser(newUser);
   }
 
   render() {
-    const { errors } = this.state;
+    const errors = this.props.auth ? this.props.auth.errors : {};
     return (
       <div className="row">
         <div className="col-md-6 mx-auto">
@@ -73,7 +67,9 @@ class Register extends Component {
                     onChange={this.handleInputChange}
                   />
                   {errors.firstName && (
-                    <div class="invalid-feedback">{errors.firstName.msg}</div>
+                    <div className="invalid-feedback">
+                      {errors.firstName.msg}
+                    </div>
                   )}
                 </div>
                 <div className="form-group">
@@ -89,7 +85,9 @@ class Register extends Component {
                     onChange={this.handleInputChange}
                   />
                   {errors.lastName && (
-                    <div class="invalid-feedback">{errors.lastName.msg}</div>
+                    <div className="invalid-feedback">
+                      {errors.lastName.msg}
+                    </div>
                   )}
                 </div>
                 <div className="form-group">
@@ -105,7 +103,7 @@ class Register extends Component {
                     onChange={this.handleInputChange}
                   />
                   {errors.email && (
-                    <div class="invalid-feedback">{errors.email.msg}</div>
+                    <div className="invalid-feedback">{errors.email.msg}</div>
                   )}
                 </div>
                 <div className="form-group">
@@ -121,7 +119,9 @@ class Register extends Component {
                     onChange={this.handleInputChange}
                   />
                   {errors.password && (
-                    <div class="invalid-feedback">{errors.password.msg}</div>
+                    <div className="invalid-feedback">
+                      {errors.password.msg}
+                    </div>
                   )}
                 </div>
                 <div className="form-group">
@@ -137,7 +137,7 @@ class Register extends Component {
                     onChange={this.handleInputChange}
                   />
                   {errors.confirmPassword && (
-                    <div class="invalid-feedback">
+                    <div className="invalid-feedback">
                       {errors.confirmPassword.msg}
                     </div>
                   )}
@@ -182,4 +182,21 @@ class Register extends Component {
   }
 }
 
-export default Register;
+// Select data from store that the Register component needs; each field with become a prop in the Register component
+const mapStateToProps = (state) => ({
+  auth: state.auth,
+});
+
+/*
+ * Create functions that dispatch when called; object shorthand form automatically calls bindActionCreators
+ * internally; these functions are passed as props to the Register component
+ */
+const mapDispatchToProps = {
+  registerUser,
+};
+
+// Connect the Register component to the Redux store
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withRouter(Register));
