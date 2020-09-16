@@ -27,10 +27,14 @@ export const authSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: {
+    [registerUser.pending]: (state, action) => {
+      state.status = "loading";
+    },
     [registerUser.fulfilled]: (state, action) => {
-      state.user = action.payload;
+      state.status = "succeeded";
     },
     [registerUser.rejected]: (state, action) => {
+      state.status = "failed";
       state.errors = action.payload;
     },
   },

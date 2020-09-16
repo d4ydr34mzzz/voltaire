@@ -42,7 +42,11 @@ class Register extends Component {
       confirmPassword: this.state.confirmPassword,
     };
 
-    this.props.registerUser(newUser);
+    this.props.registerUser(newUser).then(() => {
+      if (this.props.auth.status === "succeeded") {
+        this.props.history.push("login");
+      }
+    });
   }
 
   render() {
