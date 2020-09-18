@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import classNames from "classnames";
 import { connect } from "react-redux";
-import { registerUser } from "./authSlice.js";
+import { registerUser, clearErrors } from "./authSlice.js";
 import { withRouter } from "react-router-dom";
 
 // TODO: Convert the class component into a function component to use hooks (ex. useDispatch() and useSelector() from react-redux)?
@@ -19,6 +19,10 @@ class Register extends Component {
     };
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  componentWillUnmount() {
+    this.props.clearErrors();
   }
 
   handleInputChange(event) {
@@ -197,6 +201,7 @@ const mapStateToProps = (state) => ({
  */
 const mapDispatchToProps = {
   registerUser,
+  clearErrors,
 };
 
 // Connect the Register component to the Redux store
