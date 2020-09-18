@@ -47,7 +47,7 @@ class Register extends Component {
     };
 
     this.props.registerUser(newUser).then(() => {
-      if (this.props.auth.status === "succeeded") {
+      if (this.props.auth.register_status === "succeeded") {
         this.props.history.push("login");
       }
     });

@@ -4,7 +4,8 @@ import axios from "axios";
 const initialState = {
   isAuthenticated: false,
   user: {},
-  status: "idle",
+  register_status: "idle",
+  login_status: "idle",
   errors: {},
 };
 
@@ -22,6 +23,18 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+export const loginUser = createAsyncThunk(
+  "auth/loginUser",
+  async (userData, { rejectWithValue }) => {
+    try {
+      let response = await axios.post("/api/users/login", userData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -32,13 +45,24 @@ export const authSlice = createSlice({
   },
   extraReducers: {
     [registerUser.pending]: (state, action) => {
-      state.status = "loading";
+      state.register_status = "loading";
     },
     [registerUser.fulfilled]: (state, action) => {
-      state.status = "succeeded";
+      state.register_status = "succeeded";
     },
     [registerUser.rejected]: (state, action) => {
-      state.status = "failed";
+      state.register_status = "failed";
+      state.errors = action.payload;
+    },
+    [loginUser.pending]: (state, action) => {
+      state.login_status = "loading";
+    },
+    [loginUser.fulfilled]: (state, action) => {
+      state.login_status = "succeeded";
+      state.user = action.payload;
+    },
+    [loginUser.rejected]: (state, action) => {
+      state.login_status = "failed";
       state.errors = action.payload;
     },
   },

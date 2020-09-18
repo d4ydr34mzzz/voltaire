@@ -1,5 +1,9 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import classNames from "classnames";
+import { connect } from "react-redux";
+import { loginUser, clearErrors } from "./authSlice.js";
+import { withRouter } from "react-router-dom";
 
 class Login extends Component {
   constructor(props) {
@@ -13,6 +17,10 @@ class Login extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+  componentWillUnmount() {
+    this.props.clearErrors();
+  }
+
   handleInputChange(event) {
     const target = event.target;
     const name = target.name;
@@ -24,11 +32,22 @@ class Login extends Component {
   }
 
   handleSubmit(event) {
-    console.log(this.state);
     event.preventDefault();
+
+    const userData = {
+      email: this.state.email,
+      password: this.state.password,
+    };
+
+    this.props.loginUser(userData).then(() => {
+      if (this.props.auth.login_status === "succeeded") {
+        this.props.history.push("/dashboard");
+      }
+    });
   }
 
   render() {
+    const errors = this.props.auth ? this.props.auth.errors : {};
     return (
       <div className="row">
         <div className="col-md-6 mx-auto">
@@ -41,22 +60,34 @@ class Login extends Component {
                   <input
                     name="email"
                     type="email"
-                    className="form-control"
+                    className={classNames("form-control", {
+                      "is-invalid": errors.email,
+                    })}
                     id="email"
                     value={this.state.email}
                     onChange={this.handleInputChange}
                   />
+                  {errors.email && (
+                    <div className="invalid-feedback">{errors.email.msg}</div>
+                  )}
                 </div>
                 <div className="form-group">
                   <label htmlFor="password">Password</label>
                   <input
                     name="password"
                     type="password"
-                    className="form-control"
+                    className={classNames("form-control", {
+                      "is-invalid": errors.password,
+                    })}
                     id="password"
                     value={this.state.password}
                     onChange={this.handleInputChange}
                   />
+                  {errors.password && (
+                    <div className="invalid-feedback">
+                      {errors.password.msg}
+                    </div>
+                  )}
                 </div>
                 <button
                   type="submit"
@@ -98,4 +129,19 @@ class Login extends Component {
   }
 }
 
-export default Login;
+// Select data from store that the Login component needs; each field with become a prop in the Login component
+const mapStateToProps = (state) => ({
+  auth: state.auth,
+});
+
+/*
+ * Create functions that dispatch when called; object shorthand form automatically calls bindActionCreators
+ * internally; these functions are passed as props to the Login component
+ */
+const mapDispatchToProps = {
+  loginUser,
+  clearErrors,
+};
+
+// Connect the Login component to the Redux store
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Login));
