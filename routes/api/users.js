@@ -45,6 +45,9 @@ router.post(
       .isLength({ min: 8 })
       .withMessage("Password must be at least 8 characters long"),
     body("confirmPassword")
+      .not()
+      .isEmpty()
+      .withMessage("Confirm password is required")
       .custom((value, { req }) => {
         return value === req.body.password;
       })
@@ -125,7 +128,39 @@ router.post(
     }
     next();
   },
-  passport.authenticate("local", { successRedirect: "/" })
+  // Reference: http://www.passportjs.org/docs/authenticate/#custom-callback
+  function (req, res, next) {
+    passport.authenticate("local", function (err, user, info) {
+      if (err) {
+        return next(err);
+      }
+      if (!user) {
+        res.status(401);
+        return next(info);
+      }
+      req.logIn(user, function (err) {
+        if (err) {
+          return next(err);
+        }
+        next();
+      });
+    })(req, res, next);
+  },
+  function (req, res) {
+    // *** Important reference: https://stackoverflow.com/questions/59690923/handlebars-access-has-been-denied-to-resolve-the-property-from-because-it-is *** //
+    const newUserObject = {
+      _id: req.user._id,
+      email: req.user.email,
+      firstName: req.user.firstName,
+      lastName: req.user.lastName,
+      internalAuth: { _id: req.user.internalAuth._id },
+      picture: req.user.picture,
+      fullName: req.user.firstName + " " + req.user.lastName,
+      joined: req.user.joined,
+    };
+
+    res.json(newUserObject);
+  }
 );
 
 /**

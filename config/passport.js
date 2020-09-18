@@ -20,7 +20,7 @@ module.exports = function (passport) {
           }
 
           if (!user) {
-            return done(null, false, { msg: "Incorrect email" });
+            return done(null, false, { email: { msg: "Incorrect email" } });
           } else {
             if (typeof user.internalAuth === "undefined") {
               return done(null, false, {
@@ -33,7 +33,9 @@ module.exports = function (passport) {
                   if (res) {
                     return done(null, user);
                   } else {
-                    return done(null, false, { msg: "Incorrect password" });
+                    return done(null, false, {
+                      password: { msg: "Incorrect password" },
+                    });
                   }
                 })
                 .catch((err) => {

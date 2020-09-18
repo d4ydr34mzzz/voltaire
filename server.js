@@ -15,7 +15,7 @@ require("dotenv").config();
 // Get the appropriate MongoDB URI (development, testing, or production)
 const { mongoURI } = require("./config/database.js");
 
-/**
+/*
  * From https://mongoosejs.com/docs/deprecations.html#findandmodify: "Make Mongoose use `findOneAndUpdate()`. Note
  * that this option is `true` by default, you need to set it to false."
  */
@@ -69,6 +69,18 @@ app.use("/api/profile", apiProfileRouter);
 
 // Mount the router module for users on the /api/users path in the main app
 app.use("/api/users", apiUsersRouter);
+
+/*
+ * Error-handling middleware function for Passport authentication errors
+ * Reference: https://expressjs.com/en/guide/error-handling.html
+ */
+app.use(function passportErrorHandler(err, req, res, next) {
+  if (!req.user && res.statusCode == 401) {
+    res.json(err);
+  } else {
+    next(err);
+  }
+});
 
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);
