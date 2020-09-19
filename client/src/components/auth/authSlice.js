@@ -6,6 +6,7 @@ const initialState = {
   user: {},
   register_status: "idle",
   login_status: "idle",
+  logout_status: "idle",
   errors: {},
 };
 
@@ -35,6 +36,20 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+export const logoutUser = createAsyncThunk(
+  "auth/logoutUser",
+  async (arg, { rejectWithValue }) => {
+    try {
+      let response = await axios.get("/api/auth/logout", {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -59,10 +74,23 @@ export const authSlice = createSlice({
     },
     [loginUser.fulfilled]: (state, action) => {
       state.login_status = "succeeded";
+      state.isAuthenticated = true;
       state.user = action.payload;
     },
     [loginUser.rejected]: (state, action) => {
       state.login_status = "failed";
+      state.errors = action.payload;
+    },
+    [logoutUser.pending]: (state, action) => {
+      state.logout_status = "loading";
+    },
+    [logoutUser.fulfilled]: (state, action) => {
+      state.logout_status = "succeeded";
+      state.isAuthenticated = false;
+      state.user = {};
+    },
+    [logoutUser.rejected]: (state, action) => {
+      state.logout_status = "failed";
       state.errors = action.payload;
     },
   },

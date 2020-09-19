@@ -33,4 +33,16 @@ router.get(
   passport.authenticate("google", { successRedirect: "/" })
 );
 
+/**
+ * @route GET /api/auth/logout
+ * @access public
+ * @description Get request route handler for the /api/users/logout path (terminate a login session)
+ */
+router.get("/logout", (req, res) => {
+  req.logout();
+  // Reference: https://github.com/jdesboeufs/connect-mongo/issues/140#issuecomment-68108810 (remove the session entry from the database)
+  req.session = null;
+  res.status(200).send();
+});
+
 module.exports = router;

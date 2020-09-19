@@ -40,13 +40,17 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 
-// Create a session middleware
+/*
+ * Create a session middleware
+ * Reference: https://github.com/jdesboeufs/connect-mongo/issues/140#issuecomment-68108810 (remove the session entry from the database)
+ */
 app.use(
   session({
     secret: process.env.SECRET,
     resave: false,
     saveUninitialized: false,
     store: new MongoStore({ mongooseConnection: mongoose.connection }),
+    unset: "destroy",
     cookie: { maxAge: 24 * 60 * 60 * 1000 },
   })
 );
