@@ -4,6 +4,7 @@ import classNames from "classnames";
 import { connect } from "react-redux";
 import { loginUser, clearErrors } from "./authSlice.js";
 import { withRouter } from "react-router-dom";
+import InputFormGroup from "../forms/InputFormGroup.js";
 
 class Login extends Component {
   constructor(props) {
@@ -61,40 +62,24 @@ class Login extends Component {
             <div className="card-body">
               <h1 className="card-title pb-4">Sign in</h1>
               <form onSubmit={this.handleSubmit}>
-                <div className="form-group">
-                  <label htmlFor="email">Email address</label>
-                  <input
-                    name="email"
-                    type="email"
-                    className={classNames("form-control", {
-                      "is-invalid": errors.email,
-                    })}
-                    id="email"
-                    value={this.state.email}
-                    onChange={this.handleInputChange}
-                  />
-                  {errors.email && (
-                    <div className="invalid-feedback">{errors.email.msg}</div>
-                  )}
-                </div>
-                <div className="form-group">
-                  <label htmlFor="password">Password</label>
-                  <input
-                    name="password"
-                    type="password"
-                    className={classNames("form-control", {
-                      "is-invalid": errors.password,
-                    })}
-                    id="password"
-                    value={this.state.password}
-                    onChange={this.handleInputChange}
-                  />
-                  {errors.password && (
-                    <div className="invalid-feedback">
-                      {errors.password.msg}
-                    </div>
-                  )}
-                </div>
+                <InputFormGroup
+                  htmlFor="email"
+                  label="Email address"
+                  name="email"
+                  type="email"
+                  error={errors.email}
+                  value={this.state.email}
+                  onChange={this.handleInputChange}
+                />
+                <InputFormGroup
+                  htmlFor="password"
+                  label="Password"
+                  name="password"
+                  type="password"
+                  error={errors.password}
+                  value={this.state.password}
+                  onChange={this.handleInputChange}
+                />
                 <button
                   type="submit"
                   className="btn btn-primary float-right mt-3 mb-3"
