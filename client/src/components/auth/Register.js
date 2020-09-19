@@ -21,6 +21,12 @@ class Register extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+  componentDidMount() {
+    if (this.props.auth.isAuthenticated) {
+      this.props.history.push("/dashboard");
+    }
+  }
+
   componentWillUnmount() {
     this.props.clearErrors();
   }
@@ -48,7 +54,7 @@ class Register extends Component {
 
     this.props.registerUser(newUser).then(() => {
       if (this.props.auth.register_status === "succeeded") {
-        this.props.history.push("login");
+        this.props.history.push("/login");
       }
     });
   }
