@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import classNames from "classnames";
 import { connect } from "react-redux";
 import { loginUser, clearErrors } from "./authSlice.js";
 import { withRouter } from "react-router-dom";
