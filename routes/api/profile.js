@@ -37,11 +37,9 @@ router.get("/", ensureAuthenticated, (req, res) => {
     .then((profile) => {
       if (!profile) {
         return res.status(404).json({
-          errors: [
-            {
-              msg: "Profile does not exist yet",
-            },
-          ],
+          profile: {
+            msg: "Profile does not exist yet",
+          },
         });
       }
 

@@ -2,9 +2,11 @@ import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 import authReducer from "./components/auth/authSlice.js";
+import profileReducer from "./components/profile/profileSlice.js";
 
 const appReducer = combineReducers({
   auth: authReducer,
+  profile: profileReducer,
 });
 
 // Reference: https://stackoverflow.com/questions/35622588/how-to-reset-the-state-of-a-redux-store/51831112

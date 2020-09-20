@@ -4,6 +4,7 @@ import "./App.css";
 import Navbar from "./components/layout/Navbar.js";
 import Login from "./components/auth/Login.js";
 import Register from "./components/auth/Register.js";
+import Profile from "./components/profile/Profile.js";
 
 class App extends Component {
   render() {
@@ -22,6 +23,9 @@ class App extends Component {
                 </Route>
                 <Route path="/register">
                   <Register />
+                </Route>
+                <Route path="/dashboard">
+                  <Profile />
                 </Route>
               </Switch>
             </div>
