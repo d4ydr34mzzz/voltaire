@@ -5,6 +5,7 @@ import Navbar from "./components/layout/Navbar.js";
 import Login from "./components/auth/Login.js";
 import Register from "./components/auth/Register.js";
 import Profile from "./components/profile/Profile.js";
+import PrivateRoute from "./components/shared/PrivateRoute.js";
 
 class App extends Component {
   render() {
@@ -34,9 +35,7 @@ class App extends Component {
                 </div>
               </div>
             </Route>
-            <Route path="/dashboard">
-              <Profile />
-            </Route>
+            <PrivateRoute path="/dashboard" component={Profile} />
           </Switch>
         </div>
       </Router>
