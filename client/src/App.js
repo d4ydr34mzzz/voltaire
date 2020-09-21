@@ -12,24 +12,32 @@ class App extends Component {
       <Router>
         <div className="App">
           <Navbar />
-          <div className="container-fluid pt-5 pb-5" id="showcase">
-            <div className="container">
-              <Switch>
-                <Route exact path="/">
+          <Switch>
+            <Route exact path="/">
+              <div className="container-fluid pt-5 pb-5" id="showcase">
+                <div className="container">
                   <Login />
-                </Route>
-                <Route path="/login">
+                </div>
+              </div>
+            </Route>
+            <Route path="/login">
+              <div className="container-fluid pt-5 pb-5" id="showcase">
+                <div className="container">
                   <Login />
-                </Route>
-                <Route path="/register">
+                </div>
+              </div>
+            </Route>
+            <Route path="/register">
+              <div className="container-fluid pt-5 pb-5" id="showcase">
+                <div className="container">
                   <Register />
-                </Route>
-                <Route path="/dashboard">
-                  <Profile />
-                </Route>
-              </Switch>
-            </div>
-          </div>
+                </div>
+              </div>
+            </Route>
+            <Route path="/dashboard">
+              <Profile />
+            </Route>
+          </Switch>
         </div>
       </Router>
     );
