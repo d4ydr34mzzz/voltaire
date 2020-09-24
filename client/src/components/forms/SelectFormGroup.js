@@ -1,40 +1,43 @@
 import React from "react";
 import classNames from "classnames";
 
-// TODO: Add static type checking using Flow (https://reactjs.org/docs/static-type-checking.html)
-// TODO: Consider Formik (https://formik.org/docs/overview)
-
-// Reference: https://medium.com/@lcriswell/destructuring-props-in-react-b1c295005ce0 (destructuring props in react)
-function InputFormGroup({
+function SelectFormGroup({
   htmlFor,
   label,
   name,
-  type,
   error,
   id,
   value,
-  placeholder,
+  options,
   onChange,
   info,
 }) {
+  const selectOptions = options.map((option) => {
+    return (
+      <option key={option.label} value={option.value}>
+        {option.label}
+      </option>
+    );
+  });
+
   return (
     <div className="form-group">
       <label htmlFor={htmlFor}>{label}</label>
-      <input
+      <select
         name={name}
-        type={type}
         className={classNames("form-control", {
           "is-invalid": error,
         })}
         id={id}
         value={value}
-        placeholder={placeholder}
         onChange={onChange}
-      />
+      >
+        {selectOptions}
+      </select>
       {info && <small className="form-text text-muted">{info}</small>}
       {error && <div className="invalid-feedback">{error.msg}</div>}
     </div>
   );
 }
 
-export default InputFormGroup;
+export default SelectFormGroup;

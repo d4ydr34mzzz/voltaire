@@ -1,13 +1,10 @@
 import React from "react";
 import classNames from "classnames";
 
-// TODO: Add static type checking using Flow (https://reactjs.org/docs/static-type-checking.html)
-// TODO: Consider Formik (https://formik.org/docs/overview)
-
-// Reference: https://medium.com/@lcriswell/destructuring-props-in-react-b1c295005ce0 (destructuring props in react)
-function InputFormGroup({
+function InputInputGroup({
   htmlFor,
   label,
+  icon,
   name,
   type,
   error,
@@ -18,8 +15,13 @@ function InputFormGroup({
   info,
 }) {
   return (
-    <div className="form-group">
-      <label htmlFor={htmlFor}>{label}</label>
+    <div className="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text input-group-text--fixed-width">
+          <i className={icon} />
+        </span>
+      </div>
+      {label && <label htmlFor={htmlFor}>{label}</label>}
       <input
         name={name}
         type={type}
@@ -37,4 +39,4 @@ function InputFormGroup({
   );
 }
 
-export default InputFormGroup;
+export default InputInputGroup;
