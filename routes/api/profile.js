@@ -178,7 +178,28 @@ router.post(
       })
       .isURL()
       .withMessage("Invalid URL"),
-    body("status").not().isEmpty().withMessage("Status is required"),
+    body("status")
+      .not()
+      .isEmpty()
+      .withMessage("Status is required")
+      .custom((value, {}) => {
+        // Reference: https://stackoverflow.com/questions/24718349/how-do-i-make-array-indexof-case-insensitive#answer-24718680
+        let validOptions = [
+          "Developer",
+          "Junior developer",
+          "Senior developer",
+          "Manager",
+          "Student",
+          "Instructor",
+          "Intern",
+          "Other",
+        ];
+        let providedOption = String(value).toLowerCase();
+        return validOptions.some((option) => {
+          return providedOption === option.toLowerCase();
+        });
+      })
+      .withMessage("Status is required"),
     body("skills").not().isEmpty().withMessage("Skills field is required"),
     body("youtube")
       .if((value, { req }) => {
@@ -217,107 +238,160 @@ router.post(
       return res.status(400).json(errors.mapped());
     }
 
-    Profile.findOne({ user: req.user.id }).then((profile) => {
-      const newProfile = {};
-      if (req.body.company) {
-        newProfile.company = req.body.company;
-      }
-      if (req.body.website) {
-        newProfile.website = req.body.website;
-      }
-      if (req.body.location) {
-        newProfile.location = req.body.location;
-      }
-      if (req.body.status) {
-        newProfile.status = req.body.status;
-      }
-      if (req.body.skills) {
-        newProfile.skills = req.body.skills.split(",");
-      }
-      if (req.body.bio) {
-        newProfile.bio = req.body.bio;
-      }
-      if (req.body.githubUsername) {
-        newProfile.githubUsername = req.body.githubUsername;
-      }
-      newProfile.social = {};
-      if (req.body.youtube) {
-        newProfile.social.youtube = req.body.youtube;
-      }
-      if (req.body.twitter) {
-        newProfile.social.twitter = req.body.twitter;
-      }
-      if (req.body.facebook) {
-        newProfile.social.facebook = req.body.facebook;
-      }
-      if (req.body.linkedin) {
-        newProfile.social.linkedin = req.body.linkedin;
-      }
-      if (req.body.instagram) {
-        newProfile.social.instagram = req.body.instagram;
-      }
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        const newProfile = {};
 
-      if (!profile) {
-        Profile.findOne({ handle: req.body.handle })
-          .then((profile) => {
-            if (profile) {
-              res.status(400).json({
+        if (req.body.company) {
+          newProfile.company = req.body.company;
+        }
+        if (req.body.website) {
+          newProfile.website = req.body.website;
+        }
+        if (req.body.location) {
+          newProfile.location = req.body.location;
+        }
+        if (req.body.status) {
+          newProfile.status = req.body.status;
+        }
+        if (req.body.skills) {
+          newProfile.skills = req.body.skills.split(",");
+        }
+        if (req.body.bio) {
+          newProfile.bio = req.body.bio;
+        }
+        if (req.body.githubUsername) {
+          newProfile.githubUsername = req.body.githubUsername;
+        }
+        newProfile.social = {};
+        if (req.body.youtube) {
+          newProfile.social.youtube = req.body.youtube;
+        }
+        if (req.body.twitter) {
+          newProfile.social.twitter = req.body.twitter;
+        }
+        if (req.body.facebook) {
+          newProfile.social.facebook = req.body.facebook;
+        }
+        if (req.body.linkedin) {
+          newProfile.social.linkedin = req.body.linkedin;
+        }
+        if (req.body.instagram) {
+          newProfile.social.instagram = req.body.instagram;
+        }
+
+        if (!profile) {
+          Profile.findOne({ handle: req.body.handle })
+            .then((profile) => {
+              if (profile) {
+                res.status(400).json({
+                  handle: {
+                    msg: "The handle is taken. Please try another one.",
+                  },
+                });
+              } else {
+                newProfile.user = req.user.id;
+                newProfile.handle = req.body.handle;
+
+                new Profile(newProfile)
+                  .save()
+                  .then((profile) => {
+                    res.json(profile);
+                  })
+                  .catch((err) => {
+                    res.status(500).json({
+                      errors: [
+                        {
+                          msg:
+                            "There was an issue processing the request. Please try again later.",
+                        },
+                      ],
+                    });
+                  });
+              }
+            })
+            .catch((err) => {
+              res.status(500).json({
                 errors: [
                   {
-                    msg: "The handle is taken. Please try another one.",
+                    msg:
+                      "There was an issue processing the request. Please try again later.",
                   },
                 ],
               });
-            } else {
-              newProfile.user = req.user.id;
-              newProfile.handle = req.body.handle;
-
-              new Profile(newProfile)
-                .save()
-                .then((profile) => {
-                  res.json(profile);
-                })
-                .catch((err) => {
-                  res.status(500).json({
-                    errors: [
-                      {
-                        msg:
-                          "There was an issue processing the request. Please try again later.",
-                      },
-                    ],
+            });
+        } else {
+          if (profile.handle !== req.body.handle) {
+            // Existing user wants to change their handle
+            Profile.findOne({ handle: req.body.handle })
+              .then((profile) => {
+                if (profile && profile.user !== req.user.id) {
+                  res.status(400).json({
+                    handle: {
+                      msg: "The handle is taken. Please try another one.",
+                    },
                   });
+                } else {
+                  newProfile.handle = req.body.handle;
+
+                  Profile.findOneAndUpdate({ user: req.user.id }, newProfile, {
+                    new: true,
+                  })
+                    .then((profile) => {
+                      res.json(profile);
+                    })
+                    .catch((err) => {
+                      res.status(500).json({
+                        errors: [
+                          {
+                            msg:
+                              "There was an issue processing the request. Please try again later.",
+                          },
+                        ],
+                      });
+                    });
+                }
+              })
+              .catch((err) => {
+                res.status(500).json({
+                  errors: [
+                    {
+                      msg:
+                        "There was an issue processing the request. Please try again later.",
+                    },
+                  ],
                 });
-            }
-          })
-          .catch((err) => {
-            res.status(500).json({
-              errors: [
-                {
-                  msg:
-                    "There was an issue processing the request. Please try again later.",
-                },
-              ],
-            });
-          });
-      } else {
-        Profile.findOneAndUpdate({ user: req.user.id }, newProfile, {
-          new: true,
-        })
-          .then((profile) => {
-            res.json(profile);
-          })
-          .catch((err) => {
-            res.status(500).json({
-              errors: [
-                {
-                  msg:
-                    "There was an issue processing the request. Please try again later.",
-                },
-              ],
-            });
-          });
-      }
-    });
+              });
+          } else {
+            Profile.findOneAndUpdate({ user: req.user.id }, newProfile, {
+              new: true,
+            })
+              .then((profile) => {
+                res.json(profile);
+              })
+              .catch((err) => {
+                res.status(500).json({
+                  errors: [
+                    {
+                      msg:
+                        "There was an issue processing the request. Please try again later.",
+                    },
+                  ],
+                });
+              });
+          }
+        }
+      })
+      .catch((err) => {
+        res.status(500).json({
+          errors: [
+            {
+              msg:
+                "There was an issue processing the request. Please try again later.",
+            },
+          ],
+        });
+      });
   }
 );
 
