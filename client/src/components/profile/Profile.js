@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { fetchCurrentUsersProfile } from "./profileSlice.js";
 import { withRouter } from "react-router-dom";
@@ -26,12 +27,15 @@ class Profile extends Component {
       } else {
         profileContent = (
           <div className="mt-5 text-center">
-            <h2 className="font-weight-normal profile__setup-profile-msg">
-              You haven't setup your profile yet
+            <h2 className="font-weight-normal profile__initialize-profile-msg">
+              You haven't initialized your profile yet
             </h2>
-            <a href="#" className="btn btn-primary profile__setup-profile-btn">
-              Setup profile
-            </a>
+            <Link
+              to="/initialize-profile"
+              className="btn btn-primary profile__initialize-profile-btn"
+            >
+              Initialize profile
+            </Link>
           </div>
         );
       }
