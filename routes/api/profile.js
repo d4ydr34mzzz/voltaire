@@ -586,6 +586,7 @@ router.post(
             to: req.body.to,
             current: req.body.current,
             description: req.body.description,
+            activities: req.body.activities,
           };
 
           profile.education.unshift(newEducation);

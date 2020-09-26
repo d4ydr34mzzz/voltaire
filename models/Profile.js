@@ -97,6 +97,9 @@ const profileSchema = new Schema({
       description: {
         type: String,
       },
+      activities: {
+        type: String,
+      },
     },
   ],
   social: {
