@@ -6,6 +6,8 @@ const initialState = {
   profiles: null,
   fetch_current_users_profile_status: "idle",
   initialize_user_profile_status: "idle",
+  add_experience_status: "idle",
+  add_experience_errors: {},
   errors: {},
 };
 
@@ -33,12 +35,30 @@ export const initializeUserProfile = createAsyncThunk(
   }
 );
 
+export const addExperience = createAsyncThunk(
+  "profile/addExperience",
+  async (experienceData, { rejectWithValue }) => {
+    try {
+      let response = await axios.post(
+        "/api/profile/experience",
+        experienceData
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const profileSlice = createSlice({
   name: "profile",
   initialState: initialState,
   reducers: {
     clearErrors: (state) => {
       state.errors = {};
+    },
+    clearAddExperienceErrors: (state) => {
+      state.add_experience_errors = {};
     },
   },
   extraReducers: {
@@ -67,9 +87,20 @@ export const profileSlice = createSlice({
       state.initialize_user_profile_status = "failed";
       state.errors = action.payload;
     },
+    [addExperience.pending]: (state, action) => {
+      state.add_experience_status = "loading";
+    },
+    [addExperience.fulfilled]: (state, action) => {
+      state.add_experience_status = "succeeded";
+      state.profile = action.payload;
+    },
+    [addExperience.rejected]: (state, action) => {
+      state.add_experience_status = "failed";
+      state.add_experience_errors = action.payload;
+    },
   },
 });
 
-export const { clearErrors } = profileSlice.actions;
+export const { clearErrors, clearAddExperienceErrors } = profileSlice.actions;
 
 export default profileSlice.reducer;

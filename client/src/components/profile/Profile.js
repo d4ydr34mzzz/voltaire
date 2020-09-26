@@ -4,10 +4,34 @@ import { connect } from "react-redux";
 import { fetchCurrentUsersProfile } from "./profileSlice.js";
 import { withRouter } from "react-router-dom";
 import LoadingIcon from "../shared/LoadingIcon.js";
+import AddExperienceModal from "./AddExperienceModal.js";
 
 class Profile extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      modal: "",
+    };
+
+    this.handleAddExperienceClick = this.handleAddExperienceClick.bind(this);
+    this.handleModalAlteration = this.handleModalAlteration.bind(this);
+  }
+
   componentDidMount() {
     this.props.fetchCurrentUsersProfile();
+  }
+
+  handleAddExperienceClick(event) {
+    event.preventDefault();
+    this.setState({
+      modal: "experience",
+    });
+  }
+
+  handleModalAlteration(modal) {
+    this.setState({
+      modal: modal,
+    });
   }
 
   render() {
@@ -23,7 +47,26 @@ class Profile extends Component {
       profileContent = <LoadingIcon />;
     } else {
       if (Object.keys(profile).length > 0) {
-        profileContent = <h1>User's profile</h1>;
+        profileContent = (
+          <div>
+            <div className="profile__section mb-4">
+              <a
+                href="#"
+                className="section__add-entry-icon"
+                onClick={this.handleAddExperienceClick}
+              >
+                <i className="fas fa-plus"></i>
+              </a>
+              <h1 className="section__heading">Experience</h1>
+            </div>
+            <div className="profile__section mb-4">
+              <h1 className="section__heading">Education</h1>
+            </div>
+            <div className="profile__section mb-4">
+              <h1 className="section__heading">Skills</h1>
+            </div>
+          </div>
+        );
       } else {
         profileContent = (
           <div className="mt-5 text-center">
@@ -42,18 +85,31 @@ class Profile extends Component {
     }
 
     return (
-      <div className="profile">
-        <div className="container-fluid profile__header"></div>
-        <div className="container-fluid">
-          <div className="container">
-            <img
-              src={user.picture}
-              alt=""
-              className="rounded-circle profile__avatar"
-            ></img>
-            <h1 className="profile__username ml-3">{user.fullName}</h1>
+      <div>
+        {this.state.modal === "education" ? null : null}
+        {this.state.modal === "experience" ? (
+          <AddExperienceModal onModalAlteration={this.handleModalAlteration} />
+        ) : null}
+        <div className="profile">
+          <div className="container-fluid profile__header"></div>
+          <div className="container-fluid profile__body">
+            <div className="container">
+              <div className="col-sm-10 offset-sm-1">
+                <div className="profile__section profile__section--top">
+                  <div href="#" className="profile__edit-icon">
+                    <i className="fas fa-pen"></i>
+                  </div>
+                  <img
+                    src={user.picture}
+                    alt=""
+                    className="rounded-circle profile__avatar"
+                  ></img>
+                  <h1 className="profile__username ml-3">{user.fullName}</h1>
+                </div>
+                <div>{profileContent}</div>
+              </div>
+            </div>
           </div>
-          <div className="container pt-5">{profileContent}</div>
         </div>
       </div>
     );
