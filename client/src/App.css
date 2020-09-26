@@ -141,3 +141,9 @@
   color: var(--main-grey-color);
   text-decoration: none;
 }
+
+.required-asterisk {
+  color: var(--main-blue-color);
+  font-size: 18px;
+  font-weight: 600;
+}

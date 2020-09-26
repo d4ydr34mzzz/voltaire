@@ -99,7 +99,7 @@ class AddExperienceModal extends Component {
             </a>
           </div>
           <div className="card-body">
-            <form onSubmit={this.handleSubmit}>
+            <form onSubmit={this.handleSubmit} noValidate>
               <InputFormGroup
                 htmlFor="title"
                 label="Title"
@@ -109,6 +109,7 @@ class AddExperienceModal extends Component {
                 id="title"
                 value={this.state.title}
                 onChange={this.handleInputChange}
+                required={true}
               />
 
               <InputFormGroup
@@ -120,6 +121,7 @@ class AddExperienceModal extends Component {
                 id="company"
                 value={this.state.company}
                 onChange={this.handleInputChange}
+                required={true}
               />
 
               <InputFormGroup
@@ -142,6 +144,7 @@ class AddExperienceModal extends Component {
                 id="from"
                 value={this.state.from}
                 onChange={this.handleInputChange}
+                required={true}
               />
 
               <InputFormGroup
@@ -154,6 +157,7 @@ class AddExperienceModal extends Component {
                 value={this.state.to}
                 onChange={this.handleInputChange}
                 disabled={this.state.toDisabled}
+                required={true}
               />
 
               <div className="form-group form-check">

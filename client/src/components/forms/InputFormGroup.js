@@ -17,10 +17,14 @@ function InputFormGroup({
   onChange,
   info,
   disabled,
+  required,
 }) {
   return (
     <div className="form-group">
-      <label htmlFor={htmlFor}>{label}</label>
+      <label htmlFor={htmlFor}>
+        {label}
+        {required ? <span className="required-asterisk"> *</span> : null}
+      </label>
       <input
         name={name}
         type={type}
@@ -32,6 +36,7 @@ function InputFormGroup({
         placeholder={placeholder}
         onChange={onChange}
         disabled={disabled}
+        required={required}
       />
       {info && <small className="form-text text-muted">{info}</small>}
       {error && <div className="invalid-feedback">{error.msg}</div>}

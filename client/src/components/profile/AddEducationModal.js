@@ -101,7 +101,7 @@ class AddEducationModal extends Component {
             </a>
           </div>
           <div className="card-body">
-            <form onSubmit={this.handleSubmit}>
+            <form onSubmit={this.handleSubmit} noValidate>
               <InputFormGroup
                 htmlFor="school"
                 label="School"
@@ -111,6 +111,7 @@ class AddEducationModal extends Component {
                 id="school"
                 value={this.state.school}
                 onChange={this.handleInputChange}
+                required={true}
               />
 
               <InputFormGroup
@@ -122,6 +123,7 @@ class AddEducationModal extends Component {
                 id="degree"
                 value={this.state.degree}
                 onChange={this.handleInputChange}
+                required={true}
               />
 
               <InputFormGroup
@@ -133,6 +135,7 @@ class AddEducationModal extends Component {
                 id="fieldOfStudy"
                 value={this.state.fieldOfStudy}
                 onChange={this.handleInputChange}
+                required={true}
               />
 
               <InputFormGroup
@@ -144,6 +147,7 @@ class AddEducationModal extends Component {
                 id="from"
                 value={this.state.from}
                 onChange={this.handleInputChange}
+                required={true}
               />
 
               <InputFormGroup
@@ -156,6 +160,7 @@ class AddEducationModal extends Component {
                 value={this.state.to}
                 onChange={this.handleInputChange}
                 disabled={this.state.toDisabled}
+                required={true}
               />
 
               <div className="form-group form-check">
