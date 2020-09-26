@@ -208,19 +208,19 @@ class AddExperienceModal extends Component {
   }
 }
 
-// Select data from store that the Profile component needs; each field with become a prop in the Profile component
+// Select data from store that the AddExperienceModal component needs; each field with become a prop in the AddExperienceModal component
 const mapStateToProps = (state) => ({
   profile: state.profile,
 });
 
 /*
  * Create functions that dispatch when called; object shorthand form automatically calls bindActionCreators
- * internally; these functions are passed as props to the Profile component
+ * internally; these functions are passed as props to the AddExperienceModal component
  */
 const mapDispatchToProps = {
   addExperience,
   clearAddExperienceErrors,
 };
 
-// Connect the Profile component to the Redux store
+// Connect the AddExperienceModal component to the Redux store
 export default connect(mapStateToProps, mapDispatchToProps)(AddExperienceModal);

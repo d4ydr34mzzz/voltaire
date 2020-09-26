@@ -251,13 +251,13 @@ class InitializeProfile extends Component {
                     <div className="float-right mt-4">
                       <button
                         type="button"
-                        class="btn btn-secondary mr-3"
+                        class="btn btn-secondary mr-4"
                         onClick={this.cancelProfileInitialization}
                       >
                         Cancel
                       </button>
                       <button type="submit" class="btn btn-primary">
-                        Submit
+                        Save
                       </button>
                     </div>
                   </form>
