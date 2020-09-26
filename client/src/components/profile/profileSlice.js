@@ -8,6 +8,8 @@ const initialState = {
   initialize_user_profile_status: "idle",
   add_experience_status: "idle",
   add_experience_errors: {},
+  add_education_status: "idle",
+  add_education_errors: {},
   errors: {},
 };
 
@@ -50,6 +52,18 @@ export const addExperience = createAsyncThunk(
   }
 );
 
+export const addEducation = createAsyncThunk(
+  "profile/addEducation",
+  async (educationData, { rejectWithValue }) => {
+    try {
+      let response = await axios.post("/api/profile/education", educationData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const profileSlice = createSlice({
   name: "profile",
   initialState: initialState,
@@ -59,6 +73,9 @@ export const profileSlice = createSlice({
     },
     clearAddExperienceErrors: (state) => {
       state.add_experience_errors = {};
+    },
+    clearAddEducationErrors: (state) => {
+      state.add_education_errors = {};
     },
   },
   extraReducers: {
@@ -98,9 +115,24 @@ export const profileSlice = createSlice({
       state.add_experience_status = "failed";
       state.add_experience_errors = action.payload;
     },
+    [addEducation.pending]: (state, action) => {
+      state.add_education_status = "loading";
+    },
+    [addEducation.fulfilled]: (state, action) => {
+      state.add_education_status = "succeeded";
+      state.profile = action.payload;
+    },
+    [addEducation.rejected]: (state, action) => {
+      state.add_education_status = "failed";
+      state.add_education_errors = action.payload;
+    },
   },
 });
 
-export const { clearErrors, clearAddExperienceErrors } = profileSlice.actions;
+export const {
+  clearErrors,
+  clearAddExperienceErrors,
+  clearAddEducationErrors,
+} = profileSlice.actions;
 
 export default profileSlice.reducer;

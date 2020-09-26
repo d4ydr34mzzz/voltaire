@@ -5,6 +5,7 @@ import { fetchCurrentUsersProfile } from "./profileSlice.js";
 import { withRouter } from "react-router-dom";
 import LoadingIcon from "../shared/LoadingIcon.js";
 import AddExperienceModal from "./AddExperienceModal.js";
+import AddEducationModal from "./AddEducationModal.js";
 
 class Profile extends Component {
   constructor(props) {
@@ -14,6 +15,7 @@ class Profile extends Component {
     };
 
     this.handleAddExperienceClick = this.handleAddExperienceClick.bind(this);
+    this.handleAddEducationClick = this.handleAddEducationClick.bind(this);
     this.handleModalAlteration = this.handleModalAlteration.bind(this);
   }
 
@@ -25,6 +27,13 @@ class Profile extends Component {
     event.preventDefault();
     this.setState({
       modal: "experience",
+    });
+  }
+
+  handleAddEducationClick(event) {
+    event.preventDefault();
+    this.setState({
+      modal: "education",
     });
   }
 
@@ -60,6 +69,13 @@ class Profile extends Component {
               <h1 className="section__heading">Experience</h1>
             </div>
             <div className="profile__section mb-4">
+              <a
+                href="#"
+                className="section__add-entry-icon"
+                onClick={this.handleAddEducationClick}
+              >
+                <i className="fas fa-plus"></i>
+              </a>
               <h1 className="section__heading">Education</h1>
             </div>
             <div className="profile__section mb-4">
@@ -86,7 +102,9 @@ class Profile extends Component {
 
     return (
       <div>
-        {this.state.modal === "education" ? null : null}
+        {this.state.modal === "education" ? (
+          <AddEducationModal onModalAlteration={this.handleModalAlteration} />
+        ) : null}
         {this.state.modal === "experience" ? (
           <AddExperienceModal onModalAlteration={this.handleModalAlteration} />
         ) : null}
