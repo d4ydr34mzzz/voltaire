@@ -46,7 +46,7 @@ class AddSectionModal extends Component {
             event.stopPropagation();
           }}
         >
-          <div class="card-header">
+          <div className="card-header">
             Add section
             <a
               href="#"
@@ -57,7 +57,7 @@ class AddSectionModal extends Component {
             </a>
           </div>
 
-          <ul class="list-group list-group-flush">{listItems}</ul>
+          <ul className="list-group list-group-flush">{listItems}</ul>
         </div>
       </div>
     );

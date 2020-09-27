@@ -7,6 +7,7 @@ import LoadingIcon from "../shared/LoadingIcon.js";
 import AddExperienceModal from "./AddExperienceModal.js";
 import AddEducationModal from "./AddEducationModal.js";
 import AddSectionModal from "./AddSectionModal.js";
+import AddAboutModal from "./AddAboutModal.js";
 
 class Profile extends Component {
   constructor(props) {
@@ -17,6 +18,7 @@ class Profile extends Component {
 
     this.handleAddExperienceClick = this.handleAddExperienceClick.bind(this);
     this.handleAddEducationClick = this.handleAddEducationClick.bind(this);
+    this.handleAddAboutClick = this.handleAddAboutClick.bind(this);
     this.handleAddSectionClick = this.handleAddSectionClick.bind(this);
     this.handleModalAlteration = this.handleModalAlteration.bind(this);
   }
@@ -36,6 +38,13 @@ class Profile extends Component {
     event.preventDefault();
     this.setState({
       modal: "education",
+    });
+  }
+
+  handleAddAboutClick(event) {
+    event.preventDefault();
+    this.setState({
+      modal: "about",
     });
   }
 
@@ -67,6 +76,16 @@ class Profile extends Component {
       if (Object.keys(profile).length > 0) {
         profileContent = (
           <div>
+            <div className="profile__section mb-4">
+              <a
+                href="#"
+                className="profile__edit-icon"
+                onClick={this.handleAddAboutClick}
+              >
+                <i className="fas fa-pen"></i>
+              </a>
+              <h1 className="section__heading">About me</h1>
+            </div>
             <div className="profile__section mb-4">
               <a
                 href="#"
@@ -116,6 +135,9 @@ class Profile extends Component {
         ) : null}
         {this.state.modal === "experience" ? (
           <AddExperienceModal onModalAlteration={this.handleModalAlteration} />
+        ) : null}
+        {this.state.modal === "about" ? (
+          <AddAboutModal onModalAlteration={this.handleModalAlteration} />
         ) : null}
         {this.state.modal === "addSection" ? (
           <AddSectionModal onModalAlteration={this.handleModalAlteration} />

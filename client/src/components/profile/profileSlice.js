@@ -10,6 +10,8 @@ const initialState = {
   add_experience_errors: {},
   add_education_status: "idle",
   add_education_errors: {},
+  add_about_status: "idle",
+  add_about_errors: {},
   errors: {},
 };
 
@@ -64,6 +66,18 @@ export const addEducation = createAsyncThunk(
   }
 );
 
+export const addAbout = createAsyncThunk(
+  "profile/addAbout",
+  async (aboutData, { rejectWithValue }) => {
+    try {
+      let response = await axios.put("/api/profile/about", aboutData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const profileSlice = createSlice({
   name: "profile",
   initialState: initialState,
@@ -76,6 +90,9 @@ export const profileSlice = createSlice({
     },
     clearAddEducationErrors: (state) => {
       state.add_education_errors = {};
+    },
+    clearAddAboutErrors: (state) => {
+      state.add_about_errors = {};
     },
   },
   extraReducers: {
@@ -126,6 +143,17 @@ export const profileSlice = createSlice({
       state.add_education_status = "failed";
       state.add_education_errors = action.payload;
     },
+    [addAbout.pending]: (state, action) => {
+      state.add_about_status = "loading";
+    },
+    [addAbout.fulfilled]: (state, action) => {
+      state.add_about_status = "succeeded";
+      state.profile = action.payload;
+    },
+    [addAbout.rejected]: (state, action) => {
+      state.add_about_status = "failed";
+      state.add_about_errors = action.payload;
+    },
   },
 });
 
@@ -133,6 +161,7 @@ export const {
   clearErrors,
   clearAddExperienceErrors,
   clearAddEducationErrors,
+  clearAddAboutErrors,
 } = profileSlice.actions;
 
 export default profileSlice.reducer;

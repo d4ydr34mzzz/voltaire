@@ -16,7 +16,7 @@ function TextareaFormGroup({
 }) {
   return (
     <div className="form-group">
-      <label htmlFor={htmlFor}>{label}</label>
+      {label && <label htmlFor={htmlFor}>{label}</label>}
       <textarea
         name={name}
         className={classNames("form-control", {
