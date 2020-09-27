@@ -92,6 +92,7 @@
   position: relative;
   top: -100px;
   margin-bottom: -35px;
+  clear: both;
 }
 
 .profile__edit-icon {
@@ -146,4 +147,15 @@
   color: var(--main-blue-color);
   font-size: 18px;
   font-weight: 600;
+}
+
+.profile__add-section-btn {
+  position: relative;
+  float: right;
+  top: -120px;
+}
+
+.remove-anchor-style {
+  color: unset !important;
+  text-decoration: none !important;
 }

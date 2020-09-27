@@ -6,6 +6,7 @@ import { withRouter } from "react-router-dom";
 import LoadingIcon from "../shared/LoadingIcon.js";
 import AddExperienceModal from "./AddExperienceModal.js";
 import AddEducationModal from "./AddEducationModal.js";
+import AddSectionModal from "./AddSectionModal.js";
 
 class Profile extends Component {
   constructor(props) {
@@ -16,6 +17,7 @@ class Profile extends Component {
 
     this.handleAddExperienceClick = this.handleAddExperienceClick.bind(this);
     this.handleAddEducationClick = this.handleAddEducationClick.bind(this);
+    this.handleAddSectionClick = this.handleAddSectionClick.bind(this);
     this.handleModalAlteration = this.handleModalAlteration.bind(this);
   }
 
@@ -34,6 +36,13 @@ class Profile extends Component {
     event.preventDefault();
     this.setState({
       modal: "education",
+    });
+  }
+
+  handleAddSectionClick(event) {
+    event.preventDefault();
+    this.setState({
+      modal: "addSection",
     });
   }
 
@@ -108,11 +117,23 @@ class Profile extends Component {
         {this.state.modal === "experience" ? (
           <AddExperienceModal onModalAlteration={this.handleModalAlteration} />
         ) : null}
+        {this.state.modal === "addSection" ? (
+          <AddSectionModal onModalAlteration={this.handleModalAlteration} />
+        ) : null}
         <div className="profile">
           <div className="container-fluid profile__header"></div>
           <div className="container-fluid profile__body">
             <div className="container">
               <div className="col-sm-10 offset-sm-1">
+                <div className="profile__add-section-btn">
+                  <a
+                    href="#"
+                    className="btn btn-primary"
+                    onClick={this.handleAddSectionClick}
+                  >
+                    Add section
+                  </a>
+                </div>
                 <div className="profile__section profile__section--top">
                   <div href="#" className="profile__edit-icon">
                     <i className="fas fa-pen"></i>
