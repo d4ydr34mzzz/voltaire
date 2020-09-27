@@ -620,6 +620,61 @@ router.post(
   }
 );
 
+/**
+ * @route PUT /api/profile/about
+ * @access private
+ * @description Put request route handler for the /api/profile/about path (add or update the about me section in the current user's profile)
+ */
+router.put("/about", ensureAuthenticated, (req, res) => {
+  Profile.findOne({ user: req.user.id })
+    .then((profile) => {
+      if (!profile) {
+        res.status(404).json({
+          errors: [
+            {
+              msg: "Profile does not exist",
+            },
+          ],
+        });
+      } else {
+        const updatedProfile = {
+          bio: "",
+        };
+
+        if (req.body.bio) {
+          updatedProfile.bio = req.body.bio;
+        }
+
+        Profile.findOneAndUpdate({ user: req.user.id }, updatedProfile, {
+          new: true,
+        })
+          .then((profile) => {
+            res.json(profile);
+          })
+          .catch((err) => {
+            res.status(500).json({
+              errors: [
+                {
+                  msg:
+                    "There was an issue processing the request. Please try again later.",
+                },
+              ],
+            });
+          });
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({
+        errors: [
+          {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
+        ],
+      });
+    });
+});
+
 // TODO: Add routes to edit education and experience entries?
 
 /**
