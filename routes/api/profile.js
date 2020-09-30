@@ -675,6 +675,80 @@ router.put("/about", ensureAuthenticated, (req, res) => {
     });
 });
 
+/**
+ * @route PUT /api/profile/skills
+ * @access private
+ * @description Put request route handler for the /api/profile/skills path (add or update the skills section in the current user's profile)
+ */
+router.put(
+  "/skills",
+  ensureAuthenticated,
+  [
+    body("skills")
+      .isArray()
+      .withMessage("Skills must be an array")
+      .bail()
+      .customSanitizer((value, { req }) => {
+        let skills = value.map((skill) => String(skill).trim());
+        return skills;
+      }),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json(errors.mapped());
+    }
+
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        if (!profile) {
+          res.status(404).json({
+            errors: [
+              {
+                msg: "Profile does not exist",
+              },
+            ],
+          });
+        } else {
+          const updatedProfile = {
+            skills: [],
+          };
+
+          if (req.body.skills) {
+            updatedProfile.skills = req.body.skills;
+          }
+
+          Profile.findOneAndUpdate({ user: req.user.id }, updatedProfile, {
+            new: true,
+          })
+            .then((profile) => {
+              res.json(profile);
+            })
+            .catch((err) => {
+              res.status(500).json({
+                errors: [
+                  {
+                    msg:
+                      "There was an issue processing the request. Please try again later.",
+                  },
+                ],
+              });
+            });
+        }
+      })
+      .catch((err) => {
+        res.status(500).json({
+          errors: [
+            {
+              msg:
+                "There was an issue processing the request. Please try again later.",
+            },
+          ],
+        });
+      });
+  }
+);
+
 // TODO: Add routes to edit education and experience entries?
 
 /**
