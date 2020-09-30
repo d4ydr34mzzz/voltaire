@@ -21,10 +21,12 @@ function InputFormGroup({
 }) {
   return (
     <div className="form-group">
-      <label htmlFor={htmlFor}>
-        {label}
-        {required ? <span className="required-asterisk"> *</span> : null}
-      </label>
+      {label && (
+        <label htmlFor={htmlFor}>
+          {label}
+          {required ? <span className="required-asterisk"> *</span> : null}
+        </label>
+      )}
       <input
         name={name}
         type={type}

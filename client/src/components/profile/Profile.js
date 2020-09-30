@@ -8,6 +8,7 @@ import AddExperienceModal from "./AddExperienceModal.js";
 import AddEducationModal from "./AddEducationModal.js";
 import AddSectionModal from "./AddSectionModal.js";
 import AddAboutModal from "./AddAboutModal.js";
+import AddSkillModal from "./AddSkillModal";
 
 class Profile extends Component {
   constructor(props) {
@@ -139,6 +140,9 @@ class Profile extends Component {
         {this.state.modal === "about" ? (
           <AddAboutModal onModalAlteration={this.handleModalAlteration} />
         ) : null}
+        {this.state.modal === "skills" ? (
+          <AddSkillModal onModalAlteration={this.handleModalAlteration} />
+        ) : null}
         {this.state.modal === "addSection" ? (
           <AddSectionModal onModalAlteration={this.handleModalAlteration} />
         ) : null}
@@ -157,9 +161,9 @@ class Profile extends Component {
                   </a>
                 </div>
                 <div className="profile__section profile__section--top">
-                  <div href="#" className="profile__edit-icon">
+                  <a href="#" className="profile__edit-icon">
                     <i className="fas fa-pen"></i>
-                  </div>
+                  </a>
                   <img
                     src={user.picture}
                     alt=""

@@ -13,14 +13,19 @@ function InputInputGroup({
   placeholder,
   onChange,
   info,
+  button,
+  onButtonClick,
+  onKeyDown,
 }) {
   return (
     <div className="input-group mb-3">
-      <div class="input-group-prepend">
-        <span class="input-group-text input-group-text--fixed-width">
-          <i className={icon} />
-        </span>
-      </div>
+      {icon && (
+        <div className="input-group-prepend">
+          <span className="input-group-text input-group-text--fixed-width">
+            <i className={icon} />
+          </span>
+        </div>
+      )}
       {label && <label htmlFor={htmlFor}>{label}</label>}
       <input
         name={name}
@@ -32,7 +37,19 @@ function InputInputGroup({
         value={value}
         placeholder={placeholder}
         onChange={onChange}
+        onKeyDown={onKeyDown}
       />
+      {button && (
+        <div className="input-group-append">
+          <button
+            className="btn btn-outline-secondary"
+            type="button"
+            onClick={onButtonClick}
+          >
+            {button}
+          </button>
+        </div>
+      )}
       {info && <small className="form-text text-muted">{info}</small>}
       {error && <div className="invalid-feedback">{error.msg}</div>}
     </div>
