@@ -752,6 +752,133 @@ router.put(
 // TODO: Add routes to edit education and experience entries?
 
 /**
+ * @route PUT /api/profile/experience/:experience_id
+ * @access private
+ * @description PUT request route handler for the /api/profile/experience/:experience_id path (update an experience entry from the current user's profile)
+ */
+router.put(
+  "/experience/:experience_id",
+  [
+    body("title").not().isEmpty().withMessage("Title is required"),
+    body("company").not().isEmpty().withMessage("Company is required"),
+    body("from")
+      .not()
+      .isEmpty()
+      .withMessage("A from date is required")
+      .bail()
+      .isISO8601()
+      .withMessage("Invalid date format")
+      .bail()
+      .toDate(),
+    body("to")
+      .if((value, { req }) => {
+        return req.body.to;
+      })
+      .isISO8601()
+      .withMessage("Invalid date format")
+      .bail()
+      .toDate(),
+    body("current")
+      .isBoolean()
+      .bail()
+      .toBoolean()
+      .if((value, { req }) => {
+        return !req.body.current;
+      })
+      .custom((value, { req }) => {
+        return req.body.to;
+      })
+      .withMessage(
+        "A to date is required if you aren't currently working here"
+      ),
+    body("current")
+      .isBoolean()
+      .bail()
+      .toBoolean()
+      .custom((value, { req }) => {
+        return !(req.body.current && req.body.to);
+      })
+      .withMessage(
+        "A to date and currently attending cannot be set simultaneously"
+      ),
+  ],
+  ensureAuthenticated,
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json(errors.mapped());
+    }
+
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        if (!profile) {
+          res.status(404).json({
+            errors: [
+              {
+                msg: "Profile does not exist",
+              },
+            ],
+          });
+        } else {
+          const editedExperience = {
+            title: req.body.title,
+            company: req.body.company,
+            location: req.body.location,
+            from: req.body.from,
+            to: req.body.to,
+            current: req.body.current,
+            description: req.body.description,
+          };
+
+          const experienceIndex = profile.experience
+            .map((experience) => {
+              return experience.id;
+            })
+            .indexOf(req.params.experience_id);
+
+          if (experienceIndex >= 0) {
+            profile.experience[experienceIndex] = Object.assign(
+              profile.experience[experienceIndex],
+              editedExperience
+            );
+            profile
+              .save()
+              .then((profile) => {
+                res.json(profile);
+              })
+              .catch((err) => {
+                res.status(500).json({
+                  errors: [
+                    {
+                      msg:
+                        "There was an issue processing the request. Please try again later.",
+                    },
+                  ],
+                });
+              });
+          } else {
+            res.status(404).json({
+              experience: {
+                msg: "Experience does not exist",
+              },
+            });
+          }
+        }
+      })
+      .catch((err) => {
+        res.status(500).json({
+          errors: [
+            {
+              msg:
+                "There was an issue processing the request. Please try again later.",
+            },
+          ],
+        });
+      });
+  }
+);
+
+/**
  * @route DELETE /api/profile/education/:education_id
  * @access private
  * @description Delete request route handler for the /api/profile/education/:education_id path (delete an education entry from the current user's profile)
