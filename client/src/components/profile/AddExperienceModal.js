@@ -1,6 +1,13 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { addExperience, clearAddExperienceErrors } from "./profileSlice.js";
+import {
+  addExperience,
+  clearAddExperienceErrors,
+  editExperience,
+  clearEditExperienceErrors,
+  deleteExperience,
+  clearDeleteExperienceErrors,
+} from "./profileSlice.js";
 import InputFormGroup from "../forms/InputFormGroup.js";
 import TextareaFormGroup from "../forms/TextareaFormGroup.js";
 import classNames from "classnames";
@@ -8,25 +15,71 @@ import classNames from "classnames";
 class AddExperienceModal extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      title: "",
-      company: "",
-      location: "",
-      from: "",
-      to: "",
-      toDisabled: false,
-      current: false,
-      description: "",
-    };
+
+    if (this.props.entryId) {
+      let experiences = [];
+      let experience = {};
+
+      if (
+        this.props.profile &&
+        this.props.profile.profile &&
+        this.props.profile.profile.experience
+      ) {
+        experiences = this.props.profile.profile.experience;
+      }
+
+      experience = experiences.find(
+        (experience) => experience._id === this.props.entryId
+      );
+
+      if (experience) {
+        this.state = {
+          editing: true,
+          title: experience.title ? experience.title : "",
+          company: experience.company ? experience.company : "",
+          location: experience.location ? experience.location : "",
+          from: experience.from ? experience.from.split("T")[0] : "",
+          to: experience.to ? experience.to.split("T")[0] : "",
+          toDisabled: experience.to ? false : true,
+          current: experience.current ? experience.current : false,
+          description: experience.description ? experience.description : "",
+        };
+      } else {
+        this.state = {
+          title: "",
+          company: "",
+          location: "",
+          from: "",
+          to: "",
+          toDisabled: false,
+          current: false,
+          description: "",
+        };
+      }
+    } else {
+      this.state = {
+        title: "",
+        company: "",
+        location: "",
+        from: "",
+        to: "",
+        toDisabled: false,
+        current: false,
+        description: "",
+      };
+    }
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleCurrentChecked = this.handleCurrentChecked.bind(this);
     this.cancelAddExperience = this.cancelAddExperience.bind(this);
+    this.deleteExperience = this.deleteExperience.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentWillUnmount() {
     this.props.clearAddExperienceErrors();
+    this.props.clearEditExperienceErrors();
+    this.props.clearDeleteExperienceErrors();
   }
 
   handleInputChange(event) {
@@ -40,20 +93,30 @@ class AddExperienceModal extends Component {
   }
 
   handleCurrentChecked(event) {
-    this.setState({
-      toDisabled: !this.state.toDisabled,
-      current: !this.state.current,
-    });
-
-    if (this.state.toDisabled) {
-      this.setState({
-        to: "",
-      });
-    }
+    this.setState((state, props) => ({
+      toDisabled: !state.toDisabled,
+      current: !state.current,
+      to: !state.toDisabled ? "" : state.to,
+    }));
   }
 
   cancelAddExperience(event) {
+    event.preventDefault();
     this.props.onModalAlteration("");
+  }
+
+  deleteExperience(event) {
+    event.preventDefault();
+
+    const experienceData = {
+      entryId: this.props.entryId,
+    };
+
+    this.props.deleteExperience(experienceData).then(() => {
+      if (this.props.profile.delete_experience_status === "succeeded") {
+        this.props.onModalAlteration("");
+      }
+    });
   }
 
   handleSubmit(event) {
@@ -69,17 +132,33 @@ class AddExperienceModal extends Component {
       description: this.state.description,
     };
 
-    this.props.addExperience(experienceData).then(() => {
-      if (this.props.profile.add_experience_status === "succeeded") {
-        this.props.onModalAlteration("");
-      }
-    });
+    if (this.state.editing) {
+      experienceData.entryId = this.props.entryId;
+      this.props.editExperience(experienceData).then(() => {
+        if (this.props.profile.edit_experience_status === "succeeded") {
+          this.props.onModalAlteration("");
+        }
+      });
+    } else {
+      this.props.addExperience(experienceData).then(() => {
+        if (this.props.profile.add_experience_status === "succeeded") {
+          this.props.onModalAlteration("");
+        }
+      });
+    }
   }
 
   render() {
-    const errors = this.props.profile
+    let errors = this.props.profile.add_experience_errors
       ? this.props.profile.add_experience_errors
       : {};
+
+    if (this.state.editing) {
+      errors = this.props.profile.edit_experience_errors
+        ? this.props.profile.edit_experience_errors
+        : {};
+    }
+
     return (
       <div className="modal-overlay" onClick={this.cancelAddExperience}>
         <div
@@ -89,7 +168,7 @@ class AddExperienceModal extends Component {
           }}
         >
           <div className="card-header">
-            Add experience
+            {this.state.editing ? "Edit Experience" : "Add Experience"}
             <a
               href="#"
               className="modal__exit-icon"
@@ -193,13 +272,24 @@ class AddExperienceModal extends Component {
               />
 
               <div className="float-right mt-4 mb-4">
-                <button
-                  type="button"
-                  className="btn btn-secondary mr-4"
-                  onClick={this.cancelAddExperience}
-                >
-                  Cancel
-                </button>
+                {this.state.editing ? (
+                  <button
+                    type="button"
+                    className="btn btn-secondary mr-4"
+                    onClick={this.deleteExperience}
+                  >
+                    Delete
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn btn-secondary mr-4"
+                    onClick={this.cancelAddExperience}
+                  >
+                    Cancel
+                  </button>
+                )}
+
                 <button type="submit" className="btn btn-primary">
                   Save
                 </button>
@@ -224,6 +314,10 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
   addExperience,
   clearAddExperienceErrors,
+  editExperience,
+  clearEditExperienceErrors,
+  deleteExperience,
+  clearDeleteExperienceErrors,
 };
 
 // Connect the AddExperienceModal component to the Redux store

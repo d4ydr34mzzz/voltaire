@@ -9,17 +9,23 @@ import AddEducationModal from "./AddEducationModal.js";
 import AddSectionModal from "./AddSectionModal.js";
 import AddAboutModal from "./AddAboutModal.js";
 import AddSkillModal from "./AddSkillModal";
+import AboutSection from "./AboutSection.js";
+import ExperienceSection from "./ExperienceSection.js";
+import EducationSection from "./EducationSection.js";
+import SkillSection from "./SkillSection.js";
 
 class Profile extends Component {
   constructor(props) {
     super(props);
     this.state = {
       modal: "",
+      entryId: "",
     };
 
     this.handleAddExperienceClick = this.handleAddExperienceClick.bind(this);
     this.handleAddEducationClick = this.handleAddEducationClick.bind(this);
     this.handleAddAboutClick = this.handleAddAboutClick.bind(this);
+    this.handleAddSkillClick = this.handleAddSkillClick.bind(this);
     this.handleAddSectionClick = this.handleAddSectionClick.bind(this);
     this.handleModalAlteration = this.handleModalAlteration.bind(this);
   }
@@ -49,6 +55,13 @@ class Profile extends Component {
     });
   }
 
+  handleAddSkillClick(event) {
+    event.preventDefault();
+    this.setState({
+      modal: "skills",
+    });
+  }
+
   handleAddSectionClick(event) {
     event.preventDefault();
     this.setState({
@@ -56,9 +69,10 @@ class Profile extends Component {
     });
   }
 
-  handleModalAlteration(modal) {
+  handleModalAlteration(modal, entryId = "") {
     this.setState({
       modal: modal,
+      entryId: entryId,
     });
   }
 
@@ -77,39 +91,33 @@ class Profile extends Component {
       if (Object.keys(profile).length > 0) {
         profileContent = (
           <div>
-            <div className="profile__section mb-4">
-              <a
-                href="#"
-                className="profile__edit-icon"
-                onClick={this.handleAddAboutClick}
-              >
-                <i className="fas fa-pen"></i>
-              </a>
-              <h1 className="section__heading">About me</h1>
-            </div>
-            <div className="profile__section mb-4">
-              <a
-                href="#"
-                className="section__add-entry-icon"
-                onClick={this.handleAddExperienceClick}
-              >
-                <i className="fas fa-plus"></i>
-              </a>
-              <h1 className="section__heading">Experience</h1>
-            </div>
-            <div className="profile__section mb-4">
-              <a
-                href="#"
-                className="section__add-entry-icon"
-                onClick={this.handleAddEducationClick}
-              >
-                <i className="fas fa-plus"></i>
-              </a>
-              <h1 className="section__heading">Education</h1>
-            </div>
-            <div className="profile__section mb-4">
-              <h1 className="section__heading">Skills</h1>
-            </div>
+            {profile.bio ? (
+              <AboutSection
+                bio={profile.bio}
+                onModalAlteration={this.handleModalAlteration}
+              />
+            ) : null}
+
+            {profile.experience.length > 0 ? (
+              <ExperienceSection
+                experience={profile.experience}
+                onModalAlteration={this.handleModalAlteration}
+              />
+            ) : null}
+
+            {profile.education.length > 0 ? (
+              <EducationSection
+                education={profile.education}
+                onModalAlteration={this.handleModalAlteration}
+              />
+            ) : null}
+
+            {profile.skills ? (
+              <SkillSection
+                skills={profile.skills}
+                onModalAlteration={this.handleModalAlteration}
+              />
+            ) : null}
           </div>
         );
       } else {
@@ -134,8 +142,20 @@ class Profile extends Component {
         {this.state.modal === "education" ? (
           <AddEducationModal onModalAlteration={this.handleModalAlteration} />
         ) : null}
+        {this.state.modal === "editEducation" ? (
+          <AddEducationModal
+            onModalAlteration={this.handleModalAlteration}
+            entryId={this.state.entryId}
+          />
+        ) : null}
         {this.state.modal === "experience" ? (
           <AddExperienceModal onModalAlteration={this.handleModalAlteration} />
+        ) : null}
+        {this.state.modal === "editExperience" ? (
+          <AddExperienceModal
+            onModalAlteration={this.handleModalAlteration}
+            entryId={this.state.entryId}
+          />
         ) : null}
         {this.state.modal === "about" ? (
           <AddAboutModal onModalAlteration={this.handleModalAlteration} />

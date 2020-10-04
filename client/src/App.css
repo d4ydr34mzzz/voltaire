@@ -86,6 +86,7 @@
 .profile__body {
   background-color: var(--main-light-grey-color);
   min-height: 100vh;
+  padding: 25px;
 }
 
 .profile__section--top {
@@ -158,4 +159,23 @@
 .remove-anchor-style {
   color: unset !important;
   text-decoration: none !important;
+}
+
+.section__skill {
+  font-weight: 500;
+}
+
+.list-group-item__title {
+  font-size: 1.2rem;
+}
+
+.list-group-item__subheading {
+  font-size: 1rem;
+  font-weight: unset;
+}
+
+.edit-entry-icon {
+  font-size: 18px;
+  color: var(--main-blue-color);
+  margin-bottom: 15px;
 }

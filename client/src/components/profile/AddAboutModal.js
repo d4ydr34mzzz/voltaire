@@ -7,7 +7,7 @@ class AddAboutModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      bio: "",
+      bio: this.props.profile ? this.props.profile.profile.bio : "",
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -30,6 +30,7 @@ class AddAboutModal extends Component {
   }
 
   cancelAddAbout(event) {
+    event.preventDefault();
     this.props.onModalAlteration("");
   }
 

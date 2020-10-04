@@ -8,8 +8,14 @@ const initialState = {
   initialize_user_profile_status: "idle",
   add_experience_status: "idle",
   add_experience_errors: {},
+  edit_experience_status: "idle",
+  edit_experience_errors: {},
+  delete_experience_status: "idle",
+  delete_experience_errors: {},
   add_education_status: "idle",
   add_education_errors: {},
+  delete_education_status: "idle",
+  delete_education_errors: {},
   add_about_status: "idle",
   add_about_errors: {},
   add_skills_status: "idle",
@@ -56,11 +62,54 @@ export const addExperience = createAsyncThunk(
   }
 );
 
+export const editExperience = createAsyncThunk(
+  "profile/editExperience",
+  async (experienceData, { rejectWithValue }) => {
+    try {
+      let response = await axios.put(
+        `/api/profile/experience/${experienceData.entryId}`,
+        experienceData
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const deleteExperience = createAsyncThunk(
+  "profile/deleteExperience",
+  async (experienceData, { rejectWithValue }) => {
+    try {
+      let response = await axios.delete(
+        `/api/profile/experience/${experienceData.entryId}`
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const addEducation = createAsyncThunk(
   "profile/addEducation",
   async (educationData, { rejectWithValue }) => {
     try {
       let response = await axios.post("/api/profile/education", educationData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const deleteEducation = createAsyncThunk(
+  "profile/deleteEducation",
+  async (educationData, { rejectWithValue }) => {
+    try {
+      let response = await axios.delete(
+        `/api/profile/education/${educationData.entryId}`
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -102,8 +151,17 @@ export const profileSlice = createSlice({
     clearAddExperienceErrors: (state) => {
       state.add_experience_errors = {};
     },
+    clearEditExperienceErrors: (state) => {
+      state.edit_experience_errors = {};
+    },
+    clearDeleteExperienceErrors: (state) => {
+      state.delete_experience_errors = {};
+    },
     clearAddEducationErrors: (state) => {
       state.add_education_errors = {};
+    },
+    clearDeleteEducationErrors: (state) => {
+      state.delete_education_errors = {};
     },
     clearAddAboutErrors: (state) => {
       state.add_about_errors = {};
@@ -149,6 +207,28 @@ export const profileSlice = createSlice({
       state.add_experience_status = "failed";
       state.add_experience_errors = action.payload;
     },
+    [editExperience.pending]: (state, action) => {
+      state.edit_experience_status = "loading";
+    },
+    [editExperience.fulfilled]: (state, action) => {
+      state.edit_experience_status = "succeeded";
+      state.profile = action.payload;
+    },
+    [editExperience.rejected]: (state, action) => {
+      state.edit_experience_status = "failed";
+      state.edit_experience_errors = action.payload;
+    },
+    [deleteExperience.pending]: (state, action) => {
+      state.delete_experience_status = "loading";
+    },
+    [deleteExperience.fulfilled]: (state, action) => {
+      state.delete_experience_status = "succeeded";
+      state.profile = action.payload;
+    },
+    [deleteExperience.rejected]: (state, action) => {
+      state.delete_experience_status = "failed";
+      state.delete_experience_errors = action.payload;
+    },
     [addEducation.pending]: (state, action) => {
       state.add_education_status = "loading";
     },
@@ -159,6 +239,17 @@ export const profileSlice = createSlice({
     [addEducation.rejected]: (state, action) => {
       state.add_education_status = "failed";
       state.add_education_errors = action.payload;
+    },
+    [deleteEducation.pending]: (state, action) => {
+      state.delete_education_status = "loading";
+    },
+    [deleteEducation.fulfilled]: (state, action) => {
+      state.delete_education_status = "succeeded";
+      state.profile = action.payload;
+    },
+    [deleteEducation.rejected]: (state, action) => {
+      state.delete_education_status = "failed";
+      state.delete_education_errors = action.payload;
     },
     [addAbout.pending]: (state, action) => {
       state.add_about_status = "loading";
@@ -188,7 +279,10 @@ export const profileSlice = createSlice({
 export const {
   clearErrors,
   clearAddExperienceErrors,
+  clearEditExperienceErrors,
+  clearDeleteExperienceErrors,
   clearAddEducationErrors,
+  clearDeleteEducationErrors,
   clearAddAboutErrors,
   clearAddSkillsErrors,
 } = profileSlice.actions;

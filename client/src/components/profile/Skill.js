@@ -4,7 +4,6 @@ import { Draggable } from "react-beautiful-dnd";
 class Skill extends Component {
   constructor(props) {
     super(props);
-
     this.removeSkill = this.removeSkill.bind(this);
   }
 

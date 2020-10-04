@@ -1,6 +1,11 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { addEducation, clearAddEducationErrors } from "./profileSlice.js";
+import {
+  addEducation,
+  clearAddEducationErrors,
+  deleteEducation,
+  clearDeleteEducationErrors,
+} from "./profileSlice.js";
 import InputFormGroup from "../forms/InputFormGroup.js";
 import TextareaFormGroup from "../forms/TextareaFormGroup.js";
 import classNames from "classnames";
@@ -8,26 +13,73 @@ import classNames from "classnames";
 class AddEducationModal extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      school: "",
-      degree: "",
-      fieldOfStudy: "",
-      from: "",
-      to: "",
-      toDisabled: false,
-      current: false,
-      description: "",
-      activities: "",
-    };
+
+    if (this.props.entryId) {
+      let educations = [];
+      let education = {};
+
+      if (
+        this.props.profile &&
+        this.props.profile.profile &&
+        this.props.profile.profile.education
+      ) {
+        educations = this.props.profile.profile.education;
+      }
+
+      education = educations.find(
+        (education) => education._id === this.props.entryId
+      );
+
+      if (education) {
+        this.state = {
+          editing: true,
+          school: education.school ? education.school : "",
+          degree: education.degree ? education.degree : "",
+          fieldOfStudy: education.fieldOfStudy ? education.fieldOfStudy : "",
+          from: education.from ? education.from.split("T")[0] : "",
+          to: education.to ? education.to.split("T")[0] : "",
+          toDisabled: education.to ? false : true,
+          current: education.current ? education.current : "",
+          description: education.description ? education.description : "",
+          activities: education.activities ? education.activities : "",
+        };
+      } else {
+        this.state = {
+          school: "",
+          degree: "",
+          fieldOfStudy: "",
+          from: "",
+          to: "",
+          toDisabled: false,
+          current: false,
+          description: "",
+          activities: "",
+        };
+      }
+    } else {
+      this.state = {
+        school: "",
+        degree: "",
+        fieldOfStudy: "",
+        from: "",
+        to: "",
+        toDisabled: false,
+        current: false,
+        description: "",
+        activities: "",
+      };
+    }
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleCurrentChecked = this.handleCurrentChecked.bind(this);
     this.cancelAddEducation = this.cancelAddEducation.bind(this);
+    this.deleteEducation = this.deleteEducation.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentWillUnmount() {
     this.props.clearAddEducationErrors();
+    this.props.clearDeleteEducationErrors();
   }
 
   handleInputChange(event) {
@@ -41,20 +93,28 @@ class AddEducationModal extends Component {
   }
 
   handleCurrentChecked(event) {
-    this.setState({
-      toDisabled: !this.state.toDisabled,
-      current: !this.state.current,
-    });
-
-    if (this.state.toDisabled) {
-      this.setState({
-        to: "",
-      });
-    }
+    this.setState((state, props) => ({
+      toDisabled: !state.toDisabled,
+      current: !state.current,
+      to: !state.toDisabled ? "" : state.to,
+    }));
   }
 
   cancelAddEducation(event) {
     this.props.onModalAlteration("");
+  }
+
+  deleteEducation(event) {
+    event.preventDefault();
+    const educationData = {
+      entryId: this.props.entryId,
+    };
+
+    this.props.deleteEducation(educationData).then(() => {
+      if (this.props.profile.delete_education_status === "succeeded") {
+        this.props.onModalAlteration("");
+      }
+    });
   }
 
   handleSubmit(event) {
@@ -79,7 +139,7 @@ class AddEducationModal extends Component {
   }
 
   render() {
-    const errors = this.props.profile
+    const errors = this.props.profile.add_education_errors
       ? this.props.profile.add_education_errors
       : {};
     return (
@@ -206,13 +266,24 @@ class AddEducationModal extends Component {
               />
 
               <div className="float-right mt-4 mb-4">
-                <button
-                  type="button"
-                  className="btn btn-secondary mr-4"
-                  onClick={this.cancelAddEducation}
-                >
-                  Cancel
-                </button>
+                {this.state.editing ? (
+                  <button
+                    type="button"
+                    className="btn btn-secondary mr-4"
+                    onClick={this.deleteEducation}
+                  >
+                    Delete
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn btn-secondary mr-4"
+                    onClick={this.cancelAddEducation}
+                  >
+                    Cancel
+                  </button>
+                )}
+
                 <button type="submit" className="btn btn-primary">
                   Save
                 </button>
@@ -237,6 +308,8 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
   addEducation,
   clearAddEducationErrors,
+  deleteEducation,
+  clearDeleteEducationErrors,
 };
 
 // Connect the AddEducationModal component to the Redux store
