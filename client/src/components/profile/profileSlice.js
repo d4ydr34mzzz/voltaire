@@ -14,6 +14,8 @@ const initialState = {
   delete_experience_errors: {},
   add_education_status: "idle",
   add_education_errors: {},
+  edit_education_status: "idle",
+  edit_education_errors: {},
   delete_education_status: "idle",
   delete_education_errors: {},
   add_about_status: "idle",
@@ -103,6 +105,21 @@ export const addEducation = createAsyncThunk(
   }
 );
 
+export const editEducation = createAsyncThunk(
+  "profile/editEducation",
+  async (educationData, { rejectWithValue }) => {
+    try {
+      let response = await axios.put(
+        `/api/profile/education/${educationData.entryId}`,
+        educationData
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const deleteEducation = createAsyncThunk(
   "profile/deleteEducation",
   async (educationData, { rejectWithValue }) => {
@@ -159,6 +176,9 @@ export const profileSlice = createSlice({
     },
     clearAddEducationErrors: (state) => {
       state.add_education_errors = {};
+    },
+    clearEditEducationErrors: (state) => {
+      state.edit_education_errors = {};
     },
     clearDeleteEducationErrors: (state) => {
       state.delete_education_errors = {};
@@ -240,6 +260,17 @@ export const profileSlice = createSlice({
       state.add_education_status = "failed";
       state.add_education_errors = action.payload;
     },
+    [editEducation.pending]: (state, action) => {
+      state.edit_education_status = "loading";
+    },
+    [editEducation.fulfilled]: (state, action) => {
+      state.edit_education_status = "succeeded";
+      state.profile = action.payload;
+    },
+    [editEducation.rejected]: (state, action) => {
+      state.edit_education_status = "failed";
+      state.edit_education_errors = action.payload;
+    },
     [deleteEducation.pending]: (state, action) => {
       state.delete_education_status = "loading";
     },
@@ -282,6 +313,7 @@ export const {
   clearEditExperienceErrors,
   clearDeleteExperienceErrors,
   clearAddEducationErrors,
+  clearEditEducationErrors,
   clearDeleteEducationErrors,
   clearAddAboutErrors,
   clearAddSkillsErrors,

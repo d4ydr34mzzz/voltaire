@@ -3,6 +3,8 @@ import { connect } from "react-redux";
 import {
   addEducation,
   clearAddEducationErrors,
+  editEducation,
+  clearEditEducationErrors,
   deleteEducation,
   clearDeleteEducationErrors,
 } from "./profileSlice.js";
@@ -79,6 +81,7 @@ class AddEducationModal extends Component {
 
   componentWillUnmount() {
     this.props.clearAddEducationErrors();
+    this.props.clearEditEducationErrors();
     this.props.clearDeleteEducationErrors();
   }
 
@@ -131,17 +134,33 @@ class AddEducationModal extends Component {
       activities: this.state.activities,
     };
 
-    this.props.addEducation(educationData).then(() => {
-      if (this.props.profile.add_education_status === "succeeded") {
-        this.props.onModalAlteration("");
-      }
-    });
+    if (this.state.editing) {
+      educationData.entryId = this.props.entryId;
+      this.props.editEducation(educationData).then(() => {
+        if (this.props.profile.edit_education_status === "succeeded") {
+          this.props.onModalAlteration("");
+        }
+      });
+    } else {
+      this.props.addEducation(educationData).then(() => {
+        if (this.props.profile.add_education_status === "succeeded") {
+          this.props.onModalAlteration("");
+        }
+      });
+    }
   }
 
   render() {
-    const errors = this.props.profile.add_education_errors
+    let errors = this.props.profile.add_education_errors
       ? this.props.profile.add_education_errors
       : {};
+
+    if (this.state.editing) {
+      errors = this.props.profile.edit_education_errors
+        ? this.props.profile.edit_education_errors
+        : {};
+    }
+
     return (
       <div className="modal-overlay" onClick={this.cancelAddEducation}>
         <div
@@ -308,6 +327,8 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
   addEducation,
   clearAddEducationErrors,
+  editEducation,
+  clearEditEducationErrors,
   deleteEducation,
   clearDeleteEducationErrors,
 };
