@@ -749,8 +749,6 @@ router.put(
   }
 );
 
-// TODO: Add routes to edit education and experience entries?
-
 /**
  * @route PUT /api/profile/experience/:experience_id
  * @access private
@@ -840,6 +838,138 @@ router.put(
             profile.experience[experienceIndex] = Object.assign(
               profile.experience[experienceIndex],
               editedExperience
+            );
+            profile
+              .save()
+              .then((profile) => {
+                res.json(profile);
+              })
+              .catch((err) => {
+                res.status(500).json({
+                  errors: [
+                    {
+                      msg:
+                        "There was an issue processing the request. Please try again later.",
+                    },
+                  ],
+                });
+              });
+          } else {
+            res.status(404).json({
+              experience: {
+                msg: "Experience does not exist",
+              },
+            });
+          }
+        }
+      })
+      .catch((err) => {
+        res.status(500).json({
+          errors: [
+            {
+              msg:
+                "There was an issue processing the request. Please try again later.",
+            },
+          ],
+        });
+      });
+  }
+);
+
+/**
+ * @route PUT /api/profile/education/:education_id
+ * @access private
+ * @description Put request route handler for the /api/profile/education/:education_id path (update an education entry from the current user's profile)
+ */
+router.put(
+  "/education/:education_id",
+  ensureAuthenticated,
+  [
+    body("school").not().isEmpty().withMessage("School is required"),
+    body("degree").not().isEmpty().withMessage("Degree is required"),
+    body("fieldOfStudy")
+      .not()
+      .isEmpty()
+      .withMessage("Field of study is required"),
+    body("from")
+      .not()
+      .isEmpty()
+      .withMessage("A from date is required")
+      .bail()
+      .isISO8601()
+      .withMessage("Invalid date format")
+      .bail()
+      .toDate(),
+    body("to")
+      .if((value, { req }) => {
+        return req.body.to;
+      })
+      .isISO8601()
+      .withMessage("Invalid date format")
+      .bail()
+      .toDate(),
+    body("current")
+      .isBoolean()
+      .bail()
+      .toBoolean()
+      .if((value, { req }) => {
+        return !req.body.current;
+      })
+      .custom((value, { req }) => {
+        return req.body.to;
+      })
+      .withMessage(
+        "A to date is required if you aren't currently studying here"
+      ),
+    body("current")
+      .isBoolean()
+      .bail()
+      .toBoolean()
+      .custom((value, { req }) => {
+        return !(req.body.current && req.body.to);
+      })
+      .withMessage(
+        "A to date and currently attending cannot be set simultaneously"
+      ),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json(errors.mapped());
+    }
+
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        if (!profile) {
+          res.status(404).json({
+            errors: [
+              {
+                msg: "Profile does not exist",
+              },
+            ],
+          });
+        } else {
+          const editedEducation = {
+            school: req.body.school,
+            degree: req.body.degree,
+            fieldOfStudy: req.body.fieldOfStudy,
+            from: req.body.from,
+            to: req.body.to,
+            current: req.body.current,
+            description: req.body.description,
+            activities: req.body.activities,
+          };
+
+          const educationIndex = profile.education
+            .map((education) => {
+              return education.id;
+            })
+            .indexOf(req.params.education_id);
+
+          if (educationIndex >= 0) {
+            profile.education[educationIndex] = Object.assign(
+              profile.education[educationIndex],
+              editedEducation
             );
             profile
               .save()
