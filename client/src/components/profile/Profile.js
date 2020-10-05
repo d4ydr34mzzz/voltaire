@@ -112,7 +112,7 @@ class Profile extends Component {
               />
             ) : null}
 
-            {profile.skills ? (
+            {profile.skills.length > 0 ? (
               <SkillSection
                 skills={profile.skills}
                 onModalAlteration={this.handleModalAlteration}
