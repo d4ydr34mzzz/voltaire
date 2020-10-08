@@ -15,6 +15,7 @@ function InputInputGroup({
   info,
   button,
   onButtonClick,
+  buttonDataAttributes,
   onKeyDown,
 }) {
   return (
@@ -42,8 +43,9 @@ function InputInputGroup({
       {button && (
         <div className="input-group-append">
           <button
-            className="btn btn-outline-secondary"
+            className="btn btn-outline-secondary btn-outline-secondary--match-input-group-border-color"
             type="button"
+            {...buttonDataAttributes}
             onClick={onButtonClick}
           >
             {button}

@@ -22,6 +22,8 @@ const initialState = {
   add_about_errors: {},
   add_skills_status: "idle",
   add_skills_errors: {},
+  add_social_links_status: "idle",
+  add_social_links_errors: {},
   errors: {},
 };
 
@@ -158,6 +160,18 @@ export const addSkills = createAsyncThunk(
   }
 );
 
+export const addSocialLinks = createAsyncThunk(
+  "profile/addSocialLinks",
+  async (socialData, { rejectWithValue }) => {
+    try {
+      let response = await axios.put("api/profile/social", socialData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const profileSlice = createSlice({
   name: "profile",
   initialState: initialState,
@@ -188,6 +202,9 @@ export const profileSlice = createSlice({
     },
     clearAddSkillsErrors: (state) => {
       state.add_skills_errors = {};
+    },
+    clearAddSocialLinksErrors: (state) => {
+      state.add_social_links_errors = {};
     },
   },
   extraReducers: {
@@ -304,6 +321,17 @@ export const profileSlice = createSlice({
       state.add_skills_status = "failed";
       state.add_skills_errors = action.payload;
     },
+    [addSocialLinks.pending]: (state, action) => {
+      state.add_social_links_status = "loading";
+    },
+    [addSocialLinks.fulfilled]: (state, action) => {
+      state.add_social_links_status = "succeeded";
+      state.profile = action.payload;
+    },
+    [addSocialLinks.rejected]: (state, action) => {
+      state.add_social_links_status = "failed";
+      state.add_social_links_errors = action.payload;
+    },
   },
 });
 
@@ -317,6 +345,7 @@ export const {
   clearDeleteEducationErrors,
   clearAddAboutErrors,
   clearAddSkillsErrors,
+  clearAddSocialLinksErrors,
 } = profileSlice.actions;
 
 export default profileSlice.reducer;

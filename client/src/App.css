@@ -179,3 +179,7 @@
   color: var(--main-blue-color);
   margin-bottom: 15px;
 }
+
+.btn-outline-secondary--match-input-group-border-color {
+  border-color: #ced4da;
+}

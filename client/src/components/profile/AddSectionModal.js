@@ -13,6 +13,7 @@ class AddSectionModal extends Component {
   }
 
   cancelAddSection(event) {
+    event.preventDefault();
     this.props.onModalAlteration("");
   }
 
@@ -23,6 +24,9 @@ class AddSectionModal extends Component {
       { display: "Work experience", value: "experience" },
       { display: "Education", value: "education" },
       { display: "Skills", value: "skills" },
+      { display: "Interests", value: "interests" },
+      { display: "Social links", value: "links" },
+      { display: "GitHub", value: "github" },
     ];
 
     const listItems = sections.map((section) => {
