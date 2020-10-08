@@ -14,6 +14,7 @@ import AboutSection from "./AboutSection.js";
 import ExperienceSection from "./ExperienceSection.js";
 import EducationSection from "./EducationSection.js";
 import SkillSection from "./SkillSection.js";
+import SocialLinksSection from "./SocialLinksSection.js";
 
 class Profile extends Component {
   constructor(props) {
@@ -92,6 +93,12 @@ class Profile extends Component {
       if (Object.keys(profile).length > 0) {
         profileContent = (
           <div>
+            {profile.social ? (
+              <SocialLinksSection
+                links={profile.social}
+                onModalAlteration={this.handleModalAlteration}
+              />
+            ) : null}
             {profile.bio ? (
               <AboutSection
                 bio={profile.bio}
@@ -99,21 +106,21 @@ class Profile extends Component {
               />
             ) : null}
 
-            {profile.experience.length > 0 ? (
+            {profile.experience && profile.experience.length > 0 ? (
               <ExperienceSection
                 experience={profile.experience}
                 onModalAlteration={this.handleModalAlteration}
               />
             ) : null}
 
-            {profile.education.length > 0 ? (
+            {profile.education && profile.education.length > 0 ? (
               <EducationSection
                 education={profile.education}
                 onModalAlteration={this.handleModalAlteration}
               />
             ) : null}
 
-            {profile.skills.length > 0 ? (
+            {profile.skills && profile.skills.length > 0 ? (
               <SkillSection
                 skills={profile.skills}
                 onModalAlteration={this.handleModalAlteration}

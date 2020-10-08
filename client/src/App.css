@@ -180,6 +180,20 @@
   margin-bottom: 15px;
 }
 
+.section__connect-icon {
+  font-size: 1.8rem;
+  color: var(--main-grey-color);
+  padding: 15px;
+}
+
+.section__connect-icon:hover {
+  color: var(--main-blue-color);
+}
+
+.profile__section--connect {
+  min-height: 0px;
+}
+
 .btn-outline-secondary--match-input-group-border-color {
   border-color: #ced4da;
 }
