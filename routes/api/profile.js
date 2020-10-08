@@ -1,7 +1,10 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const passport = require("passport");
-const { ensureAuthenticated } = require("../../helpers/auth");
+const { ensureAuthenticated } = require("../../helpers/auth.js");
+const {
+  addHttpsProtocolToValidatedSocialURL,
+} = require("../../helpers/sanatize.js");
 const { body, validationResult } = require("express-validator");
 const router = express.Router();
 
@@ -721,6 +724,158 @@ router.put(
           Profile.findOneAndUpdate({ user: req.user.id }, updatedProfile, {
             new: true,
           })
+            .then((profile) => {
+              res.json(profile);
+            })
+            .catch((err) => {
+              res.status(500).json({
+                errors: [
+                  {
+                    msg:
+                      "There was an issue processing the request. Please try again later.",
+                  },
+                ],
+              });
+            });
+        }
+      })
+      .catch((err) => {
+        res.status(500).json({
+          errors: [
+            {
+              msg:
+                "There was an issue processing the request. Please try again later.",
+            },
+          ],
+        });
+      });
+  }
+);
+
+/**
+ * @route PUT /api/profile/social
+ * @access private
+ * @description Put request route handler for the /api/profile/social path (add or update the social links section in the current user's profile)
+ */
+router.put(
+  "/social",
+  ensureAuthenticated,
+  [
+    body("youtube")
+      .if((value, { req }) => {
+        return req.body.youtube;
+      })
+      .trim()
+      .isURL({
+        protocols: ["http", "https"],
+        host_whitelist: ["www.youtube.com"],
+      })
+      .withMessage("Invalid URL")
+      .bail()
+      .customSanitizer((value, { req }) => {
+        return addHttpsProtocolToValidatedSocialURL(value);
+      }),
+    body("twitter")
+      .if((value, { req }) => {
+        return req.body.twitter;
+      })
+      .trim()
+      .isURL({
+        protocols: ["http", "https"],
+        host_whitelist: ["www.twitter.com"],
+      })
+      .withMessage("Invalid URL")
+      .bail()
+      .customSanitizer((value, { req }) => {
+        return addHttpsProtocolToValidatedSocialURL(value);
+      }),
+    body("facebook")
+      .if((value, { req }) => {
+        return req.body.facebook;
+      })
+      .trim()
+      .isURL({
+        protocols: ["http", "https"],
+        host_whitelist: ["www.facebook.com"],
+      })
+      .withMessage("Invalid URL")
+      .bail()
+      .customSanitizer((value, { req }) => {
+        return addHttpsProtocolToValidatedSocialURL(value);
+      }),
+    body("linkedin")
+      .if((value, { req }) => {
+        return req.body.linkedin;
+      })
+      .trim()
+      .isURL({
+        protocols: ["http", "https"],
+        host_whitelist: ["www.linkedin.com"],
+      })
+      .withMessage("Invalid URL")
+      .bail()
+      .customSanitizer((value, { req }) => {
+        return addHttpsProtocolToValidatedSocialURL(value);
+      }),
+    body("instagram")
+      .if((value, { req }) => {
+        return req.body.instagram;
+      })
+      .trim()
+      .isURL({
+        protocols: ["http", "https"],
+        host_whitelist: ["www.instagram.com"],
+      })
+      .withMessage("Invalid URL")
+      .bail()
+      .customSanitizer((value, { req }) => {
+        return addHttpsProtocolToValidatedSocialURL(value);
+      }),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json(errors.mapped());
+    }
+
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        if (!profile) {
+          res.status(404).json({
+            errors: [
+              {
+                msg: "Profile does not exist",
+              },
+            ],
+          });
+        } else {
+          const editedSocial = {};
+
+          if (req.body.youtube) {
+            editedSocial.youtube = req.body.youtube ? req.body.youtube : null;
+          }
+          if (req.body.twitter) {
+            editedSocial.twitter = req.body.twitter ? req.body.twitter : null;
+          }
+          if (req.body.facebook) {
+            editedSocial.facebook = req.body.facebook
+              ? req.body.facebook
+              : null;
+          }
+          if (req.body.linkedin) {
+            editedSocial.linkedin = req.body.linkedin
+              ? req.body.linkedin
+              : null;
+          }
+          if (req.body.instagram) {
+            editedSocial.instagram = req.body.instagram
+              ? req.body.instagram
+              : null;
+          }
+
+          profile.social = editedSocial;
+          profile
+            .save()
             .then((profile) => {
               res.json(profile);
             })
