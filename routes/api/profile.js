@@ -905,6 +905,61 @@ router.put(
 );
 
 /**
+ * @route PUT /api/profile/github
+ * @access private
+ * @description Put request route handler for the /api/profile/github path (add or update the current user's github username)
+ */
+router.put("/github", ensureAuthenticated, (req, res) => {
+  Profile.findOne({ user: req.user.id })
+    .then((profile) => {
+      if (!profile) {
+        res.status(404).json({
+          errors: [
+            {
+              msg: "Profile does not exist",
+            },
+          ],
+        });
+      } else {
+        const updatedProfile = {
+          githubUsername: "",
+        };
+
+        if (req.body.githubUsername) {
+          updatedProfile.githubUsername = req.body.githubUsername;
+        }
+
+        Profile.findOneAndUpdate({ user: req.user.id }, updatedProfile, {
+          new: true,
+        })
+          .then((profile) => {
+            res.json(profile);
+          })
+          .catch((err) => {
+            res.status(500).json({
+              errors: [
+                {
+                  msg:
+                    "There was an issue processing the request. Please try again later.",
+                },
+              ],
+            });
+          });
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({
+        errors: [
+          {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
+        ],
+      });
+    });
+});
+
+/**
  * @route PUT /api/profile/experience/:experience_id
  * @access private
  * @description PUT request route handler for the /api/profile/experience/:experience_id path (update an experience entry from the current user's profile)
