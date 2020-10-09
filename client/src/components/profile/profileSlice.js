@@ -24,6 +24,8 @@ const initialState = {
   add_skills_errors: {},
   add_social_links_status: "idle",
   add_social_links_errors: {},
+  add_github_username_status: "idle",
+  add_github_username_errors: {},
   errors: {},
 };
 
@@ -172,6 +174,18 @@ export const addSocialLinks = createAsyncThunk(
   }
 );
 
+export const addGitHubUsername = createAsyncThunk(
+  "profile/addGitHubUsername",
+  async (githubData, { rejectWithValue }) => {
+    try {
+      let response = await axios.put("api/profile/github", githubData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const profileSlice = createSlice({
   name: "profile",
   initialState: initialState,
@@ -205,6 +219,9 @@ export const profileSlice = createSlice({
     },
     clearAddSocialLinksErrors: (state) => {
       state.add_social_links_errors = {};
+    },
+    clearAddGitHubUsernameErrors: (state) => {
+      state.add_github_username_errors = {};
     },
   },
   extraReducers: {
@@ -332,6 +349,17 @@ export const profileSlice = createSlice({
       state.add_social_links_status = "failed";
       state.add_social_links_errors = action.payload;
     },
+    [addGitHubUsername.pending]: (state, action) => {
+      state.add_github_username_status = "loading";
+    },
+    [addGitHubUsername.fulfilled]: (state, action) => {
+      state.add_github_username_status = "succeeded";
+      state.profile = action.payload;
+    },
+    [addGitHubUsername.rejected]: (state, action) => {
+      state.add_github_username_status = "failed";
+      state.add_github_username_errors = action.payload;
+    },
   },
 });
 
@@ -346,6 +374,7 @@ export const {
   clearAddAboutErrors,
   clearAddSkillsErrors,
   clearAddSocialLinksErrors,
+  clearAddGitHubUsernameErrors,
 } = profileSlice.actions;
 
 export default profileSlice.reducer;

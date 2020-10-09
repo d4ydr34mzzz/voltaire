@@ -10,6 +10,7 @@ import AddSectionModal from "./AddSectionModal.js";
 import AddAboutModal from "./AddAboutModal.js";
 import AddSkillModal from "./AddSkillModal.js";
 import AddSocialLinksModal from "./AddSocialLinksModal.js";
+import AddGitHubUsernameModal from "./AddGitHubUsernameModal.js";
 import AboutSection from "./AboutSection.js";
 import ExperienceSection from "./ExperienceSection.js";
 import EducationSection from "./EducationSection.js";
@@ -173,6 +174,11 @@ class Profile extends Component {
         ) : null}
         {this.state.modal === "links" ? (
           <AddSocialLinksModal onModalAlteration={this.handleModalAlteration} />
+        ) : null}
+        {this.state.modal === "github" ? (
+          <AddGitHubUsernameModal
+            onModalAlteration={this.handleModalAlteration}
+          />
         ) : null}
         {this.state.modal === "addSection" ? (
           <AddSectionModal onModalAlteration={this.handleModalAlteration} />
