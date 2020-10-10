@@ -165,6 +165,10 @@
   font-weight: 500;
 }
 
+.section__interests {
+  font-weight: 500;
+}
+
 .list-group-item__title {
   font-size: 1.2rem;
 }
@@ -196,4 +200,8 @@
 
 .btn-outline-secondary--match-input-group-border-color {
   border-color: #ced4da;
+}
+
+.connect-icon-padding-compensation {
+  margin-left: -15px;
 }

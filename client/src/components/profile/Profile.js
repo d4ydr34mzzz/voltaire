@@ -9,12 +9,14 @@ import AddEducationModal from "./AddEducationModal.js";
 import AddSectionModal from "./AddSectionModal.js";
 import AddAboutModal from "./AddAboutModal.js";
 import AddSkillModal from "./AddSkillModal.js";
+import AddInterestsModal from "./AddInterestsModal.js";
 import AddSocialLinksModal from "./AddSocialLinksModal.js";
 import AddGitHubUsernameModal from "./AddGitHubUsernameModal.js";
 import AboutSection from "./AboutSection.js";
 import ExperienceSection from "./ExperienceSection.js";
 import EducationSection from "./EducationSection.js";
 import SkillSection from "./SkillSection.js";
+import InterestsSection from "./InterestsSection.js";
 import SocialLinksSection from "./SocialLinksSection.js";
 
 class Profile extends Component {
@@ -127,6 +129,13 @@ class Profile extends Component {
                 onModalAlteration={this.handleModalAlteration}
               />
             ) : null}
+
+            {profile.interests && profile.interests.length > 0 ? (
+              <InterestsSection
+                interests={profile.interests}
+                onModalAlteration={this.handleModalAlteration}
+              />
+            ) : null}
           </div>
         );
       } else {
@@ -171,6 +180,9 @@ class Profile extends Component {
         ) : null}
         {this.state.modal === "skills" ? (
           <AddSkillModal onModalAlteration={this.handleModalAlteration} />
+        ) : null}
+        {this.state.modal === "interests" ? (
+          <AddInterestsModal onModalAlteration={this.handleModalAlteration} />
         ) : null}
         {this.state.modal === "links" ? (
           <AddSocialLinksModal onModalAlteration={this.handleModalAlteration} />

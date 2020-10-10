@@ -22,6 +22,8 @@ const initialState = {
   add_about_errors: {},
   add_skills_status: "idle",
   add_skills_errors: {},
+  add_interests_status: "idle",
+  add_interests_errors: {},
   add_social_links_status: "idle",
   add_social_links_errors: {},
   add_github_username_status: "idle",
@@ -162,6 +164,18 @@ export const addSkills = createAsyncThunk(
   }
 );
 
+export const addInterests = createAsyncThunk(
+  "profile/addInterests",
+  async (interestsData, { rejectWithValue }) => {
+    try {
+      let response = await axios.put("api/profile/interests", interestsData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const addSocialLinks = createAsyncThunk(
   "profile/addSocialLinks",
   async (socialData, { rejectWithValue }) => {
@@ -216,6 +230,9 @@ export const profileSlice = createSlice({
     },
     clearAddSkillsErrors: (state) => {
       state.add_skills_errors = {};
+    },
+    clearAddInterestsErrors: (state) => {
+      state.add_interests_errors = {};
     },
     clearAddSocialLinksErrors: (state) => {
       state.add_social_links_errors = {};
@@ -338,6 +355,17 @@ export const profileSlice = createSlice({
       state.add_skills_status = "failed";
       state.add_skills_errors = action.payload;
     },
+    [addInterests.pending]: (state, action) => {
+      state.add_interests_status = "loading";
+    },
+    [addInterests.fulfilled]: (state, action) => {
+      state.add_interests_status = "succeeded";
+      state.profile = action.payload;
+    },
+    [addInterests.rejected]: (state, action) => {
+      state.add_interests_status = "failed";
+      state.add_interests_errors = action.payload;
+    },
     [addSocialLinks.pending]: (state, action) => {
       state.add_social_links_status = "loading";
     },
@@ -373,6 +401,7 @@ export const {
   clearDeleteEducationErrors,
   clearAddAboutErrors,
   clearAddSkillsErrors,
+  clearAddInterestsErrors,
   clearAddSocialLinksErrors,
   clearAddGitHubUsernameErrors,
 } = profileSlice.actions;
