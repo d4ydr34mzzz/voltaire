@@ -753,6 +753,80 @@ router.put(
 );
 
 /**
+ * @route PUT /api/profile/interests
+ * @access private
+ * @description Put request route handler for the /api/profile/interests path (add or update the interests section in the current user's profile)
+ */
+router.put(
+  "/interests",
+  ensureAuthenticated,
+  [
+    body("interests")
+      .isArray()
+      .withMessage("Interests must be an array")
+      .bail()
+      .customSanitizer((value, { req }) => {
+        let interests = value.map((interest) => String(interest).trim());
+        return interests;
+      }),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json(errors.mapped());
+    }
+
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        if (!profile) {
+          res.status(404).json({
+            errors: [
+              {
+                msg: "Profile does not exist",
+              },
+            ],
+          });
+        } else {
+          const updatedProfile = {
+            interests: [],
+          };
+
+          if (req.body.interests) {
+            updatedProfile.interests = req.body.interests;
+          }
+
+          Profile.findOneAndUpdate({ user: req.user.id }, updatedProfile, {
+            new: true,
+          })
+            .then((profile) => {
+              res.json(profile);
+            })
+            .catch((err) => {
+              res.status(500).json({
+                errors: [
+                  {
+                    msg:
+                      "There was an issue processing the request. Please try again later.",
+                  },
+                ],
+              });
+            });
+        }
+      })
+      .catch((err) => {
+        res.status(500).json({
+          errors: [
+            {
+              msg:
+                "There was an issue processing the request. Please try again later.",
+            },
+          ],
+        });
+      });
+  }
+);
+
+/**
  * @route PUT /api/profile/social
  * @access private
  * @description Put request route handler for the /api/profile/social path (add or update the social links section in the current user's profile)

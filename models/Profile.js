@@ -34,6 +34,9 @@ const profileSchema = new Schema({
     type: [String],
     required: true,
   },
+  interests: {
+    type: [String],
+  },
   bio: {
     type: String,
   },
