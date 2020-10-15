@@ -624,6 +624,278 @@ router.post(
 );
 
 /**
+ * @route PUT /api/profile/general
+ * @access private
+ * @description Put request route handler for the /api/profile/general path (add or update the general information section in the current user's profile)
+ */
+router.put(
+  "/general",
+  ensureAuthenticated,
+  [
+    body("firstName").not().isEmpty().withMessage("First name is required"),
+    body("lastName").not().isEmpty().withMessage("Last name is required"),
+    body("handle")
+      .not()
+      .isEmpty()
+      .withMessage("Profile handle is required")
+      .isLength({ min: 2, max: 40 })
+      .withMessage("Profile handle needs to be between 2 and 40 characters"),
+    body("header").not().isEmpty().withMessage("Header is required"),
+    body("status")
+      .not()
+      .isEmpty()
+      .withMessage("Status is required")
+      .custom((value, {}) => {
+        // Reference: https://stackoverflow.com/questions/24718349/how-do-i-make-array-indexof-case-insensitive#answer-24718680
+        let validOptions = [
+          "Developer",
+          "Junior developer",
+          "Senior developer",
+          "Manager",
+          "Student",
+          "Instructor",
+          "Intern",
+          "Other",
+        ];
+        let providedOption = String(value).toLowerCase();
+        return validOptions.some((option) => {
+          return providedOption === option.toLowerCase();
+        });
+      })
+      .withMessage("Status is required"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json(errors.mapped());
+    }
+
+    Profile.findOne({ user: req.user.id })
+      .populate("user", ["firstName", "lastName"])
+      .then((profile) => {
+        if (!profile) {
+          res.status(404).json({
+            errors: [
+              {
+                msg: "Profile does not exist",
+              },
+            ],
+          });
+        } else {
+          const updatedUser = {};
+          if (profile.user.firstName !== req.body.firstName) {
+            updatedUser.firstName = req.body.firstName;
+          }
+          if (profile.user.lastName !== req.body.lastName) {
+            updatedUser.lastName = req.body.lastName;
+          }
+
+          const updatedProfile = {};
+          if (profile.header !== req.body.header) {
+            updatedProfile.header = req.body.header;
+          }
+          if (profile.location !== req.body.location) {
+            updatedProfile.location = req.body.location;
+          }
+          if (profile.status !== req.body.status) {
+            updatedProfile.status = req.body.status;
+          }
+
+          if (profile.handle !== req.body.handle) {
+            // Existing user wants to change their handle
+            Profile.findOne({ handle: req.body.handle })
+              .then((profile) => {
+                if (profile && profile.user !== req.user.id) {
+                  res.status(400).json({
+                    handle: {
+                      msg: "The handle is taken. Please try another one.",
+                    },
+                  });
+                } else {
+                  updatedProfile.handle = req.body.handle;
+
+                  if (updatedUser) {
+                    User.findOneAndUpdate({ _id: req.user.id }, updatedUser, {
+                      new: true,
+                    })
+                      .then((user) => {
+                        Profile.findOneAndUpdate(
+                          { user: req.user.id },
+                          updatedProfile,
+                          {
+                            new: true,
+                          }
+                        )
+                          .populate("user", [
+                            "firstName",
+                            "lastName",
+                            "picture",
+                          ])
+                          .then((profile) => {
+                            res.json(profile);
+                          })
+                          .catch((err) => {
+                            res.status(500).json({
+                              errors: [
+                                {
+                                  msg:
+                                    "There was an issue processing the request. Please try again later.",
+                                },
+                              ],
+                            });
+                          });
+                      })
+                      .catch((err) => {
+                        res.status(500).json({
+                          errors: [
+                            {
+                              msg:
+                                "There was an issue processing the request. Please try again later.",
+                            },
+                          ],
+                        });
+                      });
+                  } else {
+                    Profile.findOneAndUpdate(
+                      { user: req.user.id },
+                      updatedProfile,
+                      {
+                        new: true,
+                      }
+                    )
+                      .populate("user", ["firstName", "lastName", "picture"])
+                      .then((profile) => {
+                        res.json(profile);
+                      })
+                      .catch((err) => {
+                        res.status(500).json({
+                          errors: [
+                            {
+                              msg:
+                                "There was an issue processing the request. Please try again later.",
+                            },
+                          ],
+                        });
+                      });
+                  }
+                }
+              })
+              .catch((err) => {
+                res.status(500).json({
+                  errors: [
+                    {
+                      msg:
+                        "There was an issue processing the request. Please try again later.",
+                    },
+                  ],
+                });
+              });
+          } else {
+            if (updatedUser) {
+              if (updatedProfile) {
+                User.findOneAndUpdate({ _id: req.user.id }, updatedUser, {
+                  new: true,
+                })
+                  .then((user) => {
+                    Profile.findOneAndUpdate(
+                      { user: req.user.id },
+                      updatedProfile,
+                      {
+                        new: true,
+                      }
+                    )
+                      .populate("user", ["firstName", "lastName", "picture"])
+                      .then((profile) => {
+                        res.json(profile);
+                      })
+                      .catch((err) => {
+                        res.status(500).json({
+                          errors: [
+                            {
+                              msg:
+                                "There was an issue processing the request. Please try again later.",
+                            },
+                          ],
+                        });
+                      });
+                  })
+                  .catch((err) => {
+                    res.status(500).json({
+                      errors: [
+                        {
+                          msg:
+                            "There was an issue processing the request. Please try again later.",
+                        },
+                      ],
+                    });
+                  });
+              } else {
+                User.findOneAndUpdate({ _id: req.user.id }, updatedUser, {
+                  new: true,
+                })
+                  .then((user) => {
+                    Profile.findOne({ user: req.user.id })
+                      .populate("user", ["firstName", "lastName", "picture"])
+                      .then((profile) => {
+                        res.json(profile);
+                      })
+                      .catch((err) => {
+                        console.log(err);
+                        res.status(500).json({
+                          errors: [
+                            {
+                              msg:
+                                "There was an issue processing the request. Please try again later.",
+                            },
+                          ],
+                        });
+                      });
+                  })
+                  .catch((err) => {
+                    res.status(500).json({
+                      errors: [
+                        {
+                          msg:
+                            "There was an issue processing the request. Please try again later.",
+                        },
+                      ],
+                    });
+                  });
+              }
+            } else {
+              if (updatedProfile) {
+                Profile.findOneAndUpdate(
+                  { user: req.user.id },
+                  updatedProfile,
+                  {
+                    new: true,
+                  }
+                )
+                  .populate("user", ["firstName", "lastName", "picture"])
+                  .then((profile) => {
+                    res.json(profile);
+                  })
+                  .catch((err) => {
+                    res.status(500).json({
+                      errors: [
+                        {
+                          msg:
+                            "There was an issue processing the request. Please try again later.",
+                        },
+                      ],
+                    });
+                  });
+              } else {
+                return res.json(profile);
+              }
+            }
+          }
+        }
+      });
+  }
+);
+
+/**
  * @route PUT /api/profile/about
  * @access private
  * @description Put request route handler for the /api/profile/about path (add or update the about me section in the current user's profile)

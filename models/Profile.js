@@ -26,6 +26,10 @@ const profileSchema = new Schema({
   location: {
     type: String,
   },
+  header: {
+    type: String,
+    required: true,
+  },
   status: {
     type: String,
     required: true,
