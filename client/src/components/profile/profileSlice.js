@@ -18,6 +18,8 @@ const initialState = {
   edit_education_errors: {},
   delete_education_status: "idle",
   delete_education_errors: {},
+  edit_general_information_status: "idle",
+  edit_general_information_errors: {},
   add_about_status: "idle",
   add_about_errors: {},
   add_skills_status: "idle",
@@ -140,6 +142,21 @@ export const deleteEducation = createAsyncThunk(
   }
 );
 
+export const editGeneralInformation = createAsyncThunk(
+  "profile/editGeneralInformation",
+  async (generalInformationData, { rejectWithValue }) => {
+    try {
+      let response = await axios.put(
+        "/api/profile/general",
+        generalInformationData
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const addAbout = createAsyncThunk(
   "profile/addAbout",
   async (aboutData, { rejectWithValue }) => {
@@ -224,6 +241,9 @@ export const profileSlice = createSlice({
     },
     clearDeleteEducationErrors: (state) => {
       state.delete_education_errors = {};
+    },
+    clearEditGeneralInformationErrors: (state) => {
+      state.edit_general_information_errors = {};
     },
     clearAddAboutErrors: (state) => {
       state.add_about_errors = {};
@@ -333,6 +353,17 @@ export const profileSlice = createSlice({
       state.delete_education_status = "failed";
       state.delete_education_errors = action.payload;
     },
+    [editGeneralInformation.pending]: (state, action) => {
+      state.edit_general_information_status = "loading";
+    },
+    [editGeneralInformation.fulfilled]: (state, action) => {
+      state.edit_general_information_status = "succeeded";
+      state.profile = action.payload;
+    },
+    [editGeneralInformation.rejected]: (state, action) => {
+      state.edit_general_information_status = "failed";
+      state.edit_general_information_errors = action.payload;
+    },
     [addAbout.pending]: (state, action) => {
       state.add_about_status = "loading";
     },
@@ -399,6 +430,7 @@ export const {
   clearAddEducationErrors,
   clearEditEducationErrors,
   clearDeleteEducationErrors,
+  clearEditGeneralInformationErrors,
   clearAddAboutErrors,
   clearAddSkillsErrors,
   clearAddInterestsErrors,

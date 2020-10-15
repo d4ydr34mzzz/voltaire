@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { fetchCurrentUsersProfile } from "./profileSlice.js";
 import { withRouter } from "react-router-dom";
 import LoadingIcon from "../shared/LoadingIcon.js";
+import EditGeneralInformationModal from "./EditGeneralInformationModal.js";
 import AddExperienceModal from "./AddExperienceModal.js";
 import AddEducationModal from "./AddEducationModal.js";
 import AddSectionModal from "./AddSectionModal.js";
@@ -12,6 +13,7 @@ import AddSkillModal from "./AddSkillModal.js";
 import AddInterestsModal from "./AddInterestsModal.js";
 import AddSocialLinksModal from "./AddSocialLinksModal.js";
 import AddGitHubUsernameModal from "./AddGitHubUsernameModal.js";
+import GeneralInformationSection from "./GeneralInformationSection.js";
 import AboutSection from "./AboutSection.js";
 import ExperienceSection from "./ExperienceSection.js";
 import EducationSection from "./EducationSection.js";
@@ -96,6 +98,15 @@ class Profile extends Component {
       if (Object.keys(profile).length > 0) {
         profileContent = (
           <div>
+            {profile ? (
+              <GeneralInformationSection
+                onModalAlteration={this.handleModalAlteration}
+                user={profile.user}
+                header={profile.header}
+                location={profile.location}
+                status={profile.status}
+              />
+            ) : null}
             {profile.social ? (
               <SocialLinksSection
                 links={profile.social}
@@ -157,6 +168,11 @@ class Profile extends Component {
 
     return (
       <div>
+        {this.state.modal === "generalInformation" ? (
+          <EditGeneralInformationModal
+            onModalAlteration={this.handleModalAlteration}
+          />
+        ) : null}
         {this.state.modal === "education" ? (
           <AddEducationModal onModalAlteration={this.handleModalAlteration} />
         ) : null}
@@ -208,17 +224,6 @@ class Profile extends Component {
                   >
                     Add section
                   </a>
-                </div>
-                <div className="profile__section profile__section--top">
-                  <a href="#" className="profile__edit-icon">
-                    <i className="fas fa-pen"></i>
-                  </a>
-                  <img
-                    src={user.picture}
-                    alt=""
-                    className="rounded-circle profile__avatar"
-                  ></img>
-                  <h1 className="profile__username ml-3">{user.fullName}</h1>
                 </div>
                 <div>{profileContent}</div>
               </div>

@@ -11,6 +11,7 @@ function SelectFormGroup({
   options,
   onChange,
   info,
+  required,
 }) {
   const selectOptions = options.map((option) => {
     return (
@@ -22,7 +23,12 @@ function SelectFormGroup({
 
   return (
     <div className="form-group">
-      <label htmlFor={htmlFor}>{label}</label>
+      {label && (
+        <label htmlFor={htmlFor}>
+          {label}
+          {required ? <span className="required-asterisk"> *</span> : null}
+        </label>
+      )}
       <select
         name={name}
         className={classNames("form-control", {
@@ -31,6 +37,7 @@ function SelectFormGroup({
         id={id}
         value={value}
         onChange={onChange}
+        required={required}
       >
         {selectOptions}
       </select>

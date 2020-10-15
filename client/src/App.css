@@ -3,6 +3,14 @@
   --main-light-grey-color: #f5f5f5;
   --main-blue-color: #0069d9;
   --profile-header-color: #505050;
+  --tag-color-1: #3be8b0;
+  --tag-color-2: #1aafd0;
+  --tag-color-3: #6a67ce;
+  --tag-color-4: #ffb900;
+  --tag-color-5: #fc636b;
+  --tag-color-6: #a0c186;
+  --tag-color-7: #f0d3f7;
+  --tag-color-8: #fe7f2d;
 }
 
 .navbar--background-color {
@@ -44,10 +52,9 @@
   height: 100px;
 }
 
-.profile__username {
-  display: inline-block;
-  font-size: 1.3rem;
-  padding: 15px 0px;
+.section__name {
+  font-size: 2rem;
+  font-weight: 400;
 }
 
 .profile__initialize-profile-msg {
@@ -204,4 +211,34 @@
 
 .connect-icon-padding-compensation {
   margin-left: -15px;
+}
+
+.section__subheading {
+  font-size: 1.2rem;
+  font-weight: unset;
+}
+
+.container--left-padding-compensation {
+  margin-left: -15px;
+}
+
+.profile__edit-icon--right-padding-compensation {
+  margin-right: -30px;
+}
+
+.status-tag {
+  background-color: var(--tag-color-1);
+  display: inline-block;
+  padding: 5px;
+  border-radius: 20px;
+  min-width: 100px;
+  text-align: center;
+  margin-top: 30px;
+}
+
+.status-tag__content {
+  font-size: 1rem;
+  margin-bottom: 0px;
+  margin-left: 5px;
+  margin-right: 5px;
 }
