@@ -16,7 +16,7 @@ const Post = mongoose.model("Post");
  * @description Get request route handler for the /api/posts/test path (check if the API endpoint is working)
  */
 router.get("/test", (req, res) => {
-  res.json({ msg: "posts API endpoint works" });
+  res.json({ msg: "posts" });
 });
 
 /**

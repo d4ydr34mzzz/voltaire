@@ -10,7 +10,7 @@ require("../../models/User.js");
  * @description Get request route handler for the /api/auth/test path (check if the API endpoint is working)
  */
 router.get("/test", (req, res) => {
-  res.json({ msg: "auth API endpoint works" });
+  res.json({ msg: "auth" });
 });
 
 /**

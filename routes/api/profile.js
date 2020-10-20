@@ -26,7 +26,7 @@ const Profile = mongoose.model("Profile");
  * @description Get request route handler for the /api/profile/test path (check if the API endpoint is working)
  */
 router.get("/test", (req, res) => {
-  res.json({ msg: "profile API endpoint works" });
+  res.json({ msg: "profile" });
 });
 
 /**
