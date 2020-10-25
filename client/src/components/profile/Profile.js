@@ -5,6 +5,7 @@ import { fetchCurrentUsersProfile } from "./profileSlice.js";
 import { withRouter } from "react-router-dom";
 import LoadingIcon from "../shared/LoadingIcon.js";
 import EditGeneralInformationModal from "./EditGeneralInformationModal.js";
+import EditProfilePictureModal from "./EditProfilePictureModal.js";
 import AddExperienceModal from "./AddExperienceModal.js";
 import AddEducationModal from "./AddEducationModal.js";
 import AddSectionModal from "./AddSectionModal.js";
@@ -170,6 +171,11 @@ class Profile extends Component {
       <div>
         {this.state.modal === "generalInformation" ? (
           <EditGeneralInformationModal
+            onModalAlteration={this.handleModalAlteration}
+          />
+        ) : null}
+        {this.state.modal === "editProfilePicture" ? (
+          <EditProfilePictureModal
             onModalAlteration={this.handleModalAlteration}
           />
         ) : null}

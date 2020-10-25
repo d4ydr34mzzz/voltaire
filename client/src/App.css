@@ -48,8 +48,8 @@
   height: 400px;
 }
 
-.profile__avatar {
-  height: 100px;
+.profile__profile-picture {
+  height: 110px;
 }
 
 .section__name {
@@ -242,3 +242,19 @@
   margin-left: 5px;
   margin-right: 5px;
 }
+
+.profile__edit-profile-picture-button {
+  position: relative;
+  left: 65px;
+  top: -25px;
+  font-size: 1.2rem;
+}
+
+.edit-profile-picture-button__backdrop {
+  color: #2b57ff;
+}
+
+.edit-profile-picture-button__icon {
+  color: white;
+}
+

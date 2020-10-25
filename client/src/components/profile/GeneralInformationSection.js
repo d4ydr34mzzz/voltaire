@@ -8,7 +8,15 @@ class GeneralInformationSection extends Component {
 
   handleClick(event) {
     event.preventDefault();
-    this.props.onModalAlteration("generalInformation");
+    let buttonClicked = event.currentTarget.dataset.button;
+    switch (buttonClicked) {
+      case "profilePicture":
+        this.props.onModalAlteration("editProfilePicture");
+        break;
+      case "edit":
+        this.props.onModalAlteration("generalInformation");
+        break;
+    }
   }
 
   render() {
@@ -20,14 +28,25 @@ class GeneralInformationSection extends Component {
               <img
                 src={this.props.user.picture}
                 alt=""
-                className="rounded-circle profile__avatar"
+                className="rounded-circle profile__profile-picture"
               ></img>
+              <span
+                className="fa-stack fa-2x profile__edit-profile-picture-button"
+                role="button"
+                tabIndex="0"
+                onClick={this.handleClick}
+                data-button="profilePicture"
+              >
+                <i className="fa fa-circle fa-stack-2x edit-profile-picture-button__backdrop"></i>
+                <i className="fas fa-camera fa-stack-1x edit-profile-picture-button__icon"></i>
+              </span>
             </div>
             <div className="col-sm-10">
               <a
                 href="#"
                 className="profile__edit-icon profile__edit-icon--right-padding-compensation"
                 onClick={this.handleClick}
+                data-button="edit"
               >
                 <i className="fas fa-pen"></i>
               </a>
