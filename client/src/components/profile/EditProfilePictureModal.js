@@ -22,7 +22,7 @@ class EditProfilePictureModal extends Component {
 
     this.handleUploadImageClick = this.handleUploadImageClick.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleMouseDown = this.handleMouseDown.bind(this);
+    // this.handleMouseDown = this.handleMouseDown.bind(this);
     this.cancelEditProfilePicture = this.cancelEditProfilePicture.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -62,40 +62,6 @@ class EditProfilePictureModal extends Component {
         },
       });
     }
-  }
-
-  /*
-   * References:
-   * https://stackoverflow.com/questions/46093903/reactjs-state-and-local-variable
-   * https://reactjs.org/docs/events.html
-   * https://stackoverflow.com/questions/48769068/handling-mouse-event-on-react-component
-   * https://www.w3schools.com/howto/howto_js_draggable.asp
-   */
-  handleMouseDown(event) {
-    event.preventDefault();
-    this.handle = document.getElementById("js-range-slider-handle");
-    this.slide = document.getElementById("js-range-slider-slide");
-    this.x1 = event.clientX;
-    document.onmouseup = () => {
-      document.onmouseup = null;
-      document.onmousemove = null;
-    };
-    document.onmousemove = (event) => {
-      console.log(this.handle.offsetLeft);
-      event.preventDefault();
-      this.x2 = this.x1 - event.clientX;
-      this.x1 = event.clientX;
-      const left = this.handle.offsetLeft - this.x2;
-
-      if (left > this.slide.offsetWidth - this.handle.offsetWidth) {
-        this.handle.style.left =
-          this.slide.offsetWidth - this.handle.offsetWidth + "px";
-      } else if (left < 0) {
-        this.handle.style.left = 0 + "px";
-      } else {
-        this.handle.style.left = left + "px";
-      }
-    };
   }
 
   cancelEditProfilePicture(event) {
@@ -150,40 +116,22 @@ class EditProfilePictureModal extends Component {
                   scale={1}
                   rotate={0}
                 />
-                <div className="profile-picture-editor__slider">
-                  <div className="slider__zoom-out-button">
+                <div className="profile-picture-editor__zoom-selector">
+                  <div className="zoom-selector__zoom-out-button">
                     <i className="fas fa-minus" aria-hidden="true"></i>
                   </div>
-                  <div className="slider_slide-group">
-                    <div
-                      className="slide_group__handle"
-                      id="js-range-slider-handle"
-                      onMouseDown={this.handleMouseDown}
-                    ></div>
-                    <div
-                      className="slide_group__slide"
-                      id="js-range-slider-slide"
-                    ></div>
+                  <div class="zoom-selector__slider-container">
+                    <input
+                      type="range"
+                      min="1"
+                      max="100"
+                      class="slider-container__slider"
+                      id="myRange"
+                    />
                   </div>
-                  <div className="slider__zoom-in-button">
+                  <div className="zoom-selector__zoom-in-button">
                     <i className="fas fa-plus" aria-hidden="true"></i>
                   </div>
-                </div>
-
-                <div className="slider__zoom-out-button">
-                  <i className="fas fa-minus" aria-hidden="true"></i>
-                </div>
-                <div class="slidecontainer">
-                  <input
-                    type="range"
-                    min="1"
-                    max="100"
-                    class="slider"
-                    id="myRange"
-                  />
-                </div>
-                <div className="slider__zoom-in-button">
-                  <i className="fas fa-plus" aria-hidden="true"></i>
                 </div>
               </div>
             ) : (
