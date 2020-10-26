@@ -14,6 +14,7 @@ class EditProfilePictureModal extends Component {
         fileType: "",
         fileSize: "",
       },
+      zoom: 1,
     };
 
     this.x1 = 0;
@@ -21,8 +22,8 @@ class EditProfilePictureModal extends Component {
     this.handle = undefined;
 
     this.handleUploadImageClick = this.handleUploadImageClick.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
-    // this.handleMouseDown = this.handleMouseDown.bind(this);
+    this.handleFileInputChange = this.handleFileInputChange.bind(this);
+    this.handleZoomChange = this.handleZoomChange.bind(this);
     this.cancelEditProfilePicture = this.cancelEditProfilePicture.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -35,7 +36,7 @@ class EditProfilePictureModal extends Component {
     document.getElementById("profilePicture").click();
   }
 
-  handleInputChange(event) {
+  handleFileInputChange(event) {
     let file = document.getElementById("profilePicture").files[0];
     this.setState({ fileSize: file.size / 1048576 });
     if (/\.(jpe?g|png)$/i.test(file.name)) {
@@ -62,6 +63,12 @@ class EditProfilePictureModal extends Component {
         },
       });
     }
+  }
+
+  handleZoomChange(event) {
+    this.setState({
+      zoom: Number(event.target.value),
+    });
   }
 
   cancelEditProfilePicture(event) {
@@ -113,7 +120,7 @@ class EditProfilePictureModal extends Component {
                   border={0}
                   borderRadius={10000}
                   color={[255, 255, 255, 0.6]}
-                  scale={1}
+                  scale={0.9 + this.state.zoom / 10}
                   rotate={0}
                 />
                 <div className="profile-picture-editor__zoom-selector">
@@ -126,7 +133,9 @@ class EditProfilePictureModal extends Component {
                       min="1"
                       max="100"
                       class="slider-container__slider"
-                      id="myRange"
+                      id="zoom"
+                      value={this.state.zoom}
+                      onChange={this.handleZoomChange}
                     />
                   </div>
                   <div className="zoom-selector__zoom-in-button">
@@ -178,7 +187,7 @@ class EditProfilePictureModal extends Component {
                 type="file"
                 className="invisible"
                 accept=".jpg, .jpeg, .png"
-                onChange={this.handleInputChange}
+                onChange={this.handleFileInputChange}
               ></input>
               <div className="float-right mt-4 mb-4">
                 <button
