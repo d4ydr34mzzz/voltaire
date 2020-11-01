@@ -7,6 +7,7 @@ const initialState = {
   register_status: "idle",
   login_status: "idle",
   logout_status: "idle",
+  fetch_current_user_status: "idle",
   errors: {},
 };
 
@@ -46,6 +47,18 @@ export const logoutUser = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(error);
+    }
+  }
+);
+
+export const fetchCurrentUser = createAsyncThunk(
+  "profile/fetchCurrentUser",
+  async (arg, { rejectWithValue }) => {
+    try {
+      let response = await axios.get("/api/users/current");
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
     }
   }
 );
@@ -92,6 +105,17 @@ export const authSlice = createSlice({
     },
     [logoutUser.rejected]: (state, action) => {
       state.logout_status = "failed";
+      state.errors = action.payload;
+    },
+    [fetchCurrentUser.pending]: (state, action) => {
+      state.fetch_current_user_status = "loading";
+    },
+    [fetchCurrentUser.fulfilled]: (state, action) => {
+      state.fetch_current_user_status = "succeeded";
+      state.user = action.payload;
+    },
+    [fetchCurrentUser.rejected]: (state, action) => {
+      state.fetch_current_user_status = "failed";
       state.errors = action.payload;
     },
   },
