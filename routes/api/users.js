@@ -45,6 +45,7 @@ router.get("/current", ensureAuthenticated, (req, res) => {
         lastName: user.lastName,
         internalAuth: { _id: user.internalAuth._id },
         picture: user.picture,
+        profilePicturePublicId: user.profilePicturePublicId,
         profilePicture: user.profilePicture,
         profilePictureCroppingRectangle: user.profilePictureCroppingRectangle,
         fullName: user.firstName + " " + user.lastName,
