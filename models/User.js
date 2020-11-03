@@ -48,6 +48,18 @@ const userSchema = new Schema({
     type: String,
     require: true,
   },
+  profilePicturePublicId: {
+    type: String,
+    default: "",
+  },
+  profilePicture: {
+    type: String,
+    default: "",
+  },
+  profilePictureCroppingRectangle: {
+    type: String,
+    default: "",
+  },
   joined: {
     type: Date,
     default: Date.now,
