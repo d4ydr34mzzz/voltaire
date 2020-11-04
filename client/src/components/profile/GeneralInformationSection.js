@@ -26,12 +26,16 @@ class GeneralInformationSection extends Component {
           <div className="row">
             <div className="col-sm-2">
               <img
-                src={this.props.user.picture}
+                src={
+                  this.props.profilePictureCropped
+                    ? this.props.profilePictureCropped
+                    : this.props.user.picture
+                }
                 alt=""
                 className="rounded-circle profile__profile-picture"
               ></img>
               <span
-                className="fa-stack fa-2x profile__edit-profile-picture-button"
+                className="fa-stack profile__edit-profile-picture-button"
                 role="button"
                 tabIndex="0"
                 onClick={this.handleClick}
