@@ -350,3 +350,11 @@
   background: #007bff;
   cursor: pointer;
 }
+
+.profile-picture-editor__remove-image-button {
+  font-size: 1.7rem;
+  float: right;
+  margin-right: 1.25rem;
+  margin-top: 35px;
+  padding: 0rem 1rem;
+}

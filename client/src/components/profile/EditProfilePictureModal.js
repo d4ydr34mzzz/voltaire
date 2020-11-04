@@ -1,49 +1,72 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { fetchCurrentUser, clearErrors } from "../auth/authSlice.js";
+import {
+  editProfilePicture,
+  clearEditProfilePictureErrors,
+} from "./profileSlice.js";
 import AvatarEditor from "react-avatar-editor";
 
 class EditProfilePictureModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      profilePicture: this.props.profile
-        ? this.props.profile.profile.profilePicture
-        : "",
+      profilePicture:
+        this.props.auth &&
+        this.props.auth.user &&
+        this.props.auth.user.profilePicture
+          ? this.props.auth.user.profilePicture
+          : "",
+      croppingRectangle:
+        this.props.auth &&
+        this.props.auth.user &&
+        this.props.auth.user.profilePictureCroppingRectangle
+          ? this.props.auth.user.profilePictureCroppingRectangle
+          : "",
       uploadedImageDataURL: "",
       imageUploadErrors: {
         fileType: "",
         fileSize: "",
       },
       zoom: 1,
+      /* TODO: have x and y for editor in state as well */
     };
 
-    this.x1 = 0;
-    this.x2 = 0;
-    this.handle = undefined;
+    this.props.fetchCurrentUser();
 
     this.handleUploadImageClick = this.handleUploadImageClick.bind(this);
+    this.handleRemoveImageClick = this.handleRemoveImageClick.bind(this);
     this.handleFileInputChange = this.handleFileInputChange.bind(this);
     this.handleZoomChange = this.handleZoomChange.bind(this);
+    this.setEditorRef = this.setEditorRef.bind(this);
     this.cancelEditProfilePicture = this.cancelEditProfilePicture.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentWillUnmount() {
-    // TODO
+    this.props.clearErrors();
+    this.props.clearEditProfilePictureErrors();
   }
 
   handleUploadImageClick(event) {
     document.getElementById("profilePicture").click();
   }
 
+  handleRemoveImageClick(event) {
+    document.getElementById("profilePicture").value = "";
+    this.setState({
+      profilePicture: "",
+      uploadedImageDataURL: "",
+    });
+  }
+
   handleFileInputChange(event) {
     let file = document.getElementById("profilePicture").files[0];
-    this.setState({ fileSize: file.size / 1048576 });
     if (/\.(jpe?g|png)$/i.test(file.name)) {
-      if (file.size / 1048576 > 10) {
+      if (file.size / 1048576 /* MiB */ > 10) {
         this.setState({
           imageUploadErrors: {
-            fileSize: "The selected file is too large",
+            fileSize: "File too large",
           },
         });
       } else {
@@ -71,17 +94,53 @@ class EditProfilePictureModal extends Component {
     });
   }
 
+  setEditorRef(editor) {
+    this.editor = editor;
+  }
+
   cancelEditProfilePicture(event) {
     this.props.onModalAlteration("");
   }
 
   handleSubmit(event) {
     event.preventDefault();
-    // TODO
-    console.log("Upload image and save ref in database");
+
+    let profilePicture;
+    let croppingRectangle;
+
+    if (this.state.profilePicture) {
+      /* User wants to change the croppingRectangle for the previously uploaded image */
+      profilePicture = undefined;
+      croppingRectangle = JSON.stringify(this.editor.getCroppingRect());
+    } else if (!this.state.profilePicture && this.state.uploadedImageDataURL) {
+      /* User wants to upload a new profile image */
+      profilePicture = document.getElementById("profilePicture").files[0];
+      croppingRectangle = JSON.stringify(this.editor.getCroppingRect());
+    } else if (
+      !(this.state.profilePicture && this.state.uploadedImageDataURL)
+    ) {
+      /* User wants to remove their current profile picture */
+      profilePicture = undefined;
+      croppingRectangle = undefined;
+    }
+
+    const profilePictureData = {
+      profilePicture: profilePicture,
+      croppingRectangle: croppingRectangle,
+    };
+
+    this.props.editProfilePicture(profilePictureData).then(() => {
+      if (this.props.profile.edit_profile_picture_status === "succeeded") {
+        this.props.onModalAlteration("");
+      }
+    });
   }
 
   render() {
+    let errors = this.props.profile.edit_profile_picture_errors
+      ? this.props.profile.edit_profile_picture_errors
+      : {};
+
     return (
       <div className="modal-overlay" onClick={this.cancelEditProfilePicture}>
         <div
@@ -110,11 +169,21 @@ class EditProfilePictureModal extends Component {
               {this.state.imageUploadErrors.fileSize}
             </div>
           ) : null}
+          {errors.profilePicture ? (
+            <div className="alert alert-danger mb-0" role="alert">
+              {errors.profilePicture.msg}
+            </div>
+          ) : null}
           <div className="profile-picture-editor">
             {this.state.profilePicture || this.state.uploadedImageDataURL ? (
               <div>
                 <AvatarEditor
-                  image={this.state.uploadedImageDataURL}
+                  ref={this.setEditorRef}
+                  image={
+                    this.state.profilePicture
+                      ? this.state.profilePicture
+                      : this.state.uploadedImageDataURL
+                  }
                   width={320}
                   height={320}
                   border={0}
@@ -127,12 +196,12 @@ class EditProfilePictureModal extends Component {
                   <div className="zoom-selector__zoom-out-button">
                     <i className="fas fa-minus" aria-hidden="true"></i>
                   </div>
-                  <div class="zoom-selector__slider-container">
+                  <div className="zoom-selector__slider-container">
                     <input
                       type="range"
                       min="1"
                       max="100"
-                      class="slider-container__slider"
+                      className="slider-container__slider"
                       id="zoom"
                       value={this.state.zoom}
                       onChange={this.handleZoomChange}
@@ -142,6 +211,17 @@ class EditProfilePictureModal extends Component {
                     <i className="fas fa-plus" aria-hidden="true"></i>
                   </div>
                 </div>
+                {this.state.profilePicture ||
+                this.state.uploadedImageDataURL ? (
+                  <span
+                    className="profile-picture-editor__remove-image-button"
+                    role="button"
+                    tabIndex="0"
+                    onClick={this.handleRemoveImageClick}
+                  >
+                    <i className="far fa-trash-alt" aria-hidden="true"></i>
+                  </span>
+                ) : null}
               </div>
             ) : (
               <div
@@ -211,6 +291,7 @@ class EditProfilePictureModal extends Component {
 
 // Select data from store that the EditProfilePictureModal component needs; each field with become a prop in the EditProfilePictureModal component
 const mapStateToProps = (state) => ({
+  auth: state.auth,
   profile: state.profile,
 });
 
@@ -218,7 +299,12 @@ const mapStateToProps = (state) => ({
  * Create functions that dispatch when called; object shorthand form automatically calls bindActionCreators
  * internally; these functions are passed as props to the EditProfilePictureModal component
  */
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  fetchCurrentUser,
+  clearErrors,
+  editProfilePicture,
+  clearEditProfilePictureErrors,
+};
 
 // Connect the EditProfilePictureModal component to the Redux store
 export default connect(

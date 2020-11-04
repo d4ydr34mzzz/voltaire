@@ -103,6 +103,7 @@ class Profile extends Component {
               <GeneralInformationSection
                 onModalAlteration={this.handleModalAlteration}
                 user={profile.user}
+                profilePictureCropped={profile.profilePictureCropped}
                 header={profile.header}
                 location={profile.location}
                 status={profile.status}
@@ -177,6 +178,11 @@ class Profile extends Component {
         {this.state.modal === "editProfilePicture" ? (
           <EditProfilePictureModal
             onModalAlteration={this.handleModalAlteration}
+            key={this.props.auth.user.profilePicturePublicId}
+            /* References:
+             * https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops and
+             * https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
+             */
           />
         ) : null}
         {this.state.modal === "education" ? (
