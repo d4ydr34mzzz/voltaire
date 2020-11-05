@@ -47,6 +47,10 @@ const profileSchema = new Schema({
   githubUsername: {
     type: String,
   },
+  profilePictureCroppedPublicId: {
+    type: String,
+    default: "",
+  },
   profilePictureCropped: {
     type: String,
     default: "",
