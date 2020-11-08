@@ -17,6 +17,7 @@ class EditProfilePictureModal extends Component {
         this.props.auth.user.profilePicture
           ? this.props.auth.user.profilePicture
           : "",
+      profilePictureDataURL: "",
       croppingRectangle:
         this.props.auth &&
         this.props.auth.user &&
@@ -41,6 +42,38 @@ class EditProfilePictureModal extends Component {
     this.setEditorRef = this.setEditorRef.bind(this);
     this.cancelEditProfilePicture = this.cancelEditProfilePicture.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  componentDidMount() {
+    function loadImageXHR(url) {
+      /* Reference: https://stackoverflow.com/a/42508185 */
+      return new Promise((resolve, reject) => {
+        try {
+          const request = new XMLHttpRequest();
+          request.open("GET", url);
+          request.responseType = "blob";
+          request.onload = () => {
+            if (request.status === 200) {
+              resolve(request.response);
+            } else {
+              reject(request.statusText);
+            }
+          };
+          request.onerror = () => {
+            reject("An error occurred while transferring the file.");
+          };
+          request.send();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    if (this.state.profilePicture) {
+      loadImageXHR(this.state.profilePicture).then((blob) => {
+        this.setState({ profilePictureDataURL: URL.createObjectURL(blob) });
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -105,35 +138,86 @@ class EditProfilePictureModal extends Component {
   handleSubmit(event) {
     event.preventDefault();
 
+    function createBlob(canvas) {
+      return new Promise((resolve, reject) => {
+        canvas.toBlob(function (blob) {
+          resolve(blob);
+        });
+      });
+    }
+
     let profilePicture;
+    let profilePictureCropped;
     let croppingRectangle;
 
     if (this.state.profilePicture) {
       /* User wants to change the croppingRectangle for the previously uploaded image */
       profilePicture = undefined;
+      profilePictureCropped = this.editor.getImageScaledToCanvas();
       croppingRectangle = JSON.stringify(this.editor.getCroppingRect());
     } else if (!this.state.profilePicture && this.state.uploadedImageDataURL) {
       /* User wants to upload a new profile image */
       profilePicture = document.getElementById("profilePicture").files[0];
+      profilePictureCropped = this.editor.getImageScaledToCanvas();
       croppingRectangle = JSON.stringify(this.editor.getCroppingRect());
     } else if (
       !(this.state.profilePicture && this.state.uploadedImageDataURL)
     ) {
       /* User wants to remove their current profile picture */
       profilePicture = undefined;
+      profilePictureCropped = undefined;
       croppingRectangle = undefined;
     }
 
-    const profilePictureData = {
+    let profilePictureData = {
       profilePicture: profilePicture,
+      profilePictureCropped: profilePictureCropped,
       croppingRectangle: croppingRectangle,
     };
 
-    this.props.editProfilePicture(profilePictureData).then(() => {
-      if (this.props.profile.edit_profile_picture_status === "succeeded") {
-        this.props.onModalAlteration("");
+    if (profilePictureCropped) {
+      let fileName;
+      let fileType;
+
+      if (profilePicture) {
+        fileName = profilePicture.name;
+        fileType = profilePicture.type;
+      } else {
+        /* Reference: https://stackoverflow.com/a/1203361 */
+        let fileExtension = this.state.profilePicture.split(".");
+        if (
+          fileExtension.lenth === 1 ||
+          (fileExtension[0] === "") & (fileExtension.lenth === 2)
+        ) {
+          fileExtension = "";
+        } else {
+          fileExtension = fileExtension.pop();
+        }
+        fileName =
+          "profilePictureCropped" + (fileExtension ? "." + fileExtension : "");
+        fileType = "image/" + (fileExtension ? fileExtension : "");
       }
-    });
+
+      createBlob(profilePictureCropped).then((blob) => {
+        profilePictureData["profilePictureCropped"] = new File(
+          [blob],
+          fileName,
+          { type: fileType }
+        );
+
+        this.props.editProfilePicture(profilePictureData).then(() => {
+          if (this.props.profile.edit_profile_picture_status === "succeeded") {
+            this.props.onModalAlteration("");
+          }
+        });
+      });
+    } else {
+      this.props.editProfilePicture(profilePictureData).then(() => {
+        if (this.props.profile.edit_profile_picture_status === "succeeded") {
+          this.props.onModalAlteration("");
+        }
+      });
+    }
   }
 
   render() {
@@ -181,7 +265,7 @@ class EditProfilePictureModal extends Component {
                   ref={this.setEditorRef}
                   image={
                     this.state.profilePicture
-                      ? this.state.profilePicture
+                      ? this.state.profilePictureDataURL
                       : this.state.uploadedImageDataURL
                   }
                   width={320}
