@@ -10,7 +10,6 @@ const { cloudinary } = require("../../config/cloudinary.js");
 const {
   cloudinaryUploadMethod,
   cloudinaryDestroyMethod,
-  cloudinaryExplicitMethod,
 } = require("../../promises/cloudinary.js");
 const { body, validationResult } = require("express-validator");
 const router = express.Router();
@@ -55,10 +54,10 @@ const profilePictureFileFilter = function (req, file, cb) {
 
 // Specify limits on the incoming data (Multer)
 const profilePictureLimits = {
-  fields: 2,
+  fields: 3,
   fileSize: 10 * 1024 * 1024 /* 10 MiB */,
-  files: 1,
-  parts: 3,
+  files: 2,
+  parts: 5,
 };
 
 // Multer configuration for handling profile pictures
@@ -66,7 +65,10 @@ const uploadProfilePicture = multer({
   storage: storage,
   fileFilter: profilePictureFileFilter,
   limits: profilePictureLimits,
-}).single("profilePicture");
+}).fields([
+  { name: "profilePicture", maxCount: 1 },
+  { name: "profilePictureCropped", maxCount: 1 },
+]);
 
 /**
  * @route GET /api/upload/test
@@ -128,23 +130,64 @@ router.put(
       });
     }
 
-    // TODO: Create a sanitization function to set croppingRectangle to undefined
+    let fieldNamesInSubmission = Object.keys(req.files);
+    let numberOfFilesInSubmission =
+      fieldNamesInSubmission.length; /* "maxCount: 1" in the uploadProfilePicture multer configuration ensures that each field only has one file */
 
-    let fileProvided = Boolean(req.file);
-    let croppingRectangleProvided = !(
-      req.body.croppingRectangle === "undefined"
-    );
-
-    // TODO: In the case when a file is provided remove it after saving it to Cloudinary
-
-    if (fileProvided && !croppingRectangleProvided) {
+    if (!(numberOfFilesInSubmission >= 0 && numberOfFilesInSubmission <= 2)) {
       return res.status(400).json({
         profilePicture: {
           msg:
             "There was an issue processing the request. Please try again later.",
         },
       });
-    } else if (!fileProvided && croppingRectangleProvided) {
+    }
+
+    if (
+      numberOfFilesInSubmission === 1 &&
+      fieldNamesInSubmission[0] !== "profilePictureCropped"
+    ) {
+      return res.status(400).json({
+        profilePicture: {
+          msg:
+            "There was an issue processing the request. Please try again later.",
+        },
+      });
+    }
+
+    if (numberOfFilesInSubmission === 2) {
+      let requiredFieldNames = ["profilePicture", "profilePictureCropped"];
+
+      if (
+        !requiredFieldNames.every((fieldName) =>
+          fieldNamesInSubmission.includes(fieldName)
+        )
+      ) {
+        return res.status(400).json({
+          profilePicture: {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
+        });
+      }
+    }
+
+    // TODO: Create a sanitization function to set croppingRectangle to undefined
+
+    let croppingRectangleProvided = !(
+      req.body.croppingRectangle === "undefined"
+    );
+
+    // TODO: In the case when a file is provided remove it after saving it to Cloudinary
+
+    if (numberOfFilesInSubmission && !croppingRectangleProvided) {
+      return res.status(400).json({
+        profilePicture: {
+          msg:
+            "There was an issue processing the request. Please try again later.",
+        },
+      });
+    } else if (numberOfFilesInSubmission === 1 && croppingRectangleProvided) {
       /* User wants to adjust existing profile image (if it exists)
        * Check user document has a profilePicture defined (return error if not defined)
        */
@@ -171,134 +214,30 @@ router.put(
               });
             }
 
-            const croppingRectangle = JSON.parse(req.body.croppingRectangle);
-            cloudinaryExplicitMethod(user.profilePicturePublicId, {
-              type: "private",
-              eager: [
-                {
-                  crop: "crop",
-                  width: croppingRectangle.width,
-                  height: croppingRectangle.height,
-                  x: croppingRectangle.x,
-                  y: croppingRectangle.y,
-                },
-              ],
-            }).then((result) => {
-              if (
-                result &&
-                result.public_id &&
-                result.secure_url &&
-                result.eager &&
-                result.eager[0].secure_url
-              ) {
-                user.profilePictureCroppingRectangle =
-                  req.body.croppingRectangle;
-
-                profile.profilePictureCropped = result.eager[0].secure_url;
-
-                let promise1 = user.save();
-
-                let promise2 = new Promise((resolve, reject) => {
-                  /* References:
-                   * https://stackoverflow.com/a/52249411
-                   * https://stackoverflow.com/a/45490618
-                   * https://stackoverflow.com/a/51431746
-                   */
-                  profile.save((err, profile) => {
-                    if (err) {
-                      return reject("Could not save the updated profile");
-                    }
-
-                    return resolve(
-                      profile
-                        .populate("user", ["firstName", "lastName", "picture"])
-                        .execPopulate()
-                    );
-                  });
-                });
-
-                Promise.all([promise1, promise2]).then((values) => {
-                  return res.json(values[1]);
-                });
-              } else {
-                return Promise.reject(
-                  "Cloudinary response not formatted correctly"
-                );
-              }
-            });
-          });
-        })
-        .catch((err) => {
-          res.status(500).json({
-            profilePicture: {
-              msg:
-                "There was an issue processing the request. Please try again later.",
-            },
-          });
-        });
-    } else if (fileProvided && croppingRectangleProvided) {
-      /* User wants to upload a new profile image
-       * Delete the previous profile pictures from Cloudinary if they exist
-       */
-
-      Profile.findOne({ user: req.user.id })
-        .then((profile) => {
-          if (!profile) {
-            return res.status(404).json({
-              errors: [
-                {
-                  msg: "Profile does not exist",
-                },
-              ],
-            });
-          }
-
-          User.findOne({ _id: req.user.id }).then((user) => {
             let promise1 = Promise.resolve();
-            let promise2 = Promise.resolve();
-            if (user.profilePicture) {
-              promise1 = cloudinaryDestroyMethod(user.profilePicturePublicId, {
-                type: "private",
-                invalidate: "true",
-              });
-            }
-            if (profile.profilePictureCropped) {
-              promise2 = cloudinaryDestroyMethod(
-                profile.profilePictureCropped,
+            if (
+              profile.profilePictureCroppedPublicId &&
+              profile.profilePictureCropped
+            ) {
+              promise1 = cloudinaryDestroyMethod(
+                profile.profilePictureCroppedPublicId,
                 {
-                  type: "private",
                   invalidate: "true",
                 }
               );
             }
 
-            Promise.all([promise1, promise2]).then((values) => {
-              const croppingRectangle = JSON.parse(req.body.croppingRectangle);
-              cloudinaryUploadMethod(req.file.path, {
-                type: "private",
-                eager: [
-                  {
-                    crop: "crop",
-                    width: croppingRectangle.width,
-                    height: croppingRectangle.height,
-                    x: croppingRectangle.x,
-                    y: croppingRectangle.y,
-                  },
-                ],
-              }).then((result) => {
-                if (
-                  result &&
-                  result.public_id &&
-                  result.secure_url &&
-                  result.eager &&
-                  result.eager[0].secure_url
-                ) {
-                  user.profilePicturePublicId = result.public_id;
-                  user.profilePicture = result.secure_url;
+            Promise.all([promise1]).then((values) => {
+              cloudinaryUploadMethod(
+                req.files["profilePictureCropped"][0].path,
+                { allowed_formats: ["jpg", "jpeg", "png"] }
+              ).then((result) => {
+                if (result && result.public_id && result.secure_url) {
                   user.profilePictureCroppingRectangle =
                     req.body.croppingRectangle;
 
-                  profile.profilePictureCropped = result.eager[0].secure_url;
+                  profile.profilePictureCroppedPublicId = result.public_id;
+                  profile.profilePictureCropped = result.secure_url;
 
                   let promise1 = user.save();
 
@@ -345,7 +284,121 @@ router.put(
             },
           });
         });
-    } else if (!fileProvided && !croppingRectangleProvided) {
+    } else if (numberOfFilesInSubmission === 2 && croppingRectangleProvided) {
+      /* User wants to upload a new profile image
+       * Delete the previous profile pictures from Cloudinary if they exist
+       */
+
+      Profile.findOne({ user: req.user.id })
+        .then((profile) => {
+          if (!profile) {
+            return res.status(404).json({
+              errors: [
+                {
+                  msg: "Profile does not exist",
+                },
+              ],
+            });
+          }
+
+          User.findOne({ _id: req.user.id }).then((user) => {
+            let promise1 = Promise.resolve();
+            let promise2 = Promise.resolve();
+            if (user.profilePicturePublicId && user.profilePicture) {
+              promise1 = cloudinaryDestroyMethod(user.profilePicturePublicId, {
+                type: "private",
+                invalidate: "true",
+              });
+            }
+            if (
+              profile.profilePictureCroppedPublicId &&
+              profile.profilePictureCropped
+            ) {
+              promise2 = cloudinaryDestroyMethod(
+                profile.profilePictureCroppedPublicId,
+                {
+                  invalidate: "true",
+                }
+              );
+            }
+
+            Promise.all([promise1, promise2]).then((values) => {
+              let promise1 = cloudinaryUploadMethod(
+                req.files["profilePicture"][0].path,
+                { type: "private", allowed_formats: ["jpg", "jpeg", "png"] }
+              );
+
+              let promise2 = cloudinaryUploadMethod(
+                req.files["profilePictureCropped"][0].path,
+                { allowed_formats: ["jpg", "jpeg", "png"] }
+              );
+
+              Promise.all([promise1, promise2]).then((values) => {
+                let result1 = values[0];
+                let result2 = values[1];
+
+                if (
+                  result1 &&
+                  result1.public_id &&
+                  result1.secure_url &&
+                  result2 &&
+                  result2.public_id &&
+                  result2.secure_url
+                ) {
+                  user.profilePicturePublicId = result1.public_id;
+                  user.profilePicture = result1.secure_url;
+                  user.profilePictureCroppingRectangle =
+                    req.body.croppingRectangle;
+
+                  profile.profilePictureCroppedPublicId = result2.public_id;
+                  profile.profilePictureCropped = result2.secure_url;
+
+                  let promise1 = user.save();
+
+                  let promise2 = new Promise((resolve, reject) => {
+                    /* References:
+                     * https://stackoverflow.com/a/52249411
+                     * https://stackoverflow.com/a/45490618
+                     * https://stackoverflow.com/a/51431746
+                     */
+                    profile.save((err, profile) => {
+                      if (err) {
+                        return reject("Could not save the updated profile");
+                      }
+
+                      return resolve(
+                        profile
+                          .populate("user", [
+                            "firstName",
+                            "lastName",
+                            "picture",
+                          ])
+                          .execPopulate()
+                      );
+                    });
+                  });
+
+                  Promise.all([promise1, promise2]).then((values) => {
+                    return res.json(values[1]);
+                  });
+                } else {
+                  return Promise.reject(
+                    "Cloudinary response not formatted correctly"
+                  );
+                }
+              });
+            });
+          });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            profilePicture: {
+              msg:
+                "There was an issue processing the request. Please try again later.",
+            },
+          });
+        });
+    } else if (numberOfFilesInSubmission === 0 && !croppingRectangleProvided) {
       /* User wants to remove an existing profile image (if it exists) */
 
       Profile.findOne({ user: req.user.id })
@@ -363,17 +416,19 @@ router.put(
           User.findOne({ _id: req.user.id }).then((user) => {
             let promise1 = Promise.resolve();
             let promise2 = Promise.resolve();
-            if (user.profilePicture) {
+            if (user.profilePicturePublicId && user.profilePicture) {
               promise1 = cloudinaryDestroyMethod(user.profilePicturePublicId, {
                 type: "private",
                 invalidate: "true",
               });
             }
-            if (profile.profilePictureCropped) {
+            if (
+              profile.profilePictureCroppedPublicId &&
+              profile.profilePictureCropped
+            ) {
               promise2 = cloudinaryDestroyMethod(
-                profile.profilePictureCropped,
+                profile.profilePictureCroppedPublicId,
                 {
-                  type: "private",
                   invalidate: "true",
                 }
               );
@@ -384,6 +439,7 @@ router.put(
               user.profilePicture = "";
               user.profilePictureCroppingRectangle = "";
 
+              profile.profilePictureCroppedPublicId = "";
               profile.profilePictureCropped = "";
 
               let promise1 = user.save();
