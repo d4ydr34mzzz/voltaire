@@ -48,6 +48,9 @@ router.get("/current", ensureAuthenticated, (req, res) => {
         profilePicturePublicId: user.profilePicturePublicId,
         profilePicture: user.profilePicture,
         profilePictureCroppingRectangle: user.profilePictureCroppingRectangle,
+        coverImagePublicId: user.coverImagePublicId,
+        coverImage: user.coverImage,
+        coverImageCroppingRectangle: user.coverImageCroppingRectangle,
         fullName: user.firstName + " " + user.lastName,
         joined: user.joined,
       };
