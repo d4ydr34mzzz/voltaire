@@ -52,8 +52,30 @@ const profilePictureFileFilter = function (req, file, cb) {
   }
 };
 
-// Specify limits on the incoming data (Multer)
+// Specify limits on the incoming data for profile pictures (Multer)
 const profilePictureLimits = {
+  fields: 3,
+  fileSize: 10 * 1024 * 1024 /* 10 MiB */,
+  files: 2,
+  parts: 5,
+};
+
+// Specify which files are accepted for cover images (Multer)
+const coverImageFileFilter = function (req, file, cb) {
+  let allowedExtensions = /(jpe?g|png)$/i;
+
+  if (
+    allowedExtensions.test(path.extname(file.originalname)) &&
+    allowedExtensions.test(file.mimetype)
+  ) {
+    cb(null, true);
+  } else {
+    cb(new Error("Invalid file type"));
+  }
+};
+
+// Specify limits on the incoming data for cover images (Multer)
+const coverImageLimits = {
   fields: 3,
   fileSize: 10 * 1024 * 1024 /* 10 MiB */,
   files: 2,
@@ -68,6 +90,16 @@ const uploadProfilePicture = multer({
 }).fields([
   { name: "profilePicture", maxCount: 1 },
   { name: "profilePictureCropped", maxCount: 1 },
+]);
+
+// Multer configuration for handling cover images
+const uploadCoverImage = multer({
+  storage: storage,
+  fileFilter: coverImageFileFilter,
+  limits: coverImageLimits,
+}).fields([
+  { name: "coverImage", maxCount: 1 },
+  { name: "coverImageCropped", maxCount: 1 },
 ]);
 
 /**
@@ -477,10 +509,393 @@ router.put(
 );
 
 /**
- * @route POST /api/upload/cover
+ * @route PUT /api/upload/cover-image
  * @access private
- * @description Post request route handler for the /api/upload/cover path (upload a cover image for the current user)
+ * @description Put request route handler for the /api/upload/cover-image path (upload a cover image for the current user)
  */
-router.post("/cover", ensureAuthenticated, (req, res) => {});
+router.put(
+  "/cover-image",
+  ensureAuthenticated,
+  parseFormDataUsingMulter(uploadCoverImage) /* validates file type and size */,
+  [
+    body("croppingRectangle")
+      .not()
+      .isEmpty()
+      .if((value, { req }) => {
+        if (value === "undefined") {
+          return false;
+        }
+
+        return true;
+      })
+      .custom((value, { req }) => {
+        let croppingRectangle = JSON.parse(value);
+        return (
+          croppingRectangle.hasOwnProperty("x") &&
+          croppingRectangle.x >= 0 &&
+          croppingRectangle.x <= 1 &&
+          croppingRectangle.hasOwnProperty("y") &&
+          croppingRectangle.y >= 0 &&
+          croppingRectangle.y <= 1 &&
+          croppingRectangle.hasOwnProperty("width") &&
+          croppingRectangle.width >= 0 &&
+          croppingRectangle.width <= 1 &&
+          croppingRectangle.hasOwnProperty("height") &&
+          croppingRectangle.height >= 0 &&
+          croppingRectangle.height <= 1
+        );
+      }),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        coverImage: {
+          msg:
+            "There was an issue processing the request. Please try again later.",
+        },
+      });
+    }
+
+    let fieldNamesInSubmission = Object.keys(req.files);
+    let numberOfFilesInSubmission =
+      fieldNamesInSubmission.length; /* "maxCount: 1" in the uploadCoverImage multer configuration ensures that each field only has one file */
+
+    if (!(numberOfFilesInSubmission >= 0 && numberOfFilesInSubmission <= 2)) {
+      return res.status(400).json({
+        coverImage: {
+          msg:
+            "There was an issue processing the request. Please try again later.",
+        },
+      });
+    }
+
+    if (
+      numberOfFilesInSubmission === 1 &&
+      fieldNamesInSubmission[0] !== "coverImageCropped"
+    ) {
+      return res.status(400).json({
+        coverImage: {
+          msg:
+            "There was an issue processing the request. Please try again later.",
+        },
+      });
+    }
+
+    if (numberOfFilesInSubmission === 2) {
+      let requiredFieldNames = ["coverImage", "coverImageCropped"];
+
+      if (
+        !requiredFieldNames.every((fieldName) =>
+          fieldNamesInSubmission.includes(fieldName)
+        )
+      ) {
+        return res.status(400).json({
+          coverImage: {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
+        });
+      }
+    }
+
+    // TODO: Create a sanitization function to set croppingRectangle to undefined
+
+    let croppingRectangleProvided = !(
+      req.body.croppingRectangle === "undefined"
+    );
+
+    if (numberOfFilesInSubmission && !croppingRectangleProvided) {
+      return res.status(400).json({
+        coverImage: {
+          msg:
+            "There was an issue processing the request. Please try again later.",
+        },
+      });
+    } else if (numberOfFilesInSubmission === 1 && croppingRectangleProvided) {
+      /* User wants to adjust existing cover image (if it exists)
+       * Check user document has a coverImage defined (return error if not defined)
+       */
+
+      Profile.findOne({ user: req.user.id })
+        .then((profile) => {
+          if (!profile) {
+            return res.status(404).json({
+              errors: [
+                {
+                  msg: "Profile does not exist",
+                },
+              ],
+            });
+          }
+
+          User.findOne({ _id: req.user.id }).then((user) => {
+            if (!(user.coverImagePublicId && user.coverImage)) {
+              return res.status(400).json({
+                coverImage: {
+                  msg:
+                    "There was an issue processing the request. Please try again later.",
+                },
+              });
+            }
+
+            let promise1 = Promise.resolve();
+            if (
+              profile.coverImageCroppedPublicId &&
+              profile.coverImageCropped
+            ) {
+              promise1 = cloudinaryDestroyMethod(
+                profile.coverImageCroppedPublicId,
+                {
+                  invalidate: "true",
+                }
+              );
+            }
+
+            Promise.all([promise1]).then((values) => {
+              cloudinaryUploadMethod(req.files["coverImageCropped"][0].path, {
+                allowed_formats: ["jpg", "jpeg", "png"],
+              }).then((result) => {
+                if (result && result.public_id && result.secure_url) {
+                  user.coverImageCroppingRectangle = req.body.croppingRectangle;
+
+                  profile.coverImageCroppedPublicId = result.public_id;
+                  profile.coverImageCropped = result.secure_url;
+
+                  let promise1 = user.save();
+
+                  let promise2 = new Promise((resolve, reject) => {
+                    /* References:
+                     * https://stackoverflow.com/a/52249411
+                     * https://stackoverflow.com/a/45490618
+                     * https://stackoverflow.com/a/51431746
+                     */
+                    profile.save((err, profile) => {
+                      if (err) {
+                        return reject("Could not save the updated profile");
+                      }
+
+                      return resolve(
+                        profile
+                          .populate("user", [
+                            "firstName",
+                            "lastName",
+                            "picture",
+                          ])
+                          .execPopulate()
+                      );
+                    });
+                  });
+
+                  Promise.all([promise1, promise2]).then((values) => {
+                    return res.json(values[1]);
+                  });
+                } else {
+                  return Promise.reject(
+                    "Cloudinary response not formatted correctly"
+                  );
+                }
+              });
+            });
+          });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            coverImage: {
+              msg:
+                "There was an issue processing the request. Please try again later.",
+            },
+          });
+        });
+    } else if (numberOfFilesInSubmission === 2 && croppingRectangleProvided) {
+      /* User wants to upload a new cover image
+       * Delete the previous cover images from Cloudinary if they exist
+       */
+
+      Profile.findOne({ user: req.user.id })
+        .then((profile) => {
+          if (!profile) {
+            return res.status(404).json({
+              errors: [
+                {
+                  msg: "Profile does not exist",
+                },
+              ],
+            });
+          }
+
+          User.findOne({ _id: req.user.id }).then((user) => {
+            let promise1 = Promise.resolve();
+            let promise2 = Promise.resolve();
+            if (user.coverImagePublicId && user.coverImage) {
+              promise1 = cloudinaryDestroyMethod(user.coverImagePublicId, {
+                type: "private",
+                invalidate: "true",
+              });
+            }
+            if (
+              profile.coverImageCroppedPublicId &&
+              profile.coverImageCropped
+            ) {
+              promise2 = cloudinaryDestroyMethod(
+                profile.coverImageCroppedPublicId,
+                {
+                  invalidate: "true",
+                }
+              );
+            }
+
+            Promise.all([promise1, promise2]).then((values) => {
+              let promise1 = cloudinaryUploadMethod(
+                req.files["coverImage"][0].path,
+                { type: "private", allowed_formats: ["jpg", "jpeg", "png"] }
+              );
+
+              let promise2 = cloudinaryUploadMethod(
+                req.files["coverImageCropped"][0].path,
+                { allowed_formats: ["jpg", "jpeg", "png"] }
+              );
+
+              Promise.all([promise1, promise2]).then((values) => {
+                let result1 = values[0];
+                let result2 = values[1];
+
+                if (
+                  result1 &&
+                  result1.public_id &&
+                  result1.secure_url &&
+                  result2 &&
+                  result2.public_id &&
+                  result2.secure_url
+                ) {
+                  user.coverImagePublicId = result1.public_id;
+                  user.coverImage = result1.secure_url;
+                  user.coverImageCroppingRectangle = req.body.croppingRectangle;
+
+                  profile.coverImageCroppedPublicId = result2.public_id;
+                  profile.coverImageCropped = result2.secure_url;
+
+                  let promise1 = user.save();
+
+                  let promise2 = new Promise((resolve, reject) => {
+                    /* References:
+                     * https://stackoverflow.com/a/52249411
+                     * https://stackoverflow.com/a/45490618
+                     * https://stackoverflow.com/a/51431746
+                     */
+                    profile.save((err, profile) => {
+                      if (err) {
+                        return reject("Could not save the updated profile");
+                      }
+
+                      return resolve(
+                        profile
+                          .populate("user", [
+                            "firstName",
+                            "lastName",
+                            "picture",
+                          ])
+                          .execPopulate()
+                      );
+                    });
+                  });
+
+                  Promise.all([promise1, promise2]).then((values) => {
+                    return res.json(values[1]);
+                  });
+                } else {
+                  return Promise.reject(
+                    "Cloudinary response not formatted correctly"
+                  );
+                }
+              });
+            });
+          });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            coverImage: {
+              msg:
+                "There was an issue processing the request. Please try again later.",
+            },
+          });
+        });
+    } else if (numberOfFilesInSubmission === 0 && !croppingRectangleProvided) {
+      /* User wants to remove an existing cover image (if it exists) */
+
+      Profile.findOne({ user: req.user.id })
+        .then((profile) => {
+          if (!profile) {
+            return res.status(404).json({
+              errors: [
+                {
+                  msg: "Profile does not exist",
+                },
+              ],
+            });
+          }
+
+          User.findOne({ _id: req.user.id }).then((user) => {
+            let promise1 = Promise.resolve();
+            let promise2 = Promise.resolve();
+            if (user.coverImagePublicId && user.coverImage) {
+              promise1 = cloudinaryDestroyMethod(user.coverImagePublicId, {
+                type: "private",
+                invalidate: "true",
+              });
+            }
+            if (
+              profile.coverImageCroppedPublicId &&
+              profile.coverImageCropped
+            ) {
+              promise2 = cloudinaryDestroyMethod(
+                profile.coverImageCroppedPublicId,
+                {
+                  invalidate: "true",
+                }
+              );
+            }
+
+            Promise.all([promise1, promise2]).then((values) => {
+              user.coverImagePublicId = "";
+              user.coverImage = "";
+              user.coverImageCroppingRectangle = "";
+
+              profile.coverImageCroppedPublicId = "";
+              profile.coverImageCropped = "";
+
+              let promise1 = user.save();
+
+              let promise2 = new Promise((resolve, reject) => {
+                profile.save((err, profile) => {
+                  if (err) {
+                    return reject("Could not save the updated profile");
+                  }
+
+                  return resolve(
+                    profile
+                      .populate("user", ["firstName", "lastName", "picture"])
+                      .execPopulate()
+                  );
+                });
+              });
+
+              Promise.all([promise1, promise2]).then((values) => {
+                return res.json(values[1]);
+              });
+            });
+          });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            coverImage: {
+              msg:
+                "There was an issue processing the request. Please try again later.",
+            },
+          });
+        });
+    }
+  }
+);
 
 module.exports = router;
