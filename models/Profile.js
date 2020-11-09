@@ -55,6 +55,14 @@ const profileSchema = new Schema({
     type: String,
     default: "",
   },
+  coverImageCroppedPublicId: {
+    type: String,
+    default: "",
+  },
+  coverImageCropped: {
+    type: String,
+    default: "",
+  },
   experience: [
     {
       title: {
