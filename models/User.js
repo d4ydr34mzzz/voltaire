@@ -60,6 +60,18 @@ const userSchema = new Schema({
     type: String,
     default: "",
   },
+  coverImagePublicId: {
+    type: String,
+    default: "",
+  },
+  coverImage: {
+    type: String,
+    default: "",
+  },
+  coverImageCroppingRectangle: {
+    type: String,
+    default: "",
+  },
   joined: {
     type: Date,
     default: Date.now,
