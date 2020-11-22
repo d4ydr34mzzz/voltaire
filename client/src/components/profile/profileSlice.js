@@ -22,6 +22,8 @@ const initialState = {
   edit_general_information_errors: {},
   edit_profile_picture_status: "idle",
   edit_profile_picture_errors: {},
+  edit_cover_image_status: "idle",
+  edit_cover_image_errors: {},
   add_about_status: "idle",
   add_about_errors: {},
   add_skills_status: "idle",
@@ -181,6 +183,28 @@ export const editProfilePicture = createAsyncThunk(
   }
 );
 
+export const editCoverImage = createAsyncThunk(
+  "profile/editCoverImage",
+  async (coverImageData, { rejectWithValue }) => {
+    try {
+      let form = new FormData();
+      for (let p in coverImageData) {
+        form.append(p, coverImageData[p]);
+      }
+
+      let response = await axios({
+        method: "put",
+        url: "/api/upload/cover-image",
+        data: form,
+        header: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const addAbout = createAsyncThunk(
   "profile/addAbout",
   async (aboutData, { rejectWithValue }) => {
@@ -271,6 +295,9 @@ export const profileSlice = createSlice({
     },
     clearEditProfilePictureErrors: (state) => {
       state.edit_profile_picture_errors = {};
+    },
+    clearEditCoverImageErrors: (state) => {
+      state.edit_cover_image_errors = {};
     },
     clearAddAboutErrors: (state) => {
       state.add_about_errors = {};
@@ -402,6 +429,17 @@ export const profileSlice = createSlice({
       state.edit_profile_picture_status = "failed";
       state.edit_profile_picture_errors = action.payload;
     },
+    [editCoverImage.pending]: (state, action) => {
+      state.edit_cover_image_status = "loading";
+    },
+    [editCoverImage.fulfilled]: (state, action) => {
+      state.edit_cover_image_status = "succeeded";
+      state.profile = action.payload;
+    },
+    [editCoverImage.rejected]: (state, action) => {
+      state.edit_cover_image_status = "failed";
+      state.edit_cover_image_errors = action.payload;
+    },
     [addAbout.pending]: (state, action) => {
       state.add_about_status = "loading";
     },
@@ -470,6 +508,7 @@ export const {
   clearDeleteEducationErrors,
   clearEditGeneralInformationErrors,
   clearEditProfilePictureErrors,
+  clearEditCoverImageErrors,
   clearAddAboutErrors,
   clearAddSkillsErrors,
   clearAddInterestsErrors,
