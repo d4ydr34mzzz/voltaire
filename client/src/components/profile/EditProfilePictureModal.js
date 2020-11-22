@@ -186,8 +186,8 @@ class EditProfilePictureModal extends Component {
         /* Reference: https://stackoverflow.com/a/1203361 */
         let fileExtension = this.state.profilePicture.split(".");
         if (
-          fileExtension.lenth === 1 ||
-          (fileExtension[0] === "") & (fileExtension.lenth === 2)
+          fileExtension.length === 1 ||
+          (fileExtension[0] === "" && fileExtension.length === 2)
         ) {
           fileExtension = "";
         } else {
