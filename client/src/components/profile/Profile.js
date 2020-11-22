@@ -6,6 +6,7 @@ import { withRouter } from "react-router-dom";
 import LoadingIcon from "../shared/LoadingIcon.js";
 import EditGeneralInformationModal from "./EditGeneralInformationModal.js";
 import EditProfilePictureModal from "./EditProfilePictureModal.js";
+import EditCoverImageModal from "./EditCoverImageModal.js";
 import AddExperienceModal from "./AddExperienceModal.js";
 import AddEducationModal from "./AddEducationModal.js";
 import AddSectionModal from "./AddSectionModal.js";
@@ -35,6 +36,7 @@ class Profile extends Component {
     this.handleAddAboutClick = this.handleAddAboutClick.bind(this);
     this.handleAddSkillClick = this.handleAddSkillClick.bind(this);
     this.handleAddSectionClick = this.handleAddSectionClick.bind(this);
+    this.handleEditCoverImageClick = this.handleEditCoverImageClick.bind(this);
     this.handleModalAlteration = this.handleModalAlteration.bind(this);
   }
 
@@ -77,6 +79,13 @@ class Profile extends Component {
     });
   }
 
+  handleEditCoverImageClick(event) {
+    event.preventDefault();
+    this.setState({
+      modal: "editCoverImage",
+    });
+  }
+
   handleModalAlteration(modal, entryId = "") {
     this.setState({
       modal: modal,
@@ -104,6 +113,7 @@ class Profile extends Component {
                 onModalAlteration={this.handleModalAlteration}
                 user={profile.user}
                 profilePictureCropped={profile.profilePictureCropped}
+                coverImageCropped={profile.coverImageCropped}
                 header={profile.header}
                 location={profile.location}
                 status={profile.status}
@@ -185,6 +195,16 @@ class Profile extends Component {
              */
           />
         ) : null}
+        {this.state.modal === "editCoverImage" ? (
+          <EditCoverImageModal
+            onModalAlteration={this.handleModalAlteration}
+            key={this.props.auth.user.coverImagePublicId}
+            /* References:
+             * https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops and
+             * https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
+             */
+          />
+        ) : null}
         {this.state.modal === "education" ? (
           <AddEducationModal onModalAlteration={this.handleModalAlteration} />
         ) : null}
@@ -224,11 +244,21 @@ class Profile extends Component {
           <AddSectionModal onModalAlteration={this.handleModalAlteration} />
         ) : null}
         <div className="profile">
-          <div className="container-fluid profile__header"></div>
+          <div className="container-fluid p-0 profile__header"></div>
           <div className="container-fluid profile__body">
             <div className="container">
               <div className="col-sm-10 offset-sm-1">
                 <div className="profile__add-section-btn">
+                  <span
+                    className="fa-stack profile__edit-cover-image-button"
+                    role="button"
+                    tabIndex="0"
+                    onClick={this.handleEditCoverImageClick}
+                    data-button="profilePicture"
+                  >
+                    <i className="fa fa-circle fa-stack-2x edit-profile-picture-button__backdrop"></i>
+                    <i className="fas fa-camera fa-stack-1x edit-profile-picture-button__icon"></i>
+                  </span>
                   <a
                     href="#"
                     className="btn btn-primary"
