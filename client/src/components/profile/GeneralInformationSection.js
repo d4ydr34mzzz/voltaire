@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import CoverImageSection from "./CoverImageSection.js";
 
 class GeneralInformationSection extends Component {
   constructor(props) {
@@ -21,48 +22,56 @@ class GeneralInformationSection extends Component {
 
   render() {
     return (
-      <div className="profile__section profile__section--top">
-        <div className="container container--left-padding-compensation">
-          <div className="row">
-            <div className="col-sm-2">
-              <img
-                src={
-                  this.props.profilePictureCropped
-                    ? this.props.profilePictureCropped
-                    : this.props.user.picture
-                }
-                alt=""
-                className="rounded-circle profile__profile-picture"
-              ></img>
-              <span
-                className="fa-stack profile__edit-profile-picture-button"
-                role="button"
-                tabIndex="0"
-                onClick={this.handleClick}
-                data-button="profilePicture"
-              >
-                <i className="fa fa-circle fa-stack-2x edit-profile-picture-button__backdrop"></i>
-                <i className="fas fa-camera fa-stack-1x edit-profile-picture-button__icon"></i>
-              </span>
-            </div>
-            <div className="col-sm-10">
-              <a
-                href="#"
-                className="profile__edit-icon profile__edit-icon--right-padding-compensation"
-                onClick={this.handleClick}
-                data-button="edit"
-              >
-                <i className="fas fa-pen"></i>
-              </a>
-              <div>
-                <h1 className="section__name mb-3">
-                  {this.props.user.firstName} {this.props.user.lastName}
-                </h1>
-                <h2 className="section__subheading">{this.props.header}</h2>
-                <h3 className="section__subheading">{this.props.location}</h3>
-                <span className="status-tag">
-                  <h2 className="status-tag__content">{this.props.status}</h2>
+      <div className="profile__section--top">
+        <div className="profile__cover-image-header">
+          <CoverImageSection
+            coverImageCropped={this.props.coverImageCropped}
+            onModalAlteration={this.props.onModalAlteration}
+          />
+        </div>
+        <div className="profile__section">
+          <div className="container container--left-padding-compensation">
+            <div className="row">
+              <div className="col-sm-2">
+                <img
+                  src={
+                    this.props.profilePictureCropped
+                      ? this.props.profilePictureCropped
+                      : this.props.user.picture
+                  }
+                  alt=""
+                  className="rounded-circle profile__profile-picture"
+                ></img>
+                <span
+                  className="fa-stack profile__edit-profile-picture-button"
+                  role="button"
+                  tabIndex="0"
+                  onClick={this.handleClick}
+                  data-button="profilePicture"
+                >
+                  <i className="fa fa-circle fa-stack-2x edit-picture-button__backdrop"></i>
+                  <i className="fas fa-camera fa-stack-1x edit-picture-button__icon"></i>
                 </span>
+              </div>
+              <div className="col-sm-10">
+                <a
+                  href="#"
+                  className="profile__edit-icon profile__edit-icon--right-padding-compensation"
+                  onClick={this.handleClick}
+                  data-button="edit"
+                >
+                  <i className="fas fa-pen"></i>
+                </a>
+                <div>
+                  <h1 className="section__name mb-3">
+                    {this.props.user.firstName} {this.props.user.lastName}
+                  </h1>
+                  <h2 className="section__subheading">{this.props.header}</h2>
+                  <h3 className="section__subheading">{this.props.location}</h3>
+                  <span className="status-tag">
+                    <h2 className="status-tag__content">{this.props.status}</h2>
+                  </span>
+                </div>
               </div>
             </div>
           </div>

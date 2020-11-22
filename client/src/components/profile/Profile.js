@@ -249,16 +249,6 @@ class Profile extends Component {
             <div className="container">
               <div className="col-sm-10 offset-sm-1">
                 <div className="profile__add-section-btn">
-                  <span
-                    className="fa-stack profile__edit-cover-image-button"
-                    role="button"
-                    tabIndex="0"
-                    onClick={this.handleEditCoverImageClick}
-                    data-button="profilePicture"
-                  >
-                    <i className="fa fa-circle fa-stack-2x edit-profile-picture-button__backdrop"></i>
-                    <i className="fas fa-camera fa-stack-1x edit-profile-picture-button__icon"></i>
-                  </span>
                   <a
                     href="#"
                     className="btn btn-primary"
