@@ -8,7 +8,7 @@ const {
 } = require("../../middleware/parseFormDataUsingMulter.js");
 const { cloudinary } = require("../../config/cloudinary.js");
 const {
-  cloudinaryUploadMethod,
+  cloudinaryUploadStreamMethod,
   cloudinaryDestroyMethod,
 } = require("../../promises/cloudinary.js");
 const { body, validationResult } = require("express-validator");
@@ -26,17 +26,8 @@ const User = mongoose.model("User");
 // Retrieve the Profile model defined in Profile.js
 const Profile = mongoose.model("Profile");
 
-// Multer disk storage engine
-const storage = multer.diskStorage({
-  destination: "./public/tmp/uploads",
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(
-      null,
-      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
-    );
-  },
-});
+// Multer memory storage engine
+const storage = multer.memoryStorage();
 
 // Specify which files are accepted for profile pictures (Multer)
 const profilePictureFileFilter = function (req, file, cb) {
@@ -260,8 +251,8 @@ router.put(
             }
 
             Promise.all([promise1]).then((values) => {
-              cloudinaryUploadMethod(
-                req.files["profilePictureCropped"][0].path,
+              cloudinaryUploadStreamMethod(
+                req.files["profilePictureCropped"][0].buffer,
                 { allowed_formats: ["jpg", "jpeg", "png"] }
               ).then((result) => {
                 if (result && result.public_id && result.secure_url) {
@@ -355,13 +346,13 @@ router.put(
             }
 
             Promise.all([promise1, promise2]).then((values) => {
-              let promise1 = cloudinaryUploadMethod(
-                req.files["profilePicture"][0].path,
+              let promise1 = cloudinaryUploadStreamMethod(
+                req.files["profilePicture"][0].buffer,
                 { type: "private", allowed_formats: ["jpg", "jpeg", "png"] }
               );
 
-              let promise2 = cloudinaryUploadMethod(
-                req.files["profilePictureCropped"][0].path,
+              let promise2 = cloudinaryUploadStreamMethod(
+                req.files["profilePictureCropped"][0].buffer,
                 { allowed_formats: ["jpg", "jpeg", "png"] }
               );
 
@@ -653,9 +644,12 @@ router.put(
             }
 
             Promise.all([promise1]).then((values) => {
-              cloudinaryUploadMethod(req.files["coverImageCropped"][0].path, {
-                allowed_formats: ["jpg", "jpeg", "png"],
-              }).then((result) => {
+              cloudinaryUploadStreamMethod(
+                req.files["coverImageCropped"][0].buffer,
+                {
+                  allowed_formats: ["jpg", "jpeg", "png"],
+                }
+              ).then((result) => {
                 if (result && result.public_id && result.secure_url) {
                   user.coverImageCroppingRectangle = req.body.croppingRectangle;
 
@@ -746,13 +740,13 @@ router.put(
             }
 
             Promise.all([promise1, promise2]).then((values) => {
-              let promise1 = cloudinaryUploadMethod(
-                req.files["coverImage"][0].path,
+              let promise1 = cloudinaryUploadStreamMethod(
+                req.files["coverImage"][0].buffer,
                 { type: "private", allowed_formats: ["jpg", "jpeg", "png"] }
               );
 
-              let promise2 = cloudinaryUploadMethod(
-                req.files["coverImageCropped"][0].path,
+              let promise2 = cloudinaryUploadStreamMethod(
+                req.files["coverImageCropped"][0].buffer,
                 { allowed_formats: ["jpg", "jpeg", "png"] }
               );
 
