@@ -32,28 +32,30 @@ class GeneralInformationSection extends Component {
         <div className="profile__section">
           <div className="container container--left-padding-compensation">
             <div className="row">
-              <div className="col-sm-2">
-                <img
-                  src={
-                    this.props.profilePictureCropped
-                      ? this.props.profilePictureCropped
-                      : this.props.user.picture
-                  }
-                  alt=""
-                  className="rounded-circle profile__profile-picture"
-                ></img>
-                <span
-                  className="fa-stack profile__edit-profile-picture-button"
-                  role="button"
-                  tabIndex="0"
-                  onClick={this.handleClick}
-                  data-button="profilePicture"
-                >
-                  <i className="fa fa-circle fa-stack-2x edit-picture-button__backdrop"></i>
-                  <i className="fas fa-camera fa-stack-1x edit-picture-button__icon"></i>
-                </span>
+              <div className="col-md-3 col-xl-2">
+                <div className="position-relative">
+                  <img
+                    src={
+                      this.props.profilePictureCropped
+                        ? this.props.profilePictureCropped
+                        : this.props.user.picture
+                    }
+                    alt=""
+                    className="rounded-circle profile__profile-picture"
+                  ></img>
+                  <span
+                    className="fa-stack profile__edit-profile-picture-button"
+                    role="button"
+                    tabIndex="0"
+                    onClick={this.handleClick}
+                    data-button="profilePicture"
+                  >
+                    <i className="fa fa-circle fa-stack-2x edit-picture-button__backdrop"></i>
+                    <i className="fas fa-camera fa-stack-1x edit-picture-button__icon"></i>
+                  </span>
+                </div>
               </div>
-              <div className="col-sm-10">
+              <div className="col-md-9 col-xl-10 pt-5 pt-md-0">
                 <a
                   href="#"
                   className="profile__edit-icon profile__edit-icon--right-padding-compensation"
@@ -62,7 +64,7 @@ class GeneralInformationSection extends Component {
                 >
                   <i className="fas fa-pen"></i>
                 </a>
-                <div>
+                <div className="pl-3">
                   <h1 className="section__name mb-3">
                     {this.props.user.firstName} {this.props.user.lastName}
                   </h1>

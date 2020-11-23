@@ -244,9 +244,9 @@
 }
 
 .profile__edit-profile-picture-button {
-  position: relative;
-  left: 72px;
-  top: -27px;
+  position: absolute;
+  left: 75px;
+  top: 90px;
   font-size: 1.2rem;
 }
 
