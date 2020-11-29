@@ -244,7 +244,7 @@ class Profile extends Component {
           <AddSectionModal onModalAlteration={this.handleModalAlteration} />
         ) : null}
         <div className="profile">
-          <div className="container-fluid p-0 profile__header"></div>
+          <div className="container-fluid profile__header p-0"></div>
           <div className="container-fluid profile__body">
             <div className="container">
               <div className="col-sm-10 offset-sm-1">

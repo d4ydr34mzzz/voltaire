@@ -93,7 +93,7 @@
 .profile__body {
   background-color: var(--main-light-grey-color);
   min-height: 100vh;
-  padding: 25px;
+  padding: 25px 0px;
 }
 
 .profile__section--top {
