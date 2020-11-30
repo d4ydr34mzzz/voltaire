@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { logoutUser } from "../auth/authSlice.js";
 import { withRouter } from "react-router-dom";
+import shortid from "shortid";
 
 class Navbar extends Component {
   constructor(props) {
@@ -37,8 +38,18 @@ class Navbar extends Component {
       </ul>
     );
 
-    const authLinks = (
-      <ul className="navbar-nav ml-auto">
+    const authLinksLeft = (
+      <ul className="navbar-nav mr-auto" key={shortid.generate()}>
+        <li className="nav-item">
+          <Link className="nav-link" to="/explore">
+            Explore
+          </Link>
+        </li>
+      </ul>
+    );
+
+    const authLinksRight = (
+      <ul className="navbar-nav ml-auto" key={shortid.generate()}>
         <li className="nav-item">
           <a className="nav-link" href="#" onClick={this.handleLogoutClick}>
             Log out
@@ -47,6 +58,7 @@ class Navbar extends Component {
       </ul>
     );
 
+    /* Reference: https://stackoverflow.com/a/36913042 */
     return (
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark navbar--background-color">
         <div className="container-fluid">
@@ -66,7 +78,7 @@ class Navbar extends Component {
           </button>
 
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            {isAuthenticated ? authLinks : guestLinks}
+            {isAuthenticated ? [authLinksLeft, authLinksRight] : guestLinks}
           </div>
         </div>
       </nav>
