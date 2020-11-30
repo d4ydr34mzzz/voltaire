@@ -389,3 +389,58 @@
   height: 400px;
   background-color: var(--profile-header-color);
 }
+
+.explore__header {
+  height: 250px;
+}
+
+.explore__body {
+  min-height: 100vh;
+  padding: 25px 0px;
+}
+
+.user-card {
+  min-height: 150px;
+  border-bottom: 1px solid lightgrey;
+  padding: 15px;
+}
+
+.user-card__profile-picture {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  height: 120px;
+}
+
+.user-card__name {
+  font-size: 2rem;
+  font-weight: 500;
+}
+
+.user-card__location {
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+.user-card__header {
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+.user-card__connect-icon {
+  font-size: 1.5rem;
+  color: var(--main-grey-color);
+  padding: 15px;
+}
+
+.user-card:hover {
+  background-color: #d3d3d32b;
+  transition: background-color 0.2s linear;
+}
+
+.fs-1_5-rem {
+  font-size: 1.5rem;
+}
