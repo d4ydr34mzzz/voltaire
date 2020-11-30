@@ -6,6 +6,7 @@ import Login from "./components/auth/Login.js";
 import Register from "./components/auth/Register.js";
 import Profile from "./components/profile/Profile.js";
 import InitializeProfile from "./components/profile/InitializeProfile.js";
+import Explore from "./components/explore/Explore.js";
 import PrivateRoute from "./components/shared/PrivateRoute.js";
 
 class App extends Component {
@@ -41,6 +42,7 @@ class App extends Component {
               path="/initialize-profile"
               component={InitializeProfile}
             />
+            <PrivateRoute path="/explore" component={Explore} />
           </Switch>
         </div>
       </Router>
