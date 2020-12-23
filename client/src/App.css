@@ -444,3 +444,7 @@
 .fs-1_5-rem {
   font-size: 1.5rem;
 }
+
+.react-paginate {
+  margin: 150px 0px 80px;
+}
