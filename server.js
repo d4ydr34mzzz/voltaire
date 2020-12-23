@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const apiAuthRouter = require("./routes/api/auth.js");
 const apiPostsRouter = require("./routes/api/posts.js");
 const apiProfileRouter = require("./routes/api/profile.js");
+const apiProfilesRouter = require("./routes/api/profiles.js");
 const apiUploadRouter = require("./routes/api/upload.js");
 const apiUsersRouter = require("./routes/api/users.js");
 const app = express();
@@ -71,6 +72,9 @@ app.use("/api/posts", apiPostsRouter);
 
 // Mount the router module for profile on the /api/profile path in the main app
 app.use("/api/profile", apiProfileRouter);
+
+// Mount the router module for profiles on the /api/profiles path in the main app
+app.use("/api/profiles", apiProfilesRouter);
 
 // Mount the router module for upload on the /api/upload path in the main app
 app.use("/api/upload", apiUploadRouter);
