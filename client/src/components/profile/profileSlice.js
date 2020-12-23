@@ -6,6 +6,7 @@ const initialState = {
   profiles: null,
   fetch_current_users_profile_status: "idle",
   fetch_profiles_status: "idle",
+  fetch_profiles_errors: {},
   initialize_user_profile_status: "idle",
   add_experience_status: "idle",
   add_experience_errors: {},
@@ -52,9 +53,11 @@ export const fetchCurrentUsersProfile = createAsyncThunk(
 
 export const fetchProfiles = createAsyncThunk(
   "profile/fetchProfiles",
-  async (arg, { rejectWithValue }) => {
+  async (paginationData, { rejectWithValue }) => {
     try {
-      let response = await axios.get("/api/profile/all");
+      let response = await axios.get(
+        `/api/profiles/${paginationData.page}-${paginationData.limit}`
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -352,7 +355,7 @@ export const profileSlice = createSlice({
     },
     [fetchProfiles.rejected]: (state, action) => {
       state.fetch_profiles_status = "failed";
-      state.errors = action.payload;
+      state.fetch_profiles_errors = action.payload;
     },
     [initializeUserProfile.pending]: (state, action) => {
       state.initialize_user_profile_status = "loading";
