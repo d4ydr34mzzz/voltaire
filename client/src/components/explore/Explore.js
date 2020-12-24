@@ -13,6 +13,9 @@ class Explore extends Component {
       pageCount: null,
     };
 
+    document.getElementsByTagName("html")[0].style.minWidth = "500px";
+    document.getElementsByTagName("body")[0].style.minWidth = "500px";
+
     this.handlePageClick = this.handlePageClick.bind(this);
   }
 
@@ -29,6 +32,11 @@ class Explore extends Component {
           this.props.profile.profiles.totalPages,
       });
     });
+  }
+
+  componentWillUnmount() {
+    document.getElementsByTagName("html")[0].style.minWidth = "0px";
+    document.getElementsByTagName("body")[0].style.minWidth = "0px";
   }
 
   handlePageClick(event) {

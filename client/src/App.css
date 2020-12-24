@@ -210,7 +210,7 @@
 }
 
 .connect-icon-padding-compensation {
-  margin-left: -15px;
+  margin-left: 0px;
 }
 
 .section__subheading {
@@ -406,12 +406,6 @@
 }
 
 .user-card__profile-picture {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: auto;
   height: 120px;
 }
 
@@ -447,4 +441,20 @@
 
 .react-paginate {
   margin: 150px 0px 80px;
+}
+
+@media (min-width: 576px) {
+  .connect-icon-padding-compensation {
+    margin-left: -15px;
+  }
+
+  .user-card__profile-picture {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    height: 120px;
+  }
 }

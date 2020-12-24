@@ -8,7 +8,7 @@ export default class ProfileSummaryCard extends Component {
 
     return (
       <div className="row user-card">
-        <div className="col-3 text-center">
+        <div className="col-12 col-sm-3 text-center">
           <Link
             to={`/profile/${profile.handle}`}
             className="remove-anchor-style"
@@ -23,7 +23,7 @@ export default class ProfileSummaryCard extends Component {
             ></img>
           </Link>
         </div>
-        <div className="col-7">
+        <div className="col-12 col-sm-7 offset-sm-1 offset-md-0 mt-4 mt-sm-0 text-center text-sm-left">
           <Link
             to={`/profile/${profile.handle}`}
             className="remove-anchor-style"
