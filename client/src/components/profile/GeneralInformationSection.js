@@ -43,27 +43,31 @@ class GeneralInformationSection extends Component {
                     alt=""
                     className="rounded-circle profile__profile-picture"
                   ></img>
-                  <span
-                    className="fa-stack profile__edit-profile-picture-button"
-                    role="button"
-                    tabIndex="0"
-                    onClick={this.handleClick}
-                    data-button="profilePicture"
-                  >
-                    <i className="fa fa-circle fa-stack-2x edit-picture-button__backdrop"></i>
-                    <i className="fas fa-camera fa-stack-1x edit-picture-button__icon"></i>
-                  </span>
+                  {this.props.onModalAlteration ? (
+                    <span
+                      className="fa-stack profile__edit-profile-picture-button"
+                      role="button"
+                      tabIndex="0"
+                      onClick={this.handleClick}
+                      data-button="profilePicture"
+                    >
+                      <i className="fa fa-circle fa-stack-2x edit-picture-button__backdrop"></i>
+                      <i className="fas fa-camera fa-stack-1x edit-picture-button__icon"></i>
+                    </span>
+                  ) : null}
                 </div>
               </div>
               <div className="col-md-9 col-xl-10 pt-5 pt-md-0">
-                <a
-                  href="#"
-                  className="profile__edit-icon profile__edit-icon--right-padding-compensation"
-                  onClick={this.handleClick}
-                  data-button="edit"
-                >
-                  <i className="fas fa-pen"></i>
-                </a>
+                {this.props.onModalAlteration ? (
+                  <a
+                    href="#"
+                    className="profile__edit-icon profile__edit-icon--right-padding-compensation"
+                    onClick={this.handleClick}
+                    data-button="edit"
+                  >
+                    <i className="fas fa-pen"></i>
+                  </a>
+                ) : null}
                 <div className="pl-3">
                   <h1 className="section__name mb-3">
                     {this.props.user.firstName} {this.props.user.lastName}

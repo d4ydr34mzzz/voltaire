@@ -15,9 +15,11 @@ class SocialLinksSection extends Component {
   render() {
     return (
       <div className="profile__section profile__section--connect mb-4">
-        <a href="#" className="profile__edit-icon" onClick={this.handleClick}>
-          <i className="fas fa-pen"></i>
-        </a>
+        {this.props.onModalAlteration ? (
+          <a href="#" className="profile__edit-icon" onClick={this.handleClick}>
+            <i className="fas fa-pen"></i>
+          </a>
+        ) : null}
         <ul className="mt-3 pt-4 pb-4 pl-0 pr-0 connect-icon-padding-compensation">
           {Object.keys(this.props.links).map((key) => {
             switch (key) {

@@ -15,9 +15,11 @@ class InterestsSection extends Component {
   render() {
     return (
       <div className="profile__section mb-4">
-        <a href="#" className="profile__edit-icon" onClick={this.handleClick}>
-          <i className="fas fa-pen"></i>
-        </a>
+        {this.props.onModalAlteration ? (
+          <a href="#" className="profile__edit-icon" onClick={this.handleClick}>
+            <i className="fas fa-pen"></i>
+          </a>
+        ) : null}
         <h1 className="section__heading">Interests</h1>
         <ul className="list-group list-group-flush mt-3">
           {this.props.interests.map((interest) => {

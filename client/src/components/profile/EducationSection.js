@@ -21,13 +21,15 @@ class EducationSection extends Component {
   render() {
     return (
       <div className="profile__section mb-4">
-        <a
-          href="#"
-          className="section__add-entry-icon"
-          onClick={this.handleClick}
-        >
-          <i className="fas fa-plus"></i>
-        </a>
+        {this.props.onModalAlteration ? (
+          <a
+            href="#"
+            className="section__add-entry-icon"
+            onClick={this.handleClick}
+          >
+            <i className="fas fa-plus"></i>
+          </a>
+        ) : null}
         <h1 className="section__heading">Education</h1>
         <ul className="list-group list-group-flush">
           {this.props.education.map((education) => {
@@ -59,16 +61,18 @@ class EducationSection extends Component {
                     ) : null}
                   </div>
                   <div className="col-sm-1 pr-0 order-1 order-sm-2">
-                    <span
-                      role="button"
-                      className="edit-entry-icon d-inline-block float-sm-right"
-                      onClick={this.handleEditClick}
-                    >
-                      <i
-                        data-entryid={education._id}
-                        className="fas fa-edit"
-                      ></i>
-                    </span>
+                    {this.props.onModalAlteration ? (
+                      <span
+                        role="button"
+                        className="edit-entry-icon d-inline-block float-sm-right"
+                        onClick={this.handleEditClick}
+                      >
+                        <i
+                          data-entryid={education._id}
+                          className="fas fa-edit"
+                        ></i>
+                      </span>
+                    ) : null}
                   </div>
                 </div>
               </li>
