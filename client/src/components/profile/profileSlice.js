@@ -3,8 +3,11 @@ import axios from "axios";
 
 const initialState = {
   profile: null,
+  secondaryProfile: null,
   profiles: null,
   fetch_current_users_profile_status: "idle",
+  fetch_profile_by_handle_status: "idle",
+  fetch_profile_by_handle_errors: {},
   fetch_profiles_status: "idle",
   fetch_profiles_errors: {},
   initialize_user_profile_status: "idle",
@@ -44,6 +47,18 @@ export const fetchCurrentUsersProfile = createAsyncThunk(
   async (arg, { rejectWithValue }) => {
     try {
       let response = await axios.get("/api/profile");
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const fetchProfileByHandle = createAsyncThunk(
+  "profile/fetchProfileByHandle",
+  async (handle, { rejectWithValue }) => {
+    try {
+      let response = await axios.get(`/api/profile/handle/${handle}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -288,6 +303,12 @@ export const profileSlice = createSlice({
     clearErrors: (state) => {
       state.errors = {};
     },
+    clearFetchProfilesErrors: (state) => {
+      state.fetch_profiles_errors = {};
+    },
+    clearFetchProfileByHandleErrors: (state) => {
+      state.fetch_profile_by_handle_errors = {};
+    },
     clearAddExperienceErrors: (state) => {
       state.add_experience_errors = {};
     },
@@ -345,6 +366,17 @@ export const profileSlice = createSlice({
       if (state.errors.profile) {
         state.profile = {};
       }
+    },
+    [fetchProfileByHandle.pending]: (state, action) => {
+      state.fetch_profile_by_handle_status = "loading";
+    },
+    [fetchProfileByHandle.fulfilled]: (state, action) => {
+      state.fetch_profile_by_handle_status = "succeeded";
+      state.secondaryProfile = action.payload;
+    },
+    [fetchProfileByHandle.rejected]: (state, action) => {
+      state.fetch_profile_by_handle_status = "failed";
+      state.fetch_profile_by_handle_errors = action.payload;
     },
     [fetchProfiles.pending]: (state, action) => {
       state.fetch_profiles_status = "loading";
@@ -527,6 +559,8 @@ export const profileSlice = createSlice({
 
 export const {
   clearErrors,
+  clearFetchProfileByHandleErrors,
+  clearFetchProfilesErrors,
   clearAddExperienceErrors,
   clearEditExperienceErrors,
   clearDeleteExperienceErrors,
