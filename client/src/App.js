@@ -5,6 +5,7 @@ import Navbar from "./components/layout/Navbar.js";
 import Login from "./components/auth/Login.js";
 import Register from "./components/auth/Register.js";
 import Profile from "./components/profile/Profile.js";
+import SecondaryProfile from "./components/profile/SecondaryProfile.js";
 import InitializeProfile from "./components/profile/InitializeProfile.js";
 import Explore from "./components/explore/Explore.js";
 import PrivateRoute from "./components/shared/PrivateRoute.js";
@@ -38,6 +39,10 @@ class App extends Component {
               </div>
             </Route>
             <PrivateRoute path="/dashboard" component={Profile} />
+            <PrivateRoute
+              path="/profile/:handle"
+              component={SecondaryProfile}
+            />
             <PrivateRoute
               path="/initialize-profile"
               component={InitializeProfile}
