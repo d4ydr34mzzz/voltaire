@@ -12,6 +12,14 @@ const profileSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
   },
+  firstName: {
+    type: String,
+    required: true,
+  },
+  lastName: {
+    type: String,
+    required: true,
+  },
   handle: {
     type: String,
     required: true,
