@@ -44,7 +44,6 @@ const profileSchema = new Schema({
   },
   skills: {
     type: [String],
-    required: true,
   },
   interests: {
     type: [String],
