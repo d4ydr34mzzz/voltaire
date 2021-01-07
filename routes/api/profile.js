@@ -130,28 +130,60 @@ router.get("/user/:user_id", ensureAuthenticated, (req, res) => {
 /**
  * @route POST /api/profile
  * @access private
- * @description Post request route handler for the /api/profile path (initialize or update the current user's profile)
+ * @description Post request route handler for the /api/profile path (initialize the current user's profile)
  */
 router.post(
   "/",
   ensureAuthenticated,
   [
+    body("firstName")
+      .not()
+      .isEmpty()
+      .withMessage("First name is required")
+      .bail()
+      .isLength({ max: 100 })
+      .withMessage("First name needs to be between 1 and 100 characters long")
+      .bail()
+      .isAlphanumeric()
+      .withMessage("First name can only contain letters and numbers"),
+    body("lastName")
+      .not()
+      .isEmpty()
+      .withMessage("Last name is required")
+      .bail()
+      .isLength({ max: 100 })
+      .withMessage("Last name needs to be between 1 and 100 characters long")
+      .bail()
+      .isAlphanumeric()
+      .withMessage("Last name can only contain letters and numbers"),
     body("handle")
       .not()
       .isEmpty()
       .withMessage("Profile handle is required")
+      .bail()
       .isLength({ min: 2, max: 40 })
-      .withMessage("Profile handle needs to be between 2 and 40 characters"),
-    body("website")
-      .if((value, { req }) => {
-        return req.body.website;
-      })
-      .isURL()
-      .withMessage("Invalid URL"),
+      .withMessage(
+        "Profile handle needs to be between 2 and 40 characters long"
+      )
+      .bail()
+      .isAlphanumeric()
+      .withMessage("Profile handle can only contain letters and numbers")
+      .bail()
+      .toLowerCase(),
+    body("header")
+      .not()
+      .isEmpty()
+      .withMessage("Profile header is required")
+      .bail()
+      .isLength({ max: 250 })
+      .withMessage(
+        "Profile header needs to be between 1 and 250 characters long"
+      ),
     body("status")
       .not()
       .isEmpty()
       .withMessage("Status is required")
+      .bail()
       .custom((value, {}) => {
         // Reference: https://stackoverflow.com/questions/24718349/how-do-i-make-array-indexof-case-insensitive#answer-24718680
         let validOptions = [
@@ -170,37 +202,6 @@ router.post(
         });
       })
       .withMessage("Status is required"),
-    body("skills").not().isEmpty().withMessage("Skills field is required"),
-    body("youtube")
-      .if((value, { req }) => {
-        return req.body.youtube;
-      })
-      .isURL()
-      .withMessage("Invalid URL"),
-    body("twitter")
-      .if((value, { req }) => {
-        return req.body.twitter;
-      })
-      .isURL()
-      .withMessage("Invalid URL"),
-    body("facebook")
-      .if((value, { req }) => {
-        return req.body.facebook;
-      })
-      .isURL()
-      .withMessage("Invalid URL"),
-    body("linkedin")
-      .if((value, { req }) => {
-        return req.body.linkedin;
-      })
-      .isURL()
-      .withMessage("Invalid URL"),
-    body("instagram")
-      .if((value, { req }) => {
-        return req.body.instagram;
-      })
-      .isURL()
-      .withMessage("Invalid URL"),
   ],
   (req, res) => {
     const errors = validationResult(req);
@@ -210,49 +211,13 @@ router.post(
 
     Profile.findOne({ user: req.user.id })
       .then((profile) => {
-        const newProfile = {};
-
-        if (req.body.company) {
-          newProfile.company = req.body.company;
-        }
-        if (req.body.website) {
-          newProfile.website = req.body.website;
-        }
-        if (req.body.location) {
-          newProfile.location = req.body.location;
-        }
-        if (req.body.status) {
-          newProfile.status = req.body.status;
-        }
-        if (req.body.skills) {
-          newProfile.skills = req.body.skills.split(",");
-        }
-        if (req.body.bio) {
-          newProfile.bio = req.body.bio;
-        }
-        if (req.body.githubUsername) {
-          newProfile.githubUsername = req.body.githubUsername;
-        }
-        newProfile.social = {};
-        if (req.body.youtube) {
-          newProfile.social.youtube = req.body.youtube;
-        }
-        if (req.body.twitter) {
-          newProfile.social.twitter = req.body.twitter;
-        }
-        if (req.body.facebook) {
-          newProfile.social.facebook = req.body.facebook;
-        }
-        if (req.body.linkedin) {
-          newProfile.social.linkedin = req.body.linkedin;
-        }
-        if (req.body.instagram) {
-          newProfile.social.instagram = req.body.instagram;
-        }
+        let newProfile = {};
+        newProfile.header = req.body.header;
+        newProfile.status = req.body.status;
 
         if (!profile) {
-          Profile.findOne({ handle: req.body.handle })
-            .then((profile) => {
+          return Profile.findOne({ handle: req.body.handle }).then(
+            (profile) => {
               if (profile) {
                 res.status(400).json({
                   handle: {
@@ -263,93 +228,56 @@ router.post(
                 newProfile.user = req.user.id;
                 newProfile.handle = req.body.handle;
 
-                new Profile(newProfile)
-                  .save()
-                  .then((profile) => {
-                    res.json(profile);
+                return User.findOne({ _id: req.user.id })
+                  .then((user) => {
+                    if (user) {
+                      newProfile.firstName = req.body.firstName;
+                      newProfile.lastName = req.body.lastName;
+
+                      let updateUser = false;
+                      if (user.firstName !== req.body.firstName) {
+                        user.firstName = req.body.firstName;
+                        updateUser = true;
+                      }
+                      if (user.lastName !== req.body.lastName) {
+                        user.lastName = req.body.lastName;
+                        updateUser = true;
+                      }
+
+                      // References: https://stackoverflow.com/a/50334013 and https://mongoosejs.com/docs/api/document.html#document_Document-execPopulate
+                      let promise1 = new Profile(newProfile)
+                        .save()
+                        .then((user) =>
+                          user
+                            .populate("user", [
+                              "firstName",
+                              "lastName",
+                              "picture",
+                            ])
+                            .execPopulate()
+                        );
+                      if (updateUser) {
+                        let promise2 = user.save();
+                        return Promise.all([promise1, promise2]);
+                      } else {
+                        return promise1;
+                      }
+                    } else {
+                      throw new Error("Invalid user document");
+                    }
                   })
-                  .catch((err) => {
-                    res.status(500).json({
-                      errors: [
-                        {
-                          msg:
-                            "There was an issue processing the request. Please try again later.",
-                        },
-                      ],
-                    });
+                  .then((values) => {
+                    if (Array.isArray(values)) {
+                      res.json(values[1]);
+                    } else {
+                      res.json(values);
+                    }
                   });
               }
-            })
-            .catch((err) => {
-              res.status(500).json({
-                errors: [
-                  {
-                    msg:
-                      "There was an issue processing the request. Please try again later.",
-                  },
-                ],
-              });
-            });
+            }
+          );
         } else {
-          if (profile.handle !== req.body.handle) {
-            // Existing user wants to change their handle
-            Profile.findOne({ handle: req.body.handle })
-              .then((profile) => {
-                if (profile && profile.user !== req.user.id) {
-                  res.status(400).json({
-                    handle: {
-                      msg: "The handle is taken. Please try another one.",
-                    },
-                  });
-                } else {
-                  newProfile.handle = req.body.handle;
-
-                  Profile.findOneAndUpdate({ user: req.user.id }, newProfile, {
-                    new: true,
-                  })
-                    .then((profile) => {
-                      res.json(profile);
-                    })
-                    .catch((err) => {
-                      res.status(500).json({
-                        errors: [
-                          {
-                            msg:
-                              "There was an issue processing the request. Please try again later.",
-                          },
-                        ],
-                      });
-                    });
-                }
-              })
-              .catch((err) => {
-                res.status(500).json({
-                  errors: [
-                    {
-                      msg:
-                        "There was an issue processing the request. Please try again later.",
-                    },
-                  ],
-                });
-              });
-          } else {
-            Profile.findOneAndUpdate({ user: req.user.id }, newProfile, {
-              new: true,
-            })
-              .then((profile) => {
-                res.json(profile);
-              })
-              .catch((err) => {
-                res.status(500).json({
-                  errors: [
-                    {
-                      msg:
-                        "There was an issue processing the request. Please try again later.",
-                    },
-                  ],
-                });
-              });
-          }
+          throw new Error("A profile already exists for the current user");
         }
       })
       .catch((err) => {
