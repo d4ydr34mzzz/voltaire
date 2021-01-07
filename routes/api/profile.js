@@ -268,7 +268,7 @@ router.post(
                   })
                   .then((values) => {
                     if (Array.isArray(values)) {
-                      res.json(values[1]);
+                      res.json(values[0]);
                     } else {
                       res.json(values);
                     }
