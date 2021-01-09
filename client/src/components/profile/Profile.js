@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
+import { fetchCurrentUser } from "../auth/authSlice.js";
 import { fetchCurrentUsersProfile } from "./profileSlice.js";
 import { withRouter } from "react-router-dom";
 import LoadingIcon from "../shared/LoadingIcon.js";
@@ -94,20 +95,33 @@ class Profile extends Component {
   }
 
   render() {
-    const { user } = this.props.auth;
     const { profile } = this.props.profile;
 
     let profileContent;
 
     if (
       profile === null ||
-      profile.fetch_current_users_profile_status === "loading"
+      (this.props.profile &&
+        this.props.profile.fetch_current_users_profile_status === "loading")
     ) {
       profileContent = <LoadingIcon />;
     } else {
       if (Object.keys(profile).length > 0) {
         profileContent = (
           <div>
+            {profile ? (
+              Object.keys(profile).length > 0 ? (
+                <div className="profile__add-section-btn">
+                  <a
+                    href="#"
+                    className="btn btn-primary"
+                    onClick={this.handleAddSectionClick}
+                  >
+                    Add section
+                  </a>
+                </div>
+              ) : null
+            ) : null}
             {profile ? (
               <GeneralInformationSection
                 onModalAlteration={this.handleModalAlteration}
@@ -163,16 +177,18 @@ class Profile extends Component {
         );
       } else {
         profileContent = (
-          <div className="mt-5 text-center">
-            <h2 className="font-weight-normal profile__initialize-profile-msg">
-              You haven't initialized your profile yet
-            </h2>
-            <Link
-              to="/initialize-profile"
-              className="btn btn-primary profile__initialize-profile-btn"
-            >
-              Initialize profile
-            </Link>
+          <div>
+            <div className="mt-5 text-center">
+              <h2 className="font-weight-normal profile__initialize-profile-msg mb-4">
+                Let's get started by initializing your profile
+              </h2>
+              <Link
+                to="/initialize-profile"
+                className="btn btn-primary profile__initialize-profile-btn"
+              >
+                Initialize profile
+              </Link>
+            </div>
           </div>
         );
       }
@@ -248,15 +264,6 @@ class Profile extends Component {
           <div className="container-fluid profile__body">
             <div className="container">
               <div className="col-sm-10 offset-sm-1">
-                <div className="profile__add-section-btn">
-                  <a
-                    href="#"
-                    className="btn btn-primary"
-                    onClick={this.handleAddSectionClick}
-                  >
-                    Add section
-                  </a>
-                </div>
                 <div>{profileContent}</div>
               </div>
             </div>
@@ -278,6 +285,7 @@ const mapStateToProps = (state) => ({
  * internally; these functions are passed as props to the Profile component
  */
 const mapDispatchToProps = {
+  fetchCurrentUser,
   fetchCurrentUsersProfile,
 };
 
