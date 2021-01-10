@@ -77,11 +77,15 @@
 }
 
 .profile__section {
-  min-height: 250px;
+  min-height: 200px;
   background-color: white;
   padding: 25px;
   border-radius: 4px;
   border: 1px solid lightgrey;
+}
+
+.profile__section--general-information {
+  min-height: 250px;
 }
 
 .section__heading {
@@ -214,8 +218,15 @@
 }
 
 .section__subheading {
-  font-size: 1.2rem;
-  font-weight: unset;
+  font-weight: 400;
+}
+
+.section__subheading--header {
+  font-size: 1.4rem;
+}
+
+.section__subheading--location {
+  font-size: 1.1rem;
 }
 
 .container--left-padding-compensation {
@@ -415,12 +426,13 @@
 }
 
 .user-card__location {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 400;
+  color: grey;
 }
 
 .user-card__header {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 400;
 }
 

@@ -32,8 +32,8 @@ export default class ProfileSummaryCard extends Component {
               {profile.user.firstName} {profile.user.lastName}
             </h1>
           </Link>
-          <h2 className="user-card__location">{profile.location}</h2>
-          <h3 className="user-card__header">{profile.header}</h3>
+          <h2 className="user-card__header">{profile.header}</h2>
+          <h3 className="user-card__location">{profile.location}</h3>
           {profile.social ? (
             <ul className="mt-3 mb-0 pt-2 pb-2 pl-0 pr-0 connect-icon-padding-compensation">
               <SocialLinks

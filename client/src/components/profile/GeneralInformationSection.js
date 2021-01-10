@@ -29,9 +29,9 @@ class GeneralInformationSection extends Component {
             onModalAlteration={this.props.onModalAlteration}
           />
         </div>
-        <div className="profile__section">
+        <div className="profile__section profile__section--general-information">
           <div className="container container--left-padding-compensation">
-            <div className="row">
+            <div className="row mt-4">
               <div className="col-md-3 col-xl-2">
                 <div className="position-relative">
                   <img
@@ -72,11 +72,12 @@ class GeneralInformationSection extends Component {
                   <h1 className="section__name mb-3">
                     {this.props.user.firstName} {this.props.user.lastName}
                   </h1>
-                  <h2 className="section__subheading">{this.props.header}</h2>
-                  <h3 className="section__subheading">{this.props.location}</h3>
-                  <span className="status-tag">
-                    <h2 className="status-tag__content">{this.props.status}</h2>
-                  </span>
+                  <h2 className="section__subheading section__subheading--header">
+                    {this.props.header}
+                  </h2>
+                  <h3 className="section__subheading section__subheading--location">
+                    {this.props.location}
+                  </h3>
                 </div>
               </div>
             </div>
