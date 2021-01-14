@@ -247,8 +247,8 @@ router.post(
                       // References: https://stackoverflow.com/a/50334013 and https://mongoosejs.com/docs/api/document.html#document_Document-execPopulate
                       let promise1 = new Profile(newProfile)
                         .save()
-                        .then((user) =>
-                          user
+                        .then((profile) =>
+                          profile
                             .populate("user", [
                               "firstName",
                               "lastName",
