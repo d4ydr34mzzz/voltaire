@@ -1306,8 +1306,41 @@ router.put("/github", ensureAuthenticated, (req, res) => {
 router.put(
   "/experience/:experience_id",
   [
-    body("title").not().isEmpty().withMessage("Title is required"),
-    body("company").not().isEmpty().withMessage("Company is required"),
+    body("title")
+      .not()
+      .isEmpty()
+      .withMessage("Title is required")
+      .bail()
+      .isLength({ max: 150 })
+      .withMessage("Title needs to be between 1 and 150 characters long")
+      .bail()
+      .isAscii()
+      .withMessage("Title can only contain ASCII characters")
+      .bail()
+      .trim(),
+    body("company")
+      .not()
+      .isEmpty()
+      .withMessage("Company is required")
+      .bail()
+      .isLength({ max: 150 })
+      .withMessage("Company needs to be between 1 and 150 characters long")
+      .bail()
+      .isAscii()
+      .withMessage("Company can only contain ASCII characters")
+      .bail()
+      .trim(),
+    body("location")
+      .if((value, { req }) => {
+        return req.body.location;
+      })
+      .isLength({ max: 150 })
+      .withMessage("Location needs to be between 1 and 150 characters long")
+      .bail()
+      .isAscii()
+      .withMessage("Location can only contain ASCII characters")
+      .bail()
+      .trim(),
     body("from")
       .not()
       .isEmpty()
@@ -1348,6 +1381,20 @@ router.put(
       .withMessage(
         "A to date and currently attending cannot be set simultaneously"
       ),
+    body("description")
+      .if((value, { req }) => {
+        return req.body.description;
+      })
+      .isLength({ max: 700 })
+      .withMessage("Description needs to be between 0 and 700 characters long")
+      .bail()
+      .isAscii()
+      .withMessage("Description can only contain ASCII characters")
+      .bail()
+      .trim()
+      .customSanitizer((value, { req }) => {
+        return sanitizeQuillInput(value);
+      }),
   ],
   ensureAuthenticated,
   (req, res) => {
@@ -1388,21 +1435,7 @@ router.put(
               profile.experience[experienceIndex],
               editedExperience
             );
-            profile
-              .save()
-              .then((profile) => {
-                res.json(profile);
-              })
-              .catch((err) => {
-                res.status(500).json({
-                  errors: [
-                    {
-                      msg:
-                        "There was an issue processing the request. Please try again later.",
-                    },
-                  ],
-                });
-              });
+            return profile.save();
           } else {
             res.status(404).json({
               experience: {
@@ -1411,6 +1444,14 @@ router.put(
             });
           }
         }
+      })
+      .then((profile) => {
+        return profile
+          .populate("user", ["firstName", "lastName", "picture"])
+          .execPopulate();
+      })
+      .then((profile) => {
+        res.json(profile);
       })
       .catch((err) => {
         res.status(500).json({
