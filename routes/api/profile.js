@@ -1393,12 +1393,44 @@ router.put(
   "/education/:education_id",
   ensureAuthenticated,
   [
-    body("school").not().isEmpty().withMessage("School is required"),
-    body("degree").not().isEmpty().withMessage("Degree is required"),
+    body("school")
+      .not()
+      .isEmpty()
+      .withMessage("School is required")
+      .bail()
+      .isLength({ max: 150 })
+      .withMessage("School needs to be between 1 and 150 characters long")
+      .bail()
+      .isAscii()
+      .withMessage("School can only contain ASCII characters")
+      .bail()
+      .trim(),
+    body("degree")
+      .not()
+      .isEmpty()
+      .withMessage("Degree is required")
+      .bail()
+      .isLength({ max: 150 })
+      .withMessage("Degree needs to be between 1 and 150 characters long")
+      .bail()
+      .isAscii()
+      .withMessage("Degree can only contain ASCII characters")
+      .bail()
+      .trim(),
     body("fieldOfStudy")
       .not()
       .isEmpty()
-      .withMessage("Field of study is required"),
+      .withMessage("Field of study is required")
+      .bail()
+      .isLength({ max: 150 })
+      .withMessage(
+        "Field of study needs to be between 1 and 150 characters long"
+      )
+      .bail()
+      .isAscii()
+      .withMessage("Field of study can only contain ASCII characters")
+      .bail()
+      .trim(),
     body("from")
       .not()
       .isEmpty()
@@ -1439,6 +1471,36 @@ router.put(
       .withMessage(
         "A to date and currently attending cannot be set simultaneously"
       ),
+    body("description")
+      .if((value, { req }) => {
+        return req.body.description;
+      })
+      .isLength({ max: 700 })
+      .withMessage("Description needs to be between 0 and 700 characters long")
+      .bail()
+      .isAscii()
+      .withMessage("Description can only contain ASCII characters")
+      .bail()
+      .trim()
+      .customSanitizer((value, { req }) => {
+        return sanitizeQuillInput(value);
+      }),
+    body("activities")
+      .if((value, { req }) => {
+        return req.body.activities;
+      })
+      .isLength({ max: 700 })
+      .withMessage(
+        "Clubs and activities needs to be between 0 and 700 characters long"
+      )
+      .bail()
+      .isAscii()
+      .withMessage("Clubs and activities can only contain ASCII characters")
+      .bail()
+      .trim()
+      .customSanitizer((value, { req }) => {
+        return sanitizeQuillInput(value);
+      }),
   ],
   (req, res) => {
     const errors = validationResult(req);
@@ -1479,21 +1541,7 @@ router.put(
               profile.education[educationIndex],
               editedEducation
             );
-            profile
-              .save()
-              .then((profile) => {
-                res.json(profile);
-              })
-              .catch((err) => {
-                res.status(500).json({
-                  errors: [
-                    {
-                      msg:
-                        "There was an issue processing the request. Please try again later.",
-                    },
-                  ],
-                });
-              });
+            return profile.save();
           } else {
             res.status(404).json({
               experience: {
@@ -1502,6 +1550,14 @@ router.put(
             });
           }
         }
+      })
+      .then((profile) => {
+        return profile
+          .populate("user", ["firstName", "lastName", "picture"])
+          .execPopulate();
+      })
+      .then((profile) => {
+        res.json(profile);
       })
       .catch((err) => {
         res.status(500).json({
