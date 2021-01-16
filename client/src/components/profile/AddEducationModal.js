@@ -9,7 +9,8 @@ import {
   clearDeleteEducationErrors,
 } from "./profileSlice.js";
 import InputFormGroup from "../forms/InputFormGroup.js";
-import TextareaFormGroup from "../forms/TextareaFormGroup.js";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import classNames from "classnames";
 
 class AddEducationModal extends Component {
@@ -41,7 +42,7 @@ class AddEducationModal extends Component {
           from: education.from ? education.from.split("T")[0] : "",
           to: education.to ? education.to.split("T")[0] : "",
           toDisabled: education.to ? false : true,
-          current: education.current ? education.current : "",
+          current: education.current ? true : false,
           description: education.description ? education.description : "",
           activities: education.activities ? education.activities : "",
         };
@@ -73,6 +74,8 @@ class AddEducationModal extends Component {
     }
 
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
+    this.handleActivitiesChange = this.handleActivitiesChange.bind(this);
     this.handleCurrentChecked = this.handleCurrentChecked.bind(this);
     this.cancelAddEducation = this.cancelAddEducation.bind(this);
     this.deleteEducation = this.deleteEducation.bind(this);
@@ -93,6 +96,14 @@ class AddEducationModal extends Component {
     this.setState({
       [name]: value,
     });
+  }
+
+  handleDescriptionChange(value) {
+    this.setState({ description: value });
+  }
+
+  handleActivitiesChange(value) {
+    this.setState({ activities: value });
   }
 
   handleCurrentChecked(event) {
@@ -161,6 +172,18 @@ class AddEducationModal extends Component {
         : {};
     }
 
+    let modules = {
+      toolbar: [
+        ["bold", "italic", "underline"],
+        [
+          { list: "ordered" },
+          { list: "bullet" },
+          { indent: "-1" },
+          { indent: "+1" },
+        ],
+      ],
+    };
+
     return (
       <div className="modal-overlay" onClick={this.cancelAddEducation}>
         <div
@@ -170,7 +193,7 @@ class AddEducationModal extends Component {
           }}
         >
           <div className="card-header">
-            Add education
+            {this.state.editing ? "Edit Education" : "Add Education"}
             <a
               href="#"
               className="modal__exit-icon"
@@ -264,25 +287,35 @@ class AddEducationModal extends Component {
                 )}
               </div>
 
-              <TextareaFormGroup
-                htmlFor="description"
-                label="Description"
-                name="description"
-                rows="5"
-                error={errors.description}
-                value={this.state.description}
-                onChange={this.handleInputChange}
-              />
+              <div className="form-group">
+                <label>Description</label>
+                <ReactQuill
+                  theme="snow"
+                  modules={modules}
+                  value={this.state.description}
+                  onChange={this.handleDescriptionChange}
+                />
+                {errors.description && (
+                  <div className="invalid-feedback d-block">
+                    {errors.description.msg}
+                  </div>
+                )}
+              </div>
 
-              <TextareaFormGroup
-                htmlFor="activities"
-                label="Clubs and activities"
-                name="activities"
-                rows="5"
-                error={errors.activities}
-                value={this.state.activities}
-                onChange={this.handleInputChange}
-              />
+              <div className="form-group">
+                <label>Clubs and activities</label>
+                <ReactQuill
+                  theme="snow"
+                  modules={modules}
+                  value={this.state.activities}
+                  onChange={this.handleActivitiesChange}
+                />
+                {errors.activities && (
+                  <div className="invalid-feedback d-block">
+                    {errors.activities.msg}
+                  </div>
+                )}
+              </div>
 
               <div className="float-right mt-4 mb-4">
                 {this.state.editing ? (

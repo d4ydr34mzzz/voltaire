@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Moment from "react-moment";
+import parse from "html-react-parser";
 
 class EducationSection extends Component {
   constructor(props) {
@@ -57,7 +58,17 @@ class EducationSection extends Component {
                       </h3>
                     ) : null}
                     {education.description ? (
-                      <p className="mt-3">{education.description}</p>
+                      <div className="list-group-item__description">
+                        {parse(education.description)}
+                      </div>
+                    ) : null}
+                    {education.activities ? (
+                      <div className="list-group-item__description">
+                        <h3 className="list-group-item__subheading">
+                          Clubs and activities:
+                        </h3>
+                        {parse(education.activities)}
+                      </div>
                     ) : null}
                   </div>
                   <div className="col-sm-1 pr-0 order-1 order-sm-2">

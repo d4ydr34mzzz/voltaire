@@ -455,6 +455,44 @@
   margin: 150px 0px 80px;
 }
 
+.quill {
+  margin-bottom: 1rem;
+}
+
+.ql-container {
+  font-family: inherit !important;
+  font-size: inherit !important;
+  color: #495057;
+}
+
+.ql-editor {
+  height: 150px !important;
+}
+
+.ql-indent-1 {
+  margin-left: 20px;
+}
+
+.ql-indent-2 {
+  margin-left: 40px;
+}
+
+.ql-indent-3 {
+  margin-left: 60px;
+}
+
+.list-group-item__description {
+  margin-top: 20px;
+}
+
+.list-group-item__description ul {
+  list-style-type: disc;
+}
+
+.list-group-item__description p {
+  margin-bottom: 0px;
+}
+
 @media (min-width: 576px) {
   .connect-icon-padding-compensation {
     margin-left: -15px;
