@@ -9,7 +9,8 @@ import {
   clearDeleteExperienceErrors,
 } from "./profileSlice.js";
 import InputFormGroup from "../forms/InputFormGroup.js";
-import TextareaFormGroup from "../forms/TextareaFormGroup.js";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import classNames from "classnames";
 
 class AddExperienceModal extends Component {
@@ -41,7 +42,7 @@ class AddExperienceModal extends Component {
           from: experience.from ? experience.from.split("T")[0] : "",
           to: experience.to ? experience.to.split("T")[0] : "",
           toDisabled: experience.to ? false : true,
-          current: experience.current ? experience.current : false,
+          current: experience.current ? true : false,
           description: experience.description ? experience.description : "",
         };
       } else {
@@ -70,6 +71,7 @@ class AddExperienceModal extends Component {
     }
 
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
     this.handleCurrentChecked = this.handleCurrentChecked.bind(this);
     this.cancelAddExperience = this.cancelAddExperience.bind(this);
     this.deleteExperience = this.deleteExperience.bind(this);
@@ -90,6 +92,10 @@ class AddExperienceModal extends Component {
     this.setState({
       [name]: value,
     });
+  }
+
+  handleDescriptionChange(value) {
+    this.setState({ description: value });
   }
 
   handleCurrentChecked(event) {
@@ -158,6 +164,18 @@ class AddExperienceModal extends Component {
         ? this.props.profile.edit_experience_errors
         : {};
     }
+
+    let modules = {
+      toolbar: [
+        ["bold", "italic", "underline"],
+        [
+          { list: "ordered" },
+          { list: "bullet" },
+          { indent: "-1" },
+          { indent: "+1" },
+        ],
+      ],
+    };
 
     return (
       <div className="modal-overlay" onClick={this.cancelAddExperience}>
@@ -261,15 +279,20 @@ class AddExperienceModal extends Component {
                 )}
               </div>
 
-              <TextareaFormGroup
-                htmlFor="description"
-                label="Description"
-                name="description"
-                rows="10"
-                error={errors.description}
-                value={this.state.description}
-                onChange={this.handleInputChange}
-              />
+              <div className="form-group">
+                <label>Description</label>
+                <ReactQuill
+                  theme="snow"
+                  modules={modules}
+                  value={this.state.description}
+                  onChange={this.handleDescriptionChange}
+                />
+                {errors.description && (
+                  <div className="invalid-feedback d-block">
+                    {errors.description.msg}
+                  </div>
+                )}
+              </div>
 
               <div className="float-right mt-4 mb-4">
                 {this.state.editing ? (

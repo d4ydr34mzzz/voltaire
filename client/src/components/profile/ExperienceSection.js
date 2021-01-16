@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Moment from "react-moment";
+import parse from "html-react-parser";
 
 class ExperienceSection extends Component {
   constructor(props) {
@@ -74,7 +75,9 @@ class ExperienceSection extends Component {
                       {experience.location ? experience.location : null}
                     </h3>
                     {experience.description ? (
-                      <p className="mt-3">{experience.description}</p>
+                      <div className="list-group-item__description">
+                        {parse(experience.description)}
+                      </div>
                     ) : null}
                   </div>
                   <div className="col-sm-1 pr-0 order-1 order-sm-2">
