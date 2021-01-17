@@ -37,6 +37,8 @@ class ExperienceSection extends Component {
         <h1 className="section__heading">Experience</h1>
         <ul className="list-group list-group-flush">
           {this.props.experience.map((experience) => {
+            let from = experience.from ? experience.from.split("T")[0] : "";
+            let to = experience.to ? experience.to.split("T")[0] : "";
             return (
               <li className="list-group-item pt-4 pl-0" key={experience._id}>
                 <div className="row">
@@ -48,11 +50,11 @@ class ExperienceSection extends Component {
                       {experience.company}
                     </h2>
                     <h3 className="list-group-item__subheading">
-                      <Moment format="MMM YYYY">{experience.from}</Moment> -{" "}
+                      <Moment format="MMM YYYY">{from}</Moment> -{" "}
                       {experience.current ? (
                         "Present"
                       ) : (
-                        <Moment format="MMM YYYY">{experience.to}</Moment>
+                        <Moment format="MMM YYYY">{to}</Moment>
                       )}{" "}
                       <span>&#183; </span>
                       {experience.current ? (

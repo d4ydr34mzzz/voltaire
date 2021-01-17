@@ -34,6 +34,8 @@ class EducationSection extends Component {
         <h1 className="section__heading">Education</h1>
         <ul className="list-group list-group-flush">
           {this.props.education.map((education) => {
+            let from = education.from ? education.from.split("T")[0] : "";
+            let to = education.to ? education.to.split("T")[0] : "";
             return (
               <li className="list-group-item pt-4 pl-0" key={education._id}>
                 <div className="row">
@@ -45,11 +47,11 @@ class EducationSection extends Component {
                       {education.degree}, {education.fieldOfStudy}
                     </h2>
                     <h3 className="list-group-item__subheading">
-                      <Moment format="MMM YYYY">{education.from}</Moment> -{" "}
+                      <Moment format="MMM YYYY">{from}</Moment> -{" "}
                       {education.current ? (
                         "Present"
                       ) : (
-                        <Moment format="MMM YYYY">{education.to}</Moment>
+                        <Moment format="MMM YYYY">{to}</Moment>
                       )}
                     </h3>
                     {education.location ? (
