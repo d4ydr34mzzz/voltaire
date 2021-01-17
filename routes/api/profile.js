@@ -893,55 +893,66 @@ router.put(
  * @access private
  * @description Put request route handler for the /api/profile/about path (add or update the about me section in the current user's profile)
  */
-router.put("/about", ensureAuthenticated, (req, res) => {
-  Profile.findOne({ user: req.user.id })
-    .then((profile) => {
-      if (!profile) {
-        res.status(404).json({
+router.put(
+  "/about",
+  ensureAuthenticated,
+  [
+    body("bio")
+      .if((value, { req }) => {
+        return req.body.bio;
+      })
+      .isLength({ max: 3000 })
+      .withMessage("About needs to be between 0 and 3000 characters long")
+      .bail()
+      .isAscii()
+      .withMessage("About can only contain ASCII characters")
+      .bail()
+      .trim()
+      .customSanitizer((value, { req }) => {
+        return sanitizeQuillInput(value);
+      }),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json(errors.mapped());
+    }
+
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        if (!profile) {
+          res.status(404).json({
+            errors: [
+              {
+                msg: "Profile does not exist",
+              },
+            ],
+          });
+        } else {
+          profile.bio = req.body.bio ? req.body.bio : "";
+          return profile.save();
+        }
+      })
+      .then((profile) => {
+        return profile
+          .populate("user", ["firstName", "lastName", "picture"])
+          .execPopulate();
+      })
+      .then((profile) => {
+        res.json(profile);
+      })
+      .catch((err) => {
+        res.status(500).json({
           errors: [
             {
-              msg: "Profile does not exist",
+              msg:
+                "There was an issue processing the request. Please try again later.",
             },
           ],
         });
-      } else {
-        const updatedProfile = {
-          bio: "",
-        };
-
-        if (req.body.bio) {
-          updatedProfile.bio = req.body.bio;
-        }
-
-        Profile.findOneAndUpdate({ user: req.user.id }, updatedProfile, {
-          new: true,
-        })
-          .then((profile) => {
-            res.json(profile);
-          })
-          .catch((err) => {
-            res.status(500).json({
-              errors: [
-                {
-                  msg:
-                    "There was an issue processing the request. Please try again later.",
-                },
-              ],
-            });
-          });
-      }
-    })
-    .catch((err) => {
-      res.status(500).json({
-        errors: [
-          {
-            msg:
-              "There was an issue processing the request. Please try again later.",
-          },
-        ],
       });
-    });
-});
+  }
+);
 
 /**
  * @route PUT /api/profile/skills
