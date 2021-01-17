@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import parse from "html-react-parser";
 
 class AboutSection extends Component {
   constructor(props) {
@@ -20,7 +21,7 @@ class AboutSection extends Component {
           </a>
         ) : null}
         <h1 className="section__heading">About me</h1>
-        <p className="mt-3">{this.props.bio}</p>
+        <p className="mt-3">{parse(this.props.bio)}</p>
       </div>
     );
   }

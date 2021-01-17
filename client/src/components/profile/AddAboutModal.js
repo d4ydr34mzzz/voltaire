@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { addAbout, clearAddAboutErrors } from "./profileSlice.js";
-import TextareaFormGroup from "../forms/TextareaFormGroup.js";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 class AddAboutModal extends Component {
   constructor(props) {
@@ -11,6 +12,7 @@ class AddAboutModal extends Component {
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleBioChange = this.handleBioChange.bind(this);
     this.cancelAddAbout = this.cancelAddAbout.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -27,6 +29,10 @@ class AddAboutModal extends Component {
     this.setState({
       [name]: value,
     });
+  }
+
+  handleBioChange(value) {
+    this.setState({ bio: value });
   }
 
   cancelAddAbout(event) {
@@ -49,6 +55,22 @@ class AddAboutModal extends Component {
   }
 
   render() {
+    let errors = this.props.profile.add_about_errors
+      ? this.props.profile.add_about_errors
+      : {};
+
+    let modules = {
+      toolbar: [
+        ["bold", "italic", "underline"],
+        [
+          { list: "ordered" },
+          { list: "bullet" },
+          { indent: "-1" },
+          { indent: "+1" },
+        ],
+      ],
+    };
+
     return (
       <div className="modal-overlay" onClick={this.cancelAddAbout}>
         <div
@@ -69,13 +91,19 @@ class AddAboutModal extends Component {
           </div>
           <div className="card-body">
             <form onSubmit={this.handleSubmit} noValidate>
-              <TextareaFormGroup
-                htmlFor="bio"
-                name="bio"
-                rows="10"
-                value={this.state.bio}
-                onChange={this.handleInputChange}
-              />
+              <div className="form-group">
+                <ReactQuill
+                  theme="snow"
+                  modules={modules}
+                  value={this.state.bio}
+                  onChange={this.handleBioChange}
+                />
+                {errors.bio && (
+                  <div className="invalid-feedback d-block">
+                    {errors.bio.msg}
+                  </div>
+                )}
+              </div>
 
               <div className="float-right mt-4 mb-4">
                 <button type="submit" className="btn btn-primary">
