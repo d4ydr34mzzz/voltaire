@@ -93,6 +93,7 @@ class AddAboutModal extends Component {
             <form onSubmit={this.handleSubmit} noValidate>
               <div className="form-group">
                 <ReactQuill
+                  className="quill--about"
                   theme="snow"
                   modules={modules}
                   value={this.state.bio}
