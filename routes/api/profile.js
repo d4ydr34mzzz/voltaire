@@ -1036,8 +1036,24 @@ router.put(
   ensureAuthenticated,
   [
     body("interests")
-      .isArray()
-      .withMessage("Interests must be an array")
+      .isArray({ max: 100 })
+      .withMessage("No more than 100 interests can be added to your profile")
+      .bail()
+      .custom((value, { req }) => {
+        for (let element of req.body.interests) {
+          if (
+            typeof element !== "string" ||
+            element.length === 0 ||
+            element.length > 150
+          ) {
+            return false;
+          }
+        }
+        return true;
+      })
+      .withMessage(
+        "Individual interest entries need to be between 1 and 150 characters long"
+      )
       .bail()
       .customSanitizer((value, { req }) => {
         let interests = value.map((interest) => String(interest).trim());
@@ -1061,31 +1077,17 @@ router.put(
             ],
           });
         } else {
-          const updatedProfile = {
-            interests: [],
-          };
-
-          if (req.body.interests) {
-            updatedProfile.interests = req.body.interests;
-          }
-
-          Profile.findOneAndUpdate({ user: req.user.id }, updatedProfile, {
-            new: true,
-          })
-            .then((profile) => {
-              res.json(profile);
-            })
-            .catch((err) => {
-              res.status(500).json({
-                errors: [
-                  {
-                    msg:
-                      "There was an issue processing the request. Please try again later.",
-                  },
-                ],
-              });
-            });
+          profile.interests = req.body.interests ? req.body.interests : "";
+          return profile.save();
         }
+      })
+      .then((profile) => {
+        return profile
+          .populate("user", ["firstName", "lastName", "picture"])
+          .execPopulate();
+      })
+      .then((profile) => {
+        res.json(profile);
       })
       .catch((err) => {
         res.status(500).json({
