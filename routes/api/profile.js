@@ -964,8 +964,20 @@ router.put(
   ensureAuthenticated,
   [
     body("skills")
-      .isArray()
-      .withMessage("Skills must be an array")
+      .isArray({ max: 100 })
+      .withMessage("No more than 100 skills can be added to your profile")
+      .bail()
+      .custom((value, { req }) => {
+        for (let element of req.body.skills) {
+          if (element.length === 0 || element.length > 150) {
+            return false;
+          }
+        }
+        return true;
+      })
+      .withMessage(
+        "Individual skill entries need to be between 1 and 150 characters long"
+      )
       .bail()
       .customSanitizer((value, { req }) => {
         let skills = value.map((skill) => String(skill).trim());
@@ -989,31 +1001,17 @@ router.put(
             ],
           });
         } else {
-          const updatedProfile = {
-            skills: [],
-          };
-
-          if (req.body.skills) {
-            updatedProfile.skills = req.body.skills;
-          }
-
-          Profile.findOneAndUpdate({ user: req.user.id }, updatedProfile, {
-            new: true,
-          })
-            .then((profile) => {
-              res.json(profile);
-            })
-            .catch((err) => {
-              res.status(500).json({
-                errors: [
-                  {
-                    msg:
-                      "There was an issue processing the request. Please try again later.",
-                  },
-                ],
-              });
-            });
+          profile.skills = req.body.skills ? req.body.skills : [];
+          return profile.save();
         }
+      })
+      .then((profile) => {
+        return profile
+          .populate("user", ["firstName", "lastName", "picture"])
+          .execPopulate();
+      })
+      .then((profile) => {
+        res.json(profile);
       })
       .catch((err) => {
         res.status(500).json({
