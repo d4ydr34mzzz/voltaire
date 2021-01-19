@@ -1228,22 +1228,16 @@ router.put(
           }
 
           profile.social = editedSocial;
-          profile
-            .save()
-            .then((profile) => {
-              res.json(profile);
-            })
-            .catch((err) => {
-              res.status(500).json({
-                errors: [
-                  {
-                    msg:
-                      "There was an issue processing the request. Please try again later.",
-                  },
-                ],
-              });
-            });
+          return profile.save();
         }
+      })
+      .then((profile) => {
+        return profile
+          .populate("user", ["firstName", "lastName", "picture"])
+          .execPopulate();
+      })
+      .then((profile) => {
+        res.json(profile);
       })
       .catch((err) => {
         res.status(500).json({
