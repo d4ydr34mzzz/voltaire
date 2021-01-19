@@ -67,6 +67,7 @@ class AddSkillModal extends Component {
   }
 
   cancelAddSkill(event) {
+    event.preventDefault();
     this.props.onModalAlteration("");
   }
 
@@ -82,6 +83,7 @@ class AddSkillModal extends Component {
 
   handleButtonClick(event) {
     event.preventDefault();
+    this.props.clearAddSkillsErrors();
     if (this.state.skill) {
       this.setState((state, props) => ({
         skill: "",
@@ -96,6 +98,7 @@ class AddSkillModal extends Component {
   handleKeyDown(event) {
     if (event.key === "Enter") {
       event.preventDefault();
+      this.props.clearAddSkillsErrors();
       if (this.state.skill) {
         this.setState((state, props) => ({
           skill: "",
@@ -139,6 +142,10 @@ class AddSkillModal extends Component {
    * https://reactjs.org/blog/2018/09/10/introducing-the-react-profiler.html
    */
   render() {
+    let errors = this.props.profile.add_skills_errors
+      ? this.props.profile.add_skills_errors
+      : {};
+
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
         <div className="modal-overlay" onClick={this.cancelAddSkill}>
@@ -159,6 +166,11 @@ class AddSkillModal extends Component {
               </a>
             </div>
             <div className="card-body">
+              {errors.skills ? (
+                <div class="alert alert-danger" role="alert">
+                  {errors.skills.msg}
+                </div>
+              ) : null}
               <form onSubmit={this.handleSubmit} noValidate>
                 <InputInputGroup
                   htmlFor="skill"
