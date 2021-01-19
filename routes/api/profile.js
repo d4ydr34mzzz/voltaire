@@ -969,7 +969,11 @@ router.put(
       .bail()
       .custom((value, { req }) => {
         for (let element of req.body.skills) {
-          if (element.length === 0 || element.length > 150) {
+          if (
+            typeof element !== "string" ||
+            element.length === 0 ||
+            element.length > 150
+          ) {
             return false;
           }
         }
