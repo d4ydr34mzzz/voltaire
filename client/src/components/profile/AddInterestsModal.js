@@ -78,6 +78,7 @@ class AddInterestsModal extends Component {
 
   handleButtonClick(event) {
     event.preventDefault();
+    this.props.clearAddInterestsErrors();
     if (this.state.interest) {
       this.setState((state, props) => ({
         interest: "",
@@ -92,6 +93,7 @@ class AddInterestsModal extends Component {
   handleKeyDown(event) {
     if (event.key === "Enter") {
       event.preventDefault();
+      this.props.clearAddInterestsErrors();
       if (this.state.interest) {
         this.setState((state, props) => ({
           interest: "",
@@ -128,6 +130,10 @@ class AddInterestsModal extends Component {
   }
 
   render() {
+    let errors = this.props.profile.add_interests_errors
+      ? this.props.profile.add_interests_errors
+      : {};
+
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
         <div className="modal-overlay" onClick={this.cancelAddInterests}>
@@ -148,6 +154,11 @@ class AddInterestsModal extends Component {
               </a>
             </div>
             <div className="card-body">
+              {errors.interests ? (
+                <div class="alert alert-danger" role="alert">
+                  {errors.interests.msg}
+                </div>
+              ) : null}
               <form onSubmit={this.handleSubmit} noValidate>
                 <InputInputGroup
                   htmlFor="interest"
