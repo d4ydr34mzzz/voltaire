@@ -1737,23 +1737,21 @@ router.delete("/experience/:experience_id", ensureAuthenticated, (req, res) => {
           })
           .indexOf(req.params.experience_id);
 
+        if (experienceIndex === -1) {
+          throw new Error("Invalid experience_id");
+        }
+
         profile.experience.splice(experienceIndex, 1);
-        profile
-          .save()
-          .then((profile) => {
-            res.json(profile);
-          })
-          .catch((err) => {
-            res.status(500).json({
-              errors: [
-                {
-                  msg:
-                    "There was an issue processing the request. Please try again later.",
-                },
-              ],
-            });
-          });
+        return profile.save();
       }
+    })
+    .then((profile) => {
+      return profile
+        .populate("user", ["firstName", "lastName", "picture"])
+        .execPopulate();
+    })
+    .then((profile) => {
+      res.json(profile);
     })
     .catch((err) => {
       res.status(500).json({
