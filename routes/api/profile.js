@@ -1314,6 +1314,7 @@ router.put("/github", ensureAuthenticated, (req, res) => {
  */
 router.put(
   "/experience/:experience_id",
+  ensureAuthenticated,
   [
     body("title")
       .not()
@@ -1405,7 +1406,6 @@ router.put(
         return sanitizeQuillInput(value);
       }),
   ],
-  ensureAuthenticated,
   (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
