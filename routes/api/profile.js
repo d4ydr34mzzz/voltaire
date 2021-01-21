@@ -1681,28 +1681,26 @@ router.delete("/education/:education_id", ensureAuthenticated, (req, res) => {
         });
       } else {
         const educationIndex = profile.education
-          .map((experience) => {
-            return experience.id;
+          .map((education) => {
+            return education.id;
           })
           .indexOf(req.params.education_id);
 
+        if (educationIndex === -1) {
+          throw new Error("Invalid education_id");
+        }
+
         profile.education.splice(educationIndex, 1);
-        profile
-          .save()
-          .then((profile) => {
-            res.json(profile);
-          })
-          .catch((err) => {
-            res.status(500).json({
-              errors: [
-                {
-                  msg:
-                    "There was an issue processing the request. Please try again later.",
-                },
-              ],
-            });
-          });
+        return profile.save();
       }
+    })
+    .then((profile) => {
+      return profile
+        .populate("user", ["firstName", "lastName", "picture"])
+        .execPopulate();
+    })
+    .then((profile) => {
+      res.json(profile);
     })
     .catch((err) => {
       res.status(500).json({
