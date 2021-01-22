@@ -1269,6 +1269,27 @@ router.put(
       .isLength({ max: 39 })
       .withMessage(
         "GitHub username needs to be between 1 and 39 characters long"
+      )
+      .bail()
+      .custom((value, { req }) => {
+        return value.match("^[A-Za-z0-9-]+$");
+      })
+      .withMessage(
+        "GitHub username can only contain letters, numbers, and hyphens"
+      )
+      .bail()
+      .custom((value, { req }) => {
+        if (
+          value.startsWith("-") ||
+          value.endsWith("-") ||
+          value.includes("--")
+        ) {
+          return false;
+        }
+        return true;
+      })
+      .withMessage(
+        "GitHub username cannot begin or end with a hyphen or have multiple consecutive hyphens"
       ),
   ],
   (req, res) => {
@@ -1288,7 +1309,9 @@ router.put(
             ],
           });
         } else {
-          profile.githubUsername = req.body.githubUsername;
+          profile.githubUsername = req.body.githubUsername
+            ? req.body.githubUsername
+            : "";
           return profile.save();
         }
       })
