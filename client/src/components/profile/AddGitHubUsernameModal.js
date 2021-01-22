@@ -99,7 +99,7 @@ class AddGitHubUsernameModal extends Component {
                 icon="fab fa-github"
                 name="githubUsername"
                 type="url"
-                error={errors.github}
+                error={errors.githubUsername}
                 id="githubUsername"
                 value={this.state.githubUsername}
                 placeholder="GitHub username"

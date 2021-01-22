@@ -1262,10 +1262,9 @@ router.put(
   ensureAuthenticated,
   [
     body("githubUsername")
-      .not()
-      .isEmpty()
-      .withMessage("GitHub username is required")
-      .bail()
+      .if((value, { req }) => {
+        return req.body.githubUsername;
+      })
       .trim()
       .isLength({ max: 39 })
       .withMessage(
