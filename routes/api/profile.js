@@ -1257,55 +1257,62 @@ router.put(
  * @access private
  * @description Put request route handler for the /api/profile/github path (add or update the current user's github username)
  */
-router.put("/github", ensureAuthenticated, (req, res) => {
-  Profile.findOne({ user: req.user.id })
-    .then((profile) => {
-      if (!profile) {
-        res.status(404).json({
+router.put(
+  "/github",
+  ensureAuthenticated,
+  [
+    body("githubUsername")
+      .not()
+      .isEmpty()
+      .withMessage("GitHub username is required")
+      .bail()
+      .trim()
+      .isLength({ max: 39 })
+      .withMessage(
+        "GitHub username needs to be between 1 and 39 characters long"
+      ),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json(errors.mapped());
+    }
+
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        if (!profile) {
+          res.status(404).json({
+            errors: [
+              {
+                msg: "Profile does not exist",
+              },
+            ],
+          });
+        } else {
+          profile.githubUsername = req.body.githubUsername;
+          return profile.save();
+        }
+      })
+      .then((profile) => {
+        return profile
+          .populate("user", ["firstName", "lastName", "picture"])
+          .execPopulate();
+      })
+      .then((profile) => {
+        res.json(profile);
+      })
+      .catch((err) => {
+        res.status(500).json({
           errors: [
             {
-              msg: "Profile does not exist",
+              msg:
+                "There was an issue processing the request. Please try again later.",
             },
           ],
         });
-      } else {
-        const updatedProfile = {
-          githubUsername: "",
-        };
-
-        if (req.body.githubUsername) {
-          updatedProfile.githubUsername = req.body.githubUsername;
-        }
-
-        Profile.findOneAndUpdate({ user: req.user.id }, updatedProfile, {
-          new: true,
-        })
-          .then((profile) => {
-            res.json(profile);
-          })
-          .catch((err) => {
-            res.status(500).json({
-              errors: [
-                {
-                  msg:
-                    "There was an issue processing the request. Please try again later.",
-                },
-              ],
-            });
-          });
-      }
-    })
-    .catch((err) => {
-      res.status(500).json({
-        errors: [
-          {
-            msg:
-              "There was an issue processing the request. Please try again later.",
-          },
-        ],
       });
-    });
-});
+  }
+);
 
 /**
  * @route PUT /api/profile/experience/:experience_id
