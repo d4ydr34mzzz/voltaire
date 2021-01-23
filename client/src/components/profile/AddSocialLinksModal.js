@@ -101,6 +101,11 @@ class AddSocialLinksModal extends Component {
             </a>
           </div>
           <div className="card-body">
+            {errors.error ? (
+              <div class="alert alert-danger" role="alert">
+                {errors.error.msg}
+              </div>
+            ) : null}
             <form onSubmit={this.handleSubmit} noValidate>
               <InputInputGroup
                 htmlFor="youtube"
