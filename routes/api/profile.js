@@ -421,7 +421,7 @@ router.post(
             description: req.body.description,
           };
 
-          if (profile.experience.length > 30) {
+          if (profile.experience.length >= 30) {
             res.status(400).json({
               error: {
                 msg:
@@ -602,7 +602,7 @@ router.post(
             activities: req.body.activities,
           };
 
-          if (profile.education.length > 20) {
+          if (profile.education.length >= 20) {
             res.status(400).json({
               error: {
                 msg:
