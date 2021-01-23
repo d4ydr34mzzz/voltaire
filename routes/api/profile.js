@@ -404,11 +404,9 @@ router.post(
       .then((profile) => {
         if (!profile) {
           res.status(404).json({
-            errors: [
-              {
-                msg: "Profile does not exist",
-              },
-            ],
+            error: {
+              msg: "Profile does not exist",
+            },
           });
         } else {
           const newExperience = {
@@ -445,12 +443,10 @@ router.post(
       })
       .catch((err) => {
         res.status(500).json({
-          errors: [
-            {
-              msg:
-                "There was an issue processing the request. Please try again later.",
-            },
-          ],
+          error: {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
         });
       });
   }
@@ -584,11 +580,9 @@ router.post(
       .then((profile) => {
         if (!profile) {
           res.status(404).json({
-            errors: [
-              {
-                msg: "Profile does not exist",
-              },
-            ],
+            error: {
+              msg: "Profile does not exist",
+            },
           });
         } else {
           const newEducation = {
@@ -626,12 +620,10 @@ router.post(
       })
       .catch((err) => {
         res.status(500).json({
-          errors: [
-            {
-              msg:
-                "There was an issue processing the request. Please try again later.",
-            },
-          ],
+          error: {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
         });
       });
   }
@@ -1466,11 +1458,9 @@ router.put(
       .then((profile) => {
         if (!profile) {
           res.status(404).json({
-            errors: [
-              {
-                msg: "Profile does not exist",
-              },
-            ],
+            error: {
+              msg: "Profile does not exist",
+            },
           });
         } else {
           const editedExperience = {
@@ -1498,7 +1488,7 @@ router.put(
             return profile.save();
           } else {
             res.status(404).json({
-              experience: {
+              error: {
                 msg: "Experience does not exist",
               },
             });
@@ -1515,12 +1505,10 @@ router.put(
       })
       .catch((err) => {
         res.status(500).json({
-          errors: [
-            {
-              msg:
-                "There was an issue processing the request. Please try again later.",
-            },
-          ],
+          error: {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
         });
       });
   }
@@ -1654,11 +1642,9 @@ router.put(
       .then((profile) => {
         if (!profile) {
           res.status(404).json({
-            errors: [
-              {
-                msg: "Profile does not exist",
-              },
-            ],
+            error: {
+              msg: "Profile does not exist",
+            },
           });
         } else {
           const editedEducation = {
@@ -1687,7 +1673,7 @@ router.put(
             return profile.save();
           } else {
             res.status(404).json({
-              experience: {
+              error: {
                 msg: "Experience does not exist",
               },
             });
@@ -1704,12 +1690,10 @@ router.put(
       })
       .catch((err) => {
         res.status(500).json({
-          errors: [
-            {
-              msg:
-                "There was an issue processing the request. Please try again later.",
-            },
-          ],
+          error: {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
         });
       });
   }
