@@ -4,7 +4,7 @@ const passport = require("passport");
 const { ensureAuthenticated } = require("../../helpers/auth.js");
 const { compareDates } = require("../../helpers/compare.js");
 const {
-  addHttpsProtocolToValidatedSocialURL,
+  addHttpsProtocolToValidatedSocialURLWithoutProtocol,
   sanitizeQuillInput,
 } = require("../../helpers/sanatize.js");
 const { body, validationResult } = require("express-validator");
@@ -1140,7 +1140,7 @@ router.put(
       .withMessage("Invalid URL")
       .bail()
       .customSanitizer((value, { req }) => {
-        return addHttpsProtocolToValidatedSocialURL(value);
+        return addHttpsProtocolToValidatedSocialURLWithoutProtocol(value);
       }),
     body("twitter")
       .if((value, { req }) => {
@@ -1154,7 +1154,7 @@ router.put(
       .withMessage("Invalid URL")
       .bail()
       .customSanitizer((value, { req }) => {
-        return addHttpsProtocolToValidatedSocialURL(value);
+        return addHttpsProtocolToValidatedSocialURLWithoutProtocol(value);
       }),
     body("facebook")
       .if((value, { req }) => {
@@ -1168,7 +1168,7 @@ router.put(
       .withMessage("Invalid URL")
       .bail()
       .customSanitizer((value, { req }) => {
-        return addHttpsProtocolToValidatedSocialURL(value);
+        return addHttpsProtocolToValidatedSocialURLWithoutProtocol(value);
       }),
     body("linkedin")
       .if((value, { req }) => {
@@ -1182,7 +1182,7 @@ router.put(
       .withMessage("Invalid URL")
       .bail()
       .customSanitizer((value, { req }) => {
-        return addHttpsProtocolToValidatedSocialURL(value);
+        return addHttpsProtocolToValidatedSocialURLWithoutProtocol(value);
       }),
     body("instagram")
       .if((value, { req }) => {
@@ -1196,7 +1196,7 @@ router.put(
       .withMessage("Invalid URL")
       .bail()
       .customSanitizer((value, { req }) => {
-        return addHttpsProtocolToValidatedSocialURL(value);
+        return addHttpsProtocolToValidatedSocialURLWithoutProtocol(value);
       }),
   ],
   (req, res) => {
