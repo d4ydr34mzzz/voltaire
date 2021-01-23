@@ -602,8 +602,18 @@ router.post(
             activities: req.body.activities,
           };
 
-          profile.education.unshift(newEducation);
-          return profile.save();
+          if (profile.education.length > 20) {
+            res.status(400).json({
+              error: {
+                msg:
+                  "No more than 20 education entries can be added to your profile",
+              },
+            });
+          } else {
+            profile.education.unshift(newEducation);
+            profile.education.sort(compareDates);
+            return profile.save();
+          }
         }
       })
       .then((profile) => {
@@ -1673,6 +1683,7 @@ router.put(
               profile.education[educationIndex],
               editedEducation
             );
+            profile.education.sort(compareDates);
             return profile.save();
           } else {
             res.status(404).json({
