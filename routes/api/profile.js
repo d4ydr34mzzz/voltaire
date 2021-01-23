@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const passport = require("passport");
 const { ensureAuthenticated } = require("../../helpers/auth.js");
+const { compareDates } = require("../../helpers/compare.js");
 const {
   addHttpsProtocolToValidatedSocialURL,
   sanitizeQuillInput,
@@ -420,8 +421,18 @@ router.post(
             description: req.body.description,
           };
 
-          profile.experience.unshift(newExperience);
-          return profile.save();
+          if (profile.experience.length > 30) {
+            res.status(400).json({
+              error: {
+                msg:
+                  "No more than 30 experience entries can be added to your profile",
+              },
+            });
+          } else {
+            profile.experience.unshift(newExperience);
+            profile.experience.sort(compareDates);
+            return profile.save();
+          }
         }
       })
       .then((profile) => {
@@ -1473,6 +1484,7 @@ router.put(
               profile.experience[experienceIndex],
               editedExperience
             );
+            profile.experience.sort(compareDates);
             return profile.save();
           } else {
             res.status(404).json({
