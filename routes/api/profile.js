@@ -543,8 +543,8 @@ router.post(
       .if((value, { req }) => {
         return req.body.description;
       })
-      .isLength({ max: 700 })
-      .withMessage("Description needs to be between 0 and 700 characters long")
+      .isLength({ max: 2500 })
+      .withMessage("Description needs to be between 0 and 2500 characters long")
       .bail()
       .isAscii()
       .withMessage("Description can only contain ASCII characters")
@@ -557,9 +557,9 @@ router.post(
       .if((value, { req }) => {
         return req.body.activities;
       })
-      .isLength({ max: 700 })
+      .isLength({ max: 2500 })
       .withMessage(
-        "Clubs and activities needs to be between 0 and 700 characters long"
+        "Clubs and activities needs to be between 0 and 2500 characters long"
       )
       .bail()
       .isAscii()
@@ -1595,8 +1595,8 @@ router.put(
       .if((value, { req }) => {
         return req.body.description;
       })
-      .isLength({ max: 700 })
-      .withMessage("Description needs to be between 0 and 700 characters long")
+      .isLength({ max: 2500 })
+      .withMessage("Description needs to be between 0 and 2500 characters long")
       .bail()
       .isAscii()
       .withMessage("Description can only contain ASCII characters")
@@ -1609,9 +1609,9 @@ router.put(
       .if((value, { req }) => {
         return req.body.activities;
       })
-      .isLength({ max: 700 })
+      .isLength({ max: 2500 })
       .withMessage(
-        "Clubs and activities needs to be between 0 and 700 characters long"
+        "Clubs and activities needs to be between 0 and 2500 characters long"
       )
       .bail()
       .isAscii()
