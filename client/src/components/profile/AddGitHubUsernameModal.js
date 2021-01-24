@@ -88,6 +88,11 @@ class AddGitHubUsernameModal extends Component {
             </a>
           </div>
           <div className="card-body">
+            {errors.error ? (
+              <div class="alert alert-danger" role="alert">
+                {errors.error.msg}
+              </div>
+            ) : null}
             <p className="mb-4">
               If you would like a link to your GitHub page and your latest
               public repositories displayed on your profile, please provide your
