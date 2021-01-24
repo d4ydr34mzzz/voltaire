@@ -1299,11 +1299,9 @@ router.put(
       .then((profile) => {
         if (!profile) {
           res.status(404).json({
-            errors: [
-              {
-                msg: "Profile does not exist",
-              },
-            ],
+            error: {
+              msg: "Profile does not exist",
+            },
           });
         } else {
           profile.githubUsername = req.body.githubUsername
