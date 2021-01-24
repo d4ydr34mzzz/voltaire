@@ -1664,7 +1664,7 @@ router.put(
           } else {
             res.status(404).json({
               error: {
-                msg: "Experience does not exist",
+                msg: "Education does not exist",
               },
             });
           }
