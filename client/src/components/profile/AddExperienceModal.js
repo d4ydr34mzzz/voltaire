@@ -113,6 +113,7 @@ class AddExperienceModal extends Component {
 
   deleteExperience(event) {
     event.preventDefault();
+    this.props.clearEditExperienceErrors();
 
     const experienceData = {
       entryId: this.props.entryId,
@@ -127,6 +128,9 @@ class AddExperienceModal extends Component {
 
   handleSubmit(event) {
     event.preventDefault();
+    if (this.state.editing) {
+      this.props.clearDeleteExperienceErrors();
+    }
 
     const experienceData = {
       title: this.state.title,
@@ -163,6 +167,12 @@ class AddExperienceModal extends Component {
       errors = this.props.profile.edit_experience_errors
         ? this.props.profile.edit_experience_errors
         : {};
+
+      if (
+        Object.keys(this.props.profile.delete_experience_errors).length !== 0
+      ) {
+        errors = this.props.profile.delete_experience_errors;
+      }
     }
 
     let modules = {

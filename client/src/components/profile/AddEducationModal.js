@@ -120,6 +120,8 @@ class AddEducationModal extends Component {
 
   deleteEducation(event) {
     event.preventDefault();
+    this.props.clearEditEducationErrors();
+
     const educationData = {
       entryId: this.props.entryId,
     };
@@ -133,6 +135,9 @@ class AddEducationModal extends Component {
 
   handleSubmit(event) {
     event.preventDefault();
+    if (this.state.editing) {
+      this.props.clearDeleteEducationErrors();
+    }
 
     const educationData = {
       school: this.state.school,
@@ -170,6 +175,12 @@ class AddEducationModal extends Component {
       errors = this.props.profile.edit_education_errors
         ? this.props.profile.edit_education_errors
         : {};
+
+      if (
+        Object.keys(this.props.profile.delete_education_errors).length !== 0
+      ) {
+        errors = this.props.profile.delete_education_errors;
+      }
     }
 
     let modules = {
