@@ -1007,11 +1007,9 @@ router.put(
       .then((profile) => {
         if (!profile) {
           res.status(404).json({
-            errors: [
-              {
-                msg: "Profile does not exist",
-              },
-            ],
+            error: {
+              msg: "Profile does not exist",
+            },
           });
         } else {
           profile.skills = req.body.skills ? req.body.skills : [];
@@ -1028,12 +1026,10 @@ router.put(
       })
       .catch((err) => {
         res.status(500).json({
-          errors: [
-            {
-              msg:
-                "There was an issue processing the request. Please try again later.",
-            },
-          ],
+          error: {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
         });
       });
   }
