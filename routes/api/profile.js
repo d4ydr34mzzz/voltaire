@@ -1699,11 +1699,9 @@ router.delete("/education/:education_id", ensureAuthenticated, (req, res) => {
     .then((profile) => {
       if (!profile) {
         res.status(404).json({
-          errors: [
-            {
-              msg: "Profile does not exist",
-            },
-          ],
+          error: {
+            msg: "Profile does not exist",
+          },
         });
       } else {
         const educationIndex = profile.education
@@ -1730,12 +1728,10 @@ router.delete("/education/:education_id", ensureAuthenticated, (req, res) => {
     })
     .catch((err) => {
       res.status(500).json({
-        errors: [
-          {
-            msg:
-              "There was an issue processing the request. Please try again later.",
-          },
-        ],
+        error: {
+          msg:
+            "There was an issue processing the request. Please try again later.",
+        },
       });
     });
 });
@@ -1750,11 +1746,9 @@ router.delete("/experience/:experience_id", ensureAuthenticated, (req, res) => {
     .then((profile) => {
       if (!profile) {
         res.status(404).json({
-          errors: [
-            {
-              msg: "Profile does not exist",
-            },
-          ],
+          error: {
+            msg: "Profile does not exist",
+          },
         });
       } else {
         const experienceIndex = profile.experience
@@ -1781,12 +1775,10 @@ router.delete("/experience/:experience_id", ensureAuthenticated, (req, res) => {
     })
     .catch((err) => {
       res.status(500).json({
-        errors: [
-          {
-            msg:
-              "There was an issue processing the request. Please try again later.",
-          },
-        ],
+        error: {
+          msg:
+            "There was an issue processing the request. Please try again later.",
+        },
       });
     });
 });
