@@ -166,6 +166,11 @@ class AddSkillModal extends Component {
               </a>
             </div>
             <div className="card-body">
+              {errors.error ? (
+                <div class="alert alert-danger" role="alert">
+                  {errors.error.msg}
+                </div>
+              ) : null}
               {errors.skills ? (
                 <div class="alert alert-danger" role="alert">
                   {errors.skills.msg}
