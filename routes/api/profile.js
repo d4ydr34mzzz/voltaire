@@ -632,25 +632,77 @@ router.post(
 /**
  * @route PUT /api/profile/general
  * @access private
- * @description Put request route handler for the /api/profile/general path (add or update the general information section in the current user's profile)
+ * @description Put request route handler for the /api/profile/general path (update the general information section in the current user's profile)
  */
 router.put(
   "/general",
   ensureAuthenticated,
   [
-    body("firstName").not().isEmpty().withMessage("First name is required"),
-    body("lastName").not().isEmpty().withMessage("Last name is required"),
+    body("firstName")
+      .not()
+      .isEmpty()
+      .withMessage("First name is required")
+      .bail()
+      .trim()
+      .isLength({ max: 100 })
+      .withMessage("First name needs to be between 1 and 100 characters long")
+      .bail()
+      .isAlphanumeric()
+      .withMessage("First name can only contain letters and numbers"),
+    body("lastName")
+      .not()
+      .isEmpty()
+      .withMessage("Last name is required")
+      .bail()
+      .trim()
+      .isLength({ max: 100 })
+      .withMessage("Last name needs to be between 1 and 100 characters long")
+      .bail()
+      .isAlphanumeric()
+      .withMessage("Last name can only contain letters and numbers"),
     body("handle")
       .not()
       .isEmpty()
       .withMessage("Profile handle is required")
+      .bail()
+      .trim()
       .isLength({ min: 2, max: 40 })
-      .withMessage("Profile handle needs to be between 2 and 40 characters"),
-    body("header").not().isEmpty().withMessage("Header is required"),
+      .withMessage(
+        "Profile handle needs to be between 2 and 40 characters long"
+      )
+      .bail()
+      .isAlphanumeric()
+      .withMessage("Profile handle can only contain letters and numbers")
+      .bail()
+      .toLowerCase(),
+    body("header")
+      .not()
+      .isEmpty()
+      .withMessage("Profile header is required")
+      .bail()
+      .trim()
+      .isLength({ max: 250 })
+      .withMessage(
+        "Profile header needs to be between 1 and 250 characters long"
+      )
+      .bail()
+      .isAscii()
+      .withMessage("Profile header can only contain ASCII characters"),
+    body("location")
+      .if((value, { req }) => {
+        return req.body.location;
+      })
+      .trim()
+      .isLength({ max: 150 })
+      .withMessage("Location needs to be between 1 and 150 characters long")
+      .bail()
+      .isAscii()
+      .withMessage("Location can only contain ASCII characters"),
     body("status")
       .not()
       .isEmpty()
       .withMessage("Status is required")
+      .bail()
       .custom((value, {}) => {
         // Reference: https://stackoverflow.com/questions/24718349/how-do-i-make-array-indexof-case-insensitive#answer-24718680
         let validOptions = [
@@ -677,226 +729,152 @@ router.put(
     }
 
     Profile.findOne({ user: req.user.id })
-      .populate("user", ["firstName", "lastName"])
-      .then((profile) => {
-        if (!profile) {
+      .then((profile1) => {
+        if (!profile1) {
           res.status(404).json({
-            errors: [
-              {
-                msg: "Profile does not exist",
-              },
-            ],
+            error: {
+              msg: "Profile does not exist",
+            },
           });
         } else {
-          const updatedUser = {};
-          if (profile.user.firstName !== req.body.firstName) {
-            updatedUser.firstName = req.body.firstName;
-          }
-          if (profile.user.lastName !== req.body.lastName) {
-            updatedUser.lastName = req.body.lastName;
-          }
-
-          const updatedProfile = {};
-          if (profile.header !== req.body.header) {
-            updatedProfile.header = req.body.header;
-          }
-          if (profile.location !== req.body.location) {
-            updatedProfile.location = req.body.location;
-          }
-          if (profile.status !== req.body.status) {
-            updatedProfile.status = req.body.status;
-          }
-
-          if (profile.handle !== req.body.handle) {
-            // Existing user wants to change their handle
-            Profile.findOne({ handle: req.body.handle })
-              .then((profile) => {
-                if (profile && profile.user !== req.user.id) {
+          if (profile1.handle !== req.body.handle) {
+            return Profile.findOne({ handle: req.body.handle }).then(
+              (profile2) => {
+                if (profile2) {
                   res.status(400).json({
                     handle: {
                       msg: "The handle is taken. Please try another one.",
                     },
                   });
                 } else {
-                  updatedProfile.handle = req.body.handle;
+                  let updateUser = false;
 
-                  if (updatedUser) {
-                    User.findOneAndUpdate({ _id: req.user.id }, updatedUser, {
-                      new: true,
-                    })
-                      .then((user) => {
-                        Profile.findOneAndUpdate(
-                          { user: req.user.id },
-                          updatedProfile,
-                          {
-                            new: true,
-                          }
-                        )
-                          .populate("user", [
-                            "firstName",
-                            "lastName",
-                            "picture",
-                          ])
-                          .then((profile) => {
-                            res.json(profile);
-                          })
-                          .catch((err) => {
-                            res.status(500).json({
-                              errors: [
-                                {
-                                  msg:
-                                    "There was an issue processing the request. Please try again later.",
-                                },
-                              ],
-                            });
-                          });
-                      })
-                      .catch((err) => {
-                        res.status(500).json({
-                          errors: [
-                            {
-                              msg:
-                                "There was an issue processing the request. Please try again later.",
-                            },
-                          ],
-                        });
-                      });
-                  } else {
-                    Profile.findOneAndUpdate(
-                      { user: req.user.id },
-                      updatedProfile,
-                      {
-                        new: true,
-                      }
-                    )
-                      .populate("user", ["firstName", "lastName", "picture"])
-                      .then((profile) => {
-                        res.json(profile);
-                      })
-                      .catch((err) => {
-                        res.status(500).json({
-                          errors: [
-                            {
-                              msg:
-                                "There was an issue processing the request. Please try again later.",
-                            },
-                          ],
-                        });
-                      });
+                  if (profile1.firstName !== req.body.firstName) {
+                    profile1.firstName = req.body.firstName;
+                    updateUser = true;
                   }
+                  if (profile1.lastName !== req.body.lastName) {
+                    profile1.lastName = req.body.lastName;
+                    updateUser = true;
+                  }
+
+                  profile1.handle = req.body.handle;
+                  if (profile1.header !== req.body.header) {
+                    profile1.header = req.body.header;
+                  }
+                  if (profile1.location !== req.body.location) {
+                    profile1.location = req.body.location;
+                  }
+                  if (profile1.status !== req.body.status) {
+                    profile1.status = req.body.status;
+                  }
+
+                  return {
+                    updateProfile: true,
+                    updateUser: updateUser,
+                    profile: profile1,
+                  };
                 }
-              })
-              .catch((err) => {
-                res.status(500).json({
-                  errors: [
-                    {
-                      msg:
-                        "There was an issue processing the request. Please try again later.",
-                    },
-                  ],
-                });
-              });
+              }
+            );
           } else {
-            if (updatedUser) {
-              if (updatedProfile) {
-                User.findOneAndUpdate({ _id: req.user.id }, updatedUser, {
-                  new: true,
-                })
-                  .then((user) => {
-                    Profile.findOneAndUpdate(
-                      { user: req.user.id },
-                      updatedProfile,
-                      {
-                        new: true,
-                      }
-                    )
-                      .populate("user", ["firstName", "lastName", "picture"])
-                      .then((profile) => {
-                        res.json(profile);
-                      })
-                      .catch((err) => {
-                        res.status(500).json({
-                          errors: [
-                            {
-                              msg:
-                                "There was an issue processing the request. Please try again later.",
-                            },
-                          ],
-                        });
-                      });
-                  })
-                  .catch((err) => {
-                    res.status(500).json({
-                      errors: [
-                        {
-                          msg:
-                            "There was an issue processing the request. Please try again later.",
-                        },
-                      ],
-                    });
-                  });
-              } else {
-                User.findOneAndUpdate({ _id: req.user.id }, updatedUser, {
-                  new: true,
-                })
-                  .then((user) => {
-                    Profile.findOne({ user: req.user.id })
-                      .populate("user", ["firstName", "lastName", "picture"])
-                      .then((profile) => {
-                        res.json(profile);
-                      })
-                      .catch((err) => {
-                        console.log(err);
-                        res.status(500).json({
-                          errors: [
-                            {
-                              msg:
-                                "There was an issue processing the request. Please try again later.",
-                            },
-                          ],
-                        });
-                      });
-                  })
-                  .catch((err) => {
-                    res.status(500).json({
-                      errors: [
-                        {
-                          msg:
-                            "There was an issue processing the request. Please try again later.",
-                        },
-                      ],
-                    });
-                  });
-              }
-            } else {
-              if (updatedProfile) {
-                Profile.findOneAndUpdate(
-                  { user: req.user.id },
-                  updatedProfile,
-                  {
-                    new: true,
-                  }
-                )
-                  .populate("user", ["firstName", "lastName", "picture"])
-                  .then((profile) => {
-                    res.json(profile);
-                  })
-                  .catch((err) => {
-                    res.status(500).json({
-                      errors: [
-                        {
-                          msg:
-                            "There was an issue processing the request. Please try again later.",
-                        },
-                      ],
-                    });
-                  });
-              } else {
-                return res.json(profile);
-              }
+            let updateProfile = false;
+            let updateUser = false;
+
+            if (profile1.firstName !== req.body.firstName) {
+              profile1.firstName = req.body.firstName;
+              updateProfile = true;
+              updateUser = true;
             }
+            if (profile1.lastName !== req.body.lastName) {
+              profile1.lastName = req.body.lastName;
+              updateProfile = true;
+              updateUser = true;
+            }
+
+            if (profile1.header !== req.body.header) {
+              profile1.header = req.body.header;
+              updateProfile = true;
+            }
+            if (profile1.location !== req.body.location) {
+              profile1.location = req.body.location;
+              updateProfile = true;
+            }
+            if (profile1.status !== req.body.status) {
+              profile1.status = req.body.status;
+              updateProfile = true;
+            }
+
+            return {
+              updateProfile: updateProfile,
+              updateUser: updateUser,
+              profile: profile1,
+            };
           }
         }
+      })
+      .then(({ updateProfile, updateUser, profile }) => {
+        if (updateProfile && updateUser) {
+          /*
+           * References:
+           * https://stackoverflow.com/a/62856639
+           * https://jira.mongodb.org/browse/NODE-2014
+           * https://mongoosejs.com/docs/transactions.html
+           * https://mongodb.github.io/node-mongodb-native/3.2/api/ClientSession.html#withTransaction
+           * https://docs.mongodb.com/manual/core/transactions-in-applications/
+           */
+          return mongoose.startSession().then((session) => {
+            let updatedProfile = null;
+            let fn = () => {
+              return new Promise((resolve, reject) => {
+                return User.findOne({ _id: req.user.id })
+                  .session(session)
+                  .exec()
+                  .then((user) => {
+                    if (user.firstName !== profile.firstName) {
+                      user.firstName = profile.firstName;
+                    }
+                    if (user.lastName !== profile.lastName) {
+                      user.lastName = profile.lastName;
+                    }
+
+                    let promise1 = profile.save({ session: session });
+                    let promise2 = user.save();
+                    return Promise.all([promise1, promise2]);
+                  })
+                  .then((values) => {
+                    updatedProfile = values[0];
+                    resolve(values[0]);
+                  })
+                  .catch((err) => {
+                    reject(err);
+                  });
+              });
+            };
+
+            return session.withTransaction(fn).then(() => {
+              return updatedProfile;
+            });
+          });
+        } else if (updateProfile) {
+          return profile.save();
+        }
+      })
+      .then((profile) => {
+        return profile
+          .populate("user", ["firstName", "lastName", "picture"])
+          .execPopulate();
+      })
+      .then((profile) => {
+        res.json(profile);
+      })
+      .catch((err) => {
+        res.status(500).json({
+          error: {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
+        });
       });
   }
 );
