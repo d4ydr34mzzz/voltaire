@@ -143,6 +143,7 @@ router.post(
       .isEmpty()
       .withMessage("First name is required")
       .bail()
+      .trim()
       .isLength({ max: 100 })
       .withMessage("First name needs to be between 1 and 100 characters long")
       .bail()
@@ -153,6 +154,7 @@ router.post(
       .isEmpty()
       .withMessage("Last name is required")
       .bail()
+      .trim()
       .isLength({ max: 100 })
       .withMessage("Last name needs to be between 1 and 100 characters long")
       .bail()
@@ -163,6 +165,7 @@ router.post(
       .isEmpty()
       .withMessage("Profile handle is required")
       .bail()
+      .trim()
       .isLength({ min: 2, max: 40 })
       .withMessage(
         "Profile handle needs to be between 2 and 40 characters long"
@@ -177,10 +180,14 @@ router.post(
       .isEmpty()
       .withMessage("Profile header is required")
       .bail()
+      .trim()
       .isLength({ max: 250 })
       .withMessage(
         "Profile header needs to be between 1 and 250 characters long"
-      ),
+      )
+      .bail()
+      .isAscii()
+      .withMessage("Profile header can only contain ASCII characters"),
     body("status")
       .not()
       .isEmpty()
@@ -212,69 +219,44 @@ router.post(
     }
 
     Profile.findOne({ user: req.user.id })
-      .then((profile) => {
-        let newProfile = {};
-        newProfile.header = req.body.header;
-        newProfile.status = req.body.status;
-
-        if (!profile) {
+      .then((profile1) => {
+        if (!profile1) {
           return Profile.findOne({ handle: req.body.handle }).then(
-            (profile) => {
-              if (profile) {
+            (profile2) => {
+              if (profile2) {
                 res.status(400).json({
                   handle: {
                     msg: "The handle is taken. Please try another one.",
                   },
                 });
               } else {
-                newProfile.user = req.user.id;
-                newProfile.handle = req.body.handle;
+                return User.findOne({ _id: req.user.id }).then((user) => {
+                  let updateUser = false;
 
-                return User.findOne({ _id: req.user.id })
-                  .then((user) => {
-                    if (user) {
-                      newProfile.firstName = req.body.firstName;
-                      newProfile.lastName = req.body.lastName;
+                  if (user.firstName !== req.body.firstName) {
+                    user.firstName = req.body.firstName;
+                    updateUser = true;
+                  }
+                  if (user.lastName !== req.body.lastName) {
+                    user.lastName = req.body.lastName;
+                    updateUser = true;
+                  }
 
-                      let updateUser = false;
-                      if (user.firstName !== req.body.firstName) {
-                        user.firstName = req.body.firstName;
-                        updateUser = true;
-                      }
-                      if (user.lastName !== req.body.lastName) {
-                        user.lastName = req.body.lastName;
-                        updateUser = true;
-                      }
+                  let newProfile = {
+                    user: req.user.id,
+                    firstName: req.body.firstName,
+                    lastName: req.body.lastName,
+                    handle: req.body.handle,
+                    header: req.body.header,
+                    status: req.body.status,
+                  };
 
-                      // References: https://stackoverflow.com/a/50334013 and https://mongoosejs.com/docs/api/document.html#document_Document-execPopulate
-                      let promise1 = new Profile(newProfile)
-                        .save()
-                        .then((profile) =>
-                          profile
-                            .populate("user", [
-                              "firstName",
-                              "lastName",
-                              "picture",
-                            ])
-                            .execPopulate()
-                        );
-                      if (updateUser) {
-                        let promise2 = user.save();
-                        return Promise.all([promise1, promise2]);
-                      } else {
-                        return promise1;
-                      }
-                    } else {
-                      throw new Error("Invalid user document");
-                    }
-                  })
-                  .then((values) => {
-                    if (Array.isArray(values)) {
-                      res.json(values[0]);
-                    } else {
-                      res.json(values);
-                    }
-                  });
+                  return {
+                    updateUser: updateUser,
+                    user: user,
+                    newProfile: newProfile,
+                  };
+                });
               }
             }
           );
@@ -282,14 +264,59 @@ router.post(
           throw new Error("A profile already exists for the current user");
         }
       })
+      .then(({ updateUser, user, newProfile }) => {
+        if (updateUser) {
+          /*
+           * References:
+           * https://stackoverflow.com/a/62856639
+           * https://jira.mongodb.org/browse/NODE-2014
+           * https://mongoosejs.com/docs/transactions.html
+           * https://mongodb.github.io/node-mongodb-native/3.2/api/ClientSession.html#withTransaction
+           * https://docs.mongodb.com/manual/core/transactions-in-applications/
+           * https://github.com/Automattic/mongoose/issues/8076
+           */
+          return mongoose.startSession().then((session) => {
+            let updatedProfile = null;
+            let fn = () => {
+              return new Promise((resolve, reject) => {
+                return new Profile(newProfile)
+                  .save({ session: session })
+                  .then((profile) => {
+                    updatedProfile = profile;
+                    return user.save();
+                  })
+                  .then((user) => {
+                    resolve(user);
+                  })
+                  .catch((err) => {
+                    reject(err);
+                  });
+              });
+            };
+
+            return session.withTransaction(fn).finally(() => {
+              session.endSession();
+              return updatedProfile;
+            });
+          });
+        } else {
+          return new Profile(newProfile).save();
+        }
+      })
+      .then((profile) => {
+        return profile
+          .populate("user", ["firstName", "lastName", "picture"])
+          .execPopulate();
+      })
+      .then((profile) => {
+        res.json(profile);
+      })
       .catch((err) => {
         res.status(500).json({
-          errors: [
-            {
-              msg:
-                "There was an issue processing the request. Please try again later.",
-            },
-          ],
+          error: {
+            msg:
+              "There was an issue processing the request. Please try again later.",
+          },
         });
       });
   }
@@ -853,6 +880,7 @@ router.put(
             };
 
             return session.withTransaction(fn).then(() => {
+              session.endSession();
               return updatedProfile;
             });
           });
