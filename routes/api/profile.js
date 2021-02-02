@@ -51,7 +51,6 @@ router.get("/", ensureAuthenticated, (req, res) => {
       res.json(profile);
     })
     .catch((err) => {
-      console.log(err);
       res.status(500).json({
         errors: [
           {
@@ -294,8 +293,7 @@ router.post(
               });
             };
 
-            return session.withTransaction(fn).finally(() => {
-              session.endSession();
+            return session.withTransaction(fn).then(() => {
               return updatedProfile;
             });
           });
@@ -880,7 +878,6 @@ router.put(
             };
 
             return session.withTransaction(fn).then(() => {
-              session.endSession();
               return updatedProfile;
             });
           });
