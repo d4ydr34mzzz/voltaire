@@ -219,15 +219,13 @@ router.put(
         .then((profile) => {
           if (!profile) {
             return res.status(404).json({
-              errors: [
-                {
-                  msg: "Profile does not exist",
-                },
-              ],
+              error: {
+                msg: "Profile does not exist",
+              },
             });
           }
 
-          User.findOne({ _id: req.user.id }).then((user) => {
+          return User.findOne({ _id: req.user.id }).then((user) => {
             if (!(user.profilePicturePublicId && user.profilePicture)) {
               return res.status(400).json({
                 profilePicture: {
@@ -250,8 +248,8 @@ router.put(
               );
             }
 
-            Promise.all([promise1]).then((values) => {
-              cloudinaryUploadStreamMethod(
+            return Promise.all([promise1]).then((values) => {
+              return cloudinaryUploadStreamMethod(
                 req.files["profilePictureCropped"][0].buffer,
                 { allowed_formats: ["jpg", "jpeg", "png"] }
               ).then((result) => {
@@ -262,42 +260,45 @@ router.put(
                   profile.profilePictureCroppedPublicId = result.public_id;
                   profile.profilePictureCropped = result.secure_url;
 
-                  let promise1 = user.save();
+                  return mongoose.startSession().then((session) => {
+                    let updatedProfile = null;
+                    let fn = () => {
+                      return new Promise((resolve, reject) => {
+                        return profile
+                          .save({ session: session })
+                          .then((profile) => {
+                            updatedProfile = profile;
+                            return user.save();
+                          })
+                          .then((user) => {
+                            resolve(user);
+                          })
+                          .catch((err) => {
+                            reject(err);
+                          });
+                      });
+                    };
 
-                  let promise2 = new Promise((resolve, reject) => {
-                    /* References:
-                     * https://stackoverflow.com/a/52249411
-                     * https://stackoverflow.com/a/45490618
-                     * https://stackoverflow.com/a/51431746
-                     */
-                    profile.save((err, profile) => {
-                      if (err) {
-                        return reject("Could not save the updated profile");
-                      }
-
-                      return resolve(
-                        profile
-                          .populate("user", [
-                            "firstName",
-                            "lastName",
-                            "picture",
-                          ])
-                          .execPopulate()
-                      );
+                    return session.withTransaction(fn).then(() => {
+                      return updatedProfile;
                     });
                   });
-
-                  Promise.all([promise1, promise2]).then((values) => {
-                    return res.json(values[1]);
-                  });
                 } else {
-                  return Promise.reject(
+                  throw new Error(
                     "Cloudinary response not formatted correctly"
                   );
                 }
               });
             });
           });
+        })
+        .then((profile) => {
+          return profile
+            .populate("user", ["firstName", "lastName", "picture"])
+            .execPopulate();
+        })
+        .then((profile) => {
+          res.json(profile);
         })
         .catch((err) => {
           res.status(500).json({
@@ -316,15 +317,13 @@ router.put(
         .then((profile) => {
           if (!profile) {
             return res.status(404).json({
-              errors: [
-                {
-                  msg: "Profile does not exist",
-                },
-              ],
+              error: {
+                msg: "Profile does not exist",
+              },
             });
           }
 
-          User.findOne({ _id: req.user.id }).then((user) => {
+          return User.findOne({ _id: req.user.id }).then((user) => {
             let promise1 = Promise.resolve();
             let promise2 = Promise.resolve();
             if (user.profilePicturePublicId && user.profilePicture) {
@@ -345,7 +344,7 @@ router.put(
               );
             }
 
-            Promise.all([promise1, promise2]).then((values) => {
+            return Promise.all([promise1, promise2]).then((values) => {
               let promise1 = cloudinaryUploadStreamMethod(
                 req.files["profilePicture"][0].buffer,
                 { type: "private", allowed_formats: ["jpg", "jpeg", "png"] }
@@ -356,7 +355,7 @@ router.put(
                 { allowed_formats: ["jpg", "jpeg", "png"] }
               );
 
-              Promise.all([promise1, promise2]).then((values) => {
+              return Promise.all([promise1, promise2]).then((values) => {
                 let result1 = values[0];
                 let result2 = values[1];
 
@@ -376,42 +375,45 @@ router.put(
                   profile.profilePictureCroppedPublicId = result2.public_id;
                   profile.profilePictureCropped = result2.secure_url;
 
-                  let promise1 = user.save();
+                  return mongoose.startSession().then((session) => {
+                    let updatedProfile = null;
+                    let fn = () => {
+                      return new Promise((resolve, reject) => {
+                        return profile
+                          .save({ session: session })
+                          .then((profile) => {
+                            updatedProfile = profile;
+                            return user.save();
+                          })
+                          .then((user) => {
+                            resolve(user);
+                          })
+                          .catch((err) => {
+                            reject(err);
+                          });
+                      });
+                    };
 
-                  let promise2 = new Promise((resolve, reject) => {
-                    /* References:
-                     * https://stackoverflow.com/a/52249411
-                     * https://stackoverflow.com/a/45490618
-                     * https://stackoverflow.com/a/51431746
-                     */
-                    profile.save((err, profile) => {
-                      if (err) {
-                        return reject("Could not save the updated profile");
-                      }
-
-                      return resolve(
-                        profile
-                          .populate("user", [
-                            "firstName",
-                            "lastName",
-                            "picture",
-                          ])
-                          .execPopulate()
-                      );
+                    return session.withTransaction(fn).then(() => {
+                      return updatedProfile;
                     });
                   });
-
-                  Promise.all([promise1, promise2]).then((values) => {
-                    return res.json(values[1]);
-                  });
                 } else {
-                  return Promise.reject(
+                  throw new Error(
                     "Cloudinary response not formatted correctly"
                   );
                 }
               });
             });
           });
+        })
+        .then((profile) => {
+          return profile
+            .populate("user", ["firstName", "lastName", "picture"])
+            .execPopulate();
+        })
+        .then((profile) => {
+          res.json(profile);
         })
         .catch((err) => {
           res.status(500).json({
@@ -428,15 +430,13 @@ router.put(
         .then((profile) => {
           if (!profile) {
             return res.status(404).json({
-              errors: [
-                {
-                  msg: "Profile does not exist",
-                },
-              ],
+              error: {
+                msg: "Profile does not exist",
+              },
             });
           }
 
-          User.findOne({ _id: req.user.id }).then((user) => {
+          return User.findOne({ _id: req.user.id }).then((user) => {
             let promise1 = Promise.resolve();
             let promise2 = Promise.resolve();
             if (user.profilePicturePublicId && user.profilePicture) {
@@ -457,7 +457,7 @@ router.put(
               );
             }
 
-            Promise.all([promise1, promise2]).then((values) => {
+            return Promise.all([promise1, promise2]).then((values) => {
               user.profilePicturePublicId = "";
               user.profilePicture = "";
               user.profilePictureCroppingRectangle = "";
@@ -465,27 +465,39 @@ router.put(
               profile.profilePictureCroppedPublicId = "";
               profile.profilePictureCropped = "";
 
-              let promise1 = user.save();
+              return mongoose.startSession().then((session) => {
+                let updatedProfile = null;
+                let fn = () => {
+                  return new Promise((resolve, reject) => {
+                    return profile
+                      .save({ session: session })
+                      .then((profile) => {
+                        updatedProfile = profile;
+                        return user.save();
+                      })
+                      .then((user) => {
+                        resolve(user);
+                      })
+                      .catch((err) => {
+                        reject(err);
+                      });
+                  });
+                };
 
-              let promise2 = new Promise((resolve, reject) => {
-                profile.save((err, profile) => {
-                  if (err) {
-                    return reject("Could not save the updated profile");
-                  }
-
-                  return resolve(
-                    profile
-                      .populate("user", ["firstName", "lastName", "picture"])
-                      .execPopulate()
-                  );
+                return session.withTransaction(fn).then(() => {
+                  return updatedProfile;
                 });
-              });
-
-              Promise.all([promise1, promise2]).then((values) => {
-                return res.json(values[1]);
               });
             });
           });
+        })
+        .then((profile) => {
+          return profile
+            .populate("user", ["firstName", "lastName", "picture"])
+            .execPopulate();
+        })
+        .then((profile) => {
+          res.json(profile);
         })
         .catch((err) => {
           res.status(500).json({
