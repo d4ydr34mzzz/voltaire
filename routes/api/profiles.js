@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const {
-  getPaginatedResponseFromMongoDBWithPopulation,
+  getPaginatedResponseFromMongoDBWithSortAndPopulation,
 } = require("../../middleware/pagination.js");
 const { ensureAuthenticated } = require("../../helpers/auth.js");
 const { param, validationResult } = require("express-validator");
@@ -64,10 +64,14 @@ router.get(
       next();
     }
   },
-  getPaginatedResponseFromMongoDBWithPopulation(Profile, {
-    path: "user",
-    select: ["firstName", "lastName", "picture"],
-  }),
+  getPaginatedResponseFromMongoDBWithSortAndPopulation(
+    Profile,
+    { firstName: "asc", lastName: "asc" },
+    {
+      path: "user",
+      select: ["firstName", "lastName", "picture"],
+    }
+  ),
   (req, res) => {
     res.json(res.paginatedResponse);
   }

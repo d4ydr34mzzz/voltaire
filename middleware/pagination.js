@@ -1,5 +1,9 @@
 module.exports = {
-  getPaginatedResponseFromMongoDBWithPopulation: function (model, populate) {
+  getPaginatedResponseFromMongoDBWithSortAndPopulation: function (
+    model,
+    sort,
+    populate
+  ) {
     return async function (req, res, next) {
       const page = req.params.page;
       const limit = req.params.limit;
@@ -46,6 +50,7 @@ module.exports = {
           .find()
           .skip(startIndex)
           .limit(limit)
+          .sort(sort)
           .populate(populate.path, populate.select)
           .exec();
         res.paginatedResponse = response;
