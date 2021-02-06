@@ -115,6 +115,7 @@ class AddEducationModal extends Component {
   }
 
   cancelAddEducation(event) {
+    event.preventDefault();
     this.props.onModalAlteration("");
   }
 
@@ -196,10 +197,10 @@ class AddEducationModal extends Component {
     };
 
     return (
-      <div className="modal-overlay" onClick={this.cancelAddEducation}>
+      <div className="modal-overlay" onMouseDown={this.cancelAddEducation}>
         <div
           className="modal__content card"
-          onClick={(event) => {
+          onMouseDown={(event) => {
             event.stopPropagation();
           }}
         >

@@ -226,10 +226,13 @@ class EditProfilePictureModal extends Component {
       : {};
 
     return (
-      <div className="modal-overlay" onClick={this.cancelEditProfilePicture}>
+      <div
+        className="modal-overlay"
+        onMouseDown={this.cancelEditProfilePicture}
+      >
         <div
           className="modal__content modal__content--edit-profile-picture card"
-          onClick={(event) => {
+          onMouseDown={(event) => {
             event.stopPropagation();
           }}
         >

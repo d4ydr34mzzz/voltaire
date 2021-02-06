@@ -84,11 +84,11 @@ class EditGeneralInformationModal extends Component {
     return (
       <div
         className="modal-overlay"
-        onClick={this.cancelEditGeneralInformation}
+        onMouseDown={this.cancelEditGeneralInformation}
       >
         <div
           className="modal__content card"
-          onClick={(event) => {
+          onMouseDown={(event) => {
             event.stopPropagation();
           }}
         >

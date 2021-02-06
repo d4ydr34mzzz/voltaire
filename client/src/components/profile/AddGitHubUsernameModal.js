@@ -70,10 +70,10 @@ class AddGitHubUsernameModal extends Component {
       : {};
 
     return (
-      <div className="modal-overlay" onClick={this.cancelAddGitHubUsername}>
+      <div className="modal-overlay" onMouseDown={this.cancelAddGitHubUsername}>
         <div
           className="modal__content card"
-          onClick={(event) => {
+          onMouseDown={(event) => {
             event.stopPropagation();
           }}
         >

@@ -72,10 +72,10 @@ class AddAboutModal extends Component {
     };
 
     return (
-      <div className="modal-overlay" onClick={this.cancelAddAbout}>
+      <div className="modal-overlay" onMouseDown={this.cancelAddAbout}>
         <div
           className="modal__content card"
-          onClick={(event) => {
+          onMouseDown={(event) => {
             event.stopPropagation();
           }}
         >
@@ -112,6 +112,14 @@ class AddAboutModal extends Component {
               </div>
 
               <div className="float-right mt-4 mb-4">
+                <button
+                  type="button"
+                  className="btn btn-secondary mr-4"
+                  onClick={this.cancelAddAbout}
+                >
+                  Cancel
+                </button>
+
                 <button type="submit" className="btn btn-primary">
                   Save
                 </button>

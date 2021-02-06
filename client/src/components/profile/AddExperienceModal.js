@@ -188,10 +188,10 @@ class AddExperienceModal extends Component {
     };
 
     return (
-      <div className="modal-overlay" onClick={this.cancelAddExperience}>
+      <div className="modal-overlay" onMouseDown={this.cancelAddExperience}>
         <div
           className="modal__content card"
-          onClick={(event) => {
+          onMouseDown={(event) => {
             event.stopPropagation();
           }}
         >

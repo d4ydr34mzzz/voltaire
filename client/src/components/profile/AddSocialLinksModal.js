@@ -83,10 +83,10 @@ class AddSocialLinksModal extends Component {
       : {};
 
     return (
-      <div className="modal-overlay" onClick={this.cancelAddSocialLinks}>
+      <div className="modal-overlay" onMouseDown={this.cancelAddSocialLinks}>
         <div
           className="modal__content card"
-          onClick={(event) => {
+          onMouseDown={(event) => {
             event.stopPropagation();
           }}
         >

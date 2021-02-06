@@ -136,10 +136,10 @@ class AddInterestsModal extends Component {
 
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
-        <div className="modal-overlay" onClick={this.cancelAddInterests}>
+        <div className="modal-overlay" onMouseDown={this.cancelAddInterests}>
           <div
             className="modal__content card"
-            onClick={(event) => {
+            onMouseDown={(event) => {
               event.stopPropagation();
             }}
           >

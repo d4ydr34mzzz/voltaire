@@ -148,10 +148,10 @@ class AddSkillModal extends Component {
 
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
-        <div className="modal-overlay" onClick={this.cancelAddSkill}>
+        <div className="modal-overlay" onMouseDown={this.cancelAddSkill}>
           <div
             className="modal__content card"
-            onClick={(event) => {
+            onMouseDown={(event) => {
               event.stopPropagation();
             }}
           >
@@ -210,6 +210,14 @@ class AddSkillModal extends Component {
                 </Droppable>
 
                 <div className="float-right mt-4 mb-4">
+                  <button
+                    type="button"
+                    className="btn btn-secondary mr-4"
+                    onClick={this.cancelAddSkill}
+                  >
+                    Cancel
+                  </button>
+
                   <button type="submit" className="btn btn-primary">
                     Save
                   </button>

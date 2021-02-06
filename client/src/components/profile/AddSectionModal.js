@@ -43,10 +43,10 @@ class AddSectionModal extends Component {
     });
 
     return (
-      <div className="modal-overlay" onClick={this.cancelAddSection}>
+      <div className="modal-overlay" onMouseDown={this.cancelAddSection}>
         <div
           className="modal__content card"
-          onClick={(event) => {
+          onMouseDown={(event) => {
             event.stopPropagation();
           }}
         >
