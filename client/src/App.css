@@ -121,6 +121,10 @@
   padding: 0px 10px;
 }
 
+.loading-icon {
+  width: 110px;
+}
+
 .modal-overlay {
   width: 100%;
   height: 100%;
