@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const passport = require("passport");
 const bodyParser = require("body-parser");
 const apiAuthRouter = require("./routes/api/auth.js");
-const apiPostsRouter = require("./routes/api/posts.js");
+// const apiPostsRouter = require("./routes/api/posts.js");
 const apiProfileRouter = require("./routes/api/profile.js");
 const apiProfilesRouter = require("./routes/api/profiles.js");
 const apiUploadRouter = require("./routes/api/upload.js");
@@ -68,7 +68,7 @@ app.use(passport.session());
 app.use("/api/auth", apiAuthRouter);
 
 // Mount the router module for posts on the /api/posts path in the main app
-app.use("/api/posts", apiPostsRouter);
+// app.use("/api/posts", apiPostsRouter);
 
 // Mount the router module for profile on the /api/profile path in the main app
 app.use("/api/profile", apiProfileRouter);
