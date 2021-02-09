@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { addAbout, clearAddAboutErrors } from "./profileSlice.js";
+import ConfirmDiscardChangesModal from "./ConfirmDiscardChangesModal.js";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
@@ -9,11 +10,19 @@ class AddAboutModal extends Component {
     super(props);
     this.state = {
       bio: this.props.profile ? this.props.profile.profile.bio : "",
+      changesMade: false,
+      discardChangesModalActive: false,
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleBioChange = this.handleBioChange.bind(this);
     this.cancelAddAbout = this.cancelAddAbout.bind(this);
+    this.handleDiscardChangesConfirmation = this.handleDiscardChangesConfirmation.bind(
+      this
+    );
+    this.handleDiscardChangesCancellation = this.handleDiscardChangesCancellation.bind(
+      this
+    );
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
@@ -32,12 +41,28 @@ class AddAboutModal extends Component {
   }
 
   handleBioChange(value) {
-    this.setState({ bio: value });
+    this.setState((state, props) => ({
+      bio: value,
+      changesMade: state.bio !== value ? true : false,
+    }));
   }
 
   cancelAddAbout(event) {
     event.preventDefault();
+
+    if (this.state.changesMade) {
+      this.setState({ discardChangesModalActive: true });
+    } else {
+      this.props.onModalAlteration("");
+    }
+  }
+
+  handleDiscardChangesConfirmation() {
     this.props.onModalAlteration("");
+  }
+
+  handleDiscardChangesCancellation() {
+    this.setState({ discardChangesModalActive: false });
   }
 
   handleSubmit(event) {
@@ -72,61 +97,69 @@ class AddAboutModal extends Component {
     };
 
     return (
-      <div className="modal-overlay" onMouseDown={this.cancelAddAbout}>
-        <div
-          className="modal__content card"
-          onMouseDown={(event) => {
-            event.stopPropagation();
-          }}
-        >
-          <div className="card-header">
-            About me
-            <a
-              href="#"
-              className="modal__exit-icon"
-              onClick={this.cancelAddAbout}
-            >
-              <i className="fas fa-times"></i>
-            </a>
-          </div>
-          <div className="card-body">
-            {errors.error ? (
-              <div class="alert alert-danger" role="alert">
-                {errors.error.msg}
-              </div>
-            ) : null}
-            <form onSubmit={this.handleSubmit} noValidate>
-              <div className="form-group">
-                <ReactQuill
-                  className="quill--about"
-                  theme="snow"
-                  modules={modules}
-                  value={this.state.bio}
-                  onChange={this.handleBioChange}
-                />
-                {errors.bio && (
-                  <div className="invalid-feedback d-block">
-                    {errors.bio.msg}
-                  </div>
-                )}
-              </div>
+      <div>
+        <div className="modal-overlay" onMouseDown={this.cancelAddAbout}>
+          <div
+            className="modal__content card"
+            onMouseDown={(event) => {
+              event.stopPropagation();
+            }}
+          >
+            <div className="card-header">
+              About me
+              <a
+                href="#"
+                className="modal__exit-icon"
+                onClick={this.cancelAddAbout}
+              >
+                <i className="fas fa-times"></i>
+              </a>
+            </div>
+            <div className="card-body">
+              {errors.error ? (
+                <div class="alert alert-danger" role="alert">
+                  {errors.error.msg}
+                </div>
+              ) : null}
+              <form onSubmit={this.handleSubmit} noValidate>
+                <div className="form-group">
+                  <ReactQuill
+                    className="quill--about"
+                    theme="snow"
+                    modules={modules}
+                    value={this.state.bio}
+                    onChange={this.handleBioChange}
+                  />
+                  {errors.bio && (
+                    <div className="invalid-feedback d-block">
+                      {errors.bio.msg}
+                    </div>
+                  )}
+                </div>
 
-              <div className="float-right mt-4 mb-4">
-                <button
-                  type="button"
-                  className="btn btn-secondary mr-4"
-                  onClick={this.cancelAddAbout}
-                >
-                  Cancel
-                </button>
+                <div className="float-right mt-4 mb-4">
+                  <button
+                    type="button"
+                    className="btn btn-secondary mr-4"
+                    onClick={this.cancelAddAbout}
+                  >
+                    Cancel
+                  </button>
 
-                <button type="submit" className="btn btn-primary">
-                  Save
-                </button>
-              </div>
-            </form>
+                  <button type="submit" className="btn btn-primary">
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
+        {this.state.discardChangesModalActive ? (
+          <ConfirmDiscardChangesModal
+            onDiscardChangesConfirmation={this.handleDiscardChangesConfirmation}
+            onDiscardChangesCancellation={this.handleDiscardChangesCancellation}
+          />
+        ) : null}
       </div>
     );
   }

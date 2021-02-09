@@ -146,6 +146,11 @@
   overflow-y: auto;
 }
 
+.modal__content--discard_changes {
+  max-width: 500px;
+  margin-top: 175px;
+}
+
 .modal__exit-icon {
   font-size: 18px;
   float: right;
