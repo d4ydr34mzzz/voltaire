@@ -8,6 +8,7 @@ import {
   deleteExperience,
   clearDeleteExperienceErrors,
 } from "./profileSlice.js";
+import ConfirmDiscardChangesModal from "./ConfirmDiscardChangesModal.js";
 import InputFormGroup from "../forms/InputFormGroup.js";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -44,6 +45,8 @@ class AddExperienceModal extends Component {
           toDisabled: experience.to ? false : true,
           current: experience.current ? true : false,
           description: experience.description ? experience.description : "",
+          changesMade: false,
+          discardChangesModalActive: false,
         };
       } else {
         this.state = {
@@ -55,6 +58,8 @@ class AddExperienceModal extends Component {
           toDisabled: false,
           current: false,
           description: "",
+          changesMade: false,
+          discardChangesModalActive: false,
         };
       }
     } else {
@@ -67,6 +72,8 @@ class AddExperienceModal extends Component {
         toDisabled: false,
         current: false,
         description: "",
+        changesMade: false,
+        discardChangesModalActive: false,
       };
     }
 
@@ -74,6 +81,12 @@ class AddExperienceModal extends Component {
     this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
     this.handleCurrentChecked = this.handleCurrentChecked.bind(this);
     this.cancelAddExperience = this.cancelAddExperience.bind(this);
+    this.handleDiscardChangesConfirmation = this.handleDiscardChangesConfirmation.bind(
+      this
+    );
+    this.handleDiscardChangesCancellation = this.handleDiscardChangesCancellation.bind(
+      this
+    );
     this.deleteExperience = this.deleteExperience.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -91,11 +104,15 @@ class AddExperienceModal extends Component {
 
     this.setState({
       [name]: value,
+      changesMade: true,
     });
   }
 
   handleDescriptionChange(value) {
-    this.setState({ description: value });
+    this.setState((state, props) => ({
+      description: value,
+      changesMade: state.description !== value ? true : false,
+    }));
   }
 
   handleCurrentChecked(event) {
@@ -103,12 +120,26 @@ class AddExperienceModal extends Component {
       toDisabled: !state.toDisabled,
       current: !state.current,
       to: !state.toDisabled ? "" : state.to,
+      changesMade: true,
     }));
   }
 
   cancelAddExperience(event) {
     event.preventDefault();
+
+    if (this.state.changesMade) {
+      this.setState({ discardChangesModalActive: true });
+    } else {
+      this.props.onModalAlteration("");
+    }
+  }
+
+  handleDiscardChangesConfirmation() {
     this.props.onModalAlteration("");
+  }
+
+  handleDiscardChangesCancellation() {
+    this.setState({ discardChangesModalActive: false });
   }
 
   deleteExperience(event) {
@@ -188,153 +219,161 @@ class AddExperienceModal extends Component {
     };
 
     return (
-      <div className="modal-overlay" onMouseDown={this.cancelAddExperience}>
-        <div
-          className="modal__content card"
-          onMouseDown={(event) => {
-            event.stopPropagation();
-          }}
-        >
-          <div className="card-header">
-            {this.state.editing ? "Edit Experience" : "Add Experience"}
-            <a
-              href="#"
-              className="modal__exit-icon"
-              onClick={this.cancelAddExperience}
-            >
-              <i className="fas fa-times"></i>
-            </a>
-          </div>
-          <div className="card-body">
-            {errors.error ? (
-              <div class="alert alert-danger" role="alert">
-                {errors.error.msg}
-              </div>
-            ) : null}
-            <form onSubmit={this.handleSubmit} noValidate>
-              <InputFormGroup
-                htmlFor="title"
-                label="Title"
-                name="title"
-                type="text"
-                error={errors.title}
-                id="title"
-                value={this.state.title}
-                onChange={this.handleInputChange}
-                required={true}
-              />
-
-              <InputFormGroup
-                htmlFor="company"
-                label="Company"
-                name="company"
-                type="text"
-                error={errors.company}
-                id="company"
-                value={this.state.company}
-                onChange={this.handleInputChange}
-                required={true}
-              />
-
-              <InputFormGroup
-                htmlFor="location"
-                label="Location"
-                name="location"
-                type="text"
-                error={errors.location}
-                id="location"
-                value={this.state.location}
-                onChange={this.handleInputChange}
-              />
-
-              <InputFormGroup
-                htmlFor="from"
-                label="From"
-                name="from"
-                type="date"
-                error={errors.from}
-                id="from"
-                value={this.state.from}
-                onChange={this.handleInputChange}
-                required={true}
-              />
-
-              <InputFormGroup
-                htmlFor="to"
-                label="To"
-                name="to"
-                type="date"
-                error={errors.to}
-                id="to"
-                value={this.state.to}
-                onChange={this.handleInputChange}
-                disabled={this.state.toDisabled}
-                required={true}
-              />
-
-              <div className="form-group form-check">
-                <input
-                  name="current"
-                  type="checkbox"
-                  className={classNames("form-check-input", {
-                    "is-invalid": errors.current,
-                  })}
-                  id="current"
-                  value={this.state.current}
-                  checked={this.state.current}
-                  onChange={this.handleCurrentChecked}
+      <div>
+        <div className="modal-overlay" onMouseDown={this.cancelAddExperience}>
+          <div
+            className="modal__content card"
+            onMouseDown={(event) => {
+              event.stopPropagation();
+            }}
+          >
+            <div className="card-header">
+              {this.state.editing ? "Edit Experience" : "Add Experience"}
+              <a
+                href="#"
+                className="modal__exit-icon"
+                onClick={this.cancelAddExperience}
+              >
+                <i className="fas fa-times"></i>
+              </a>
+            </div>
+            <div className="card-body">
+              {errors.error ? (
+                <div class="alert alert-danger" role="alert">
+                  {errors.error.msg}
+                </div>
+              ) : null}
+              <form onSubmit={this.handleSubmit} noValidate>
+                <InputFormGroup
+                  htmlFor="title"
+                  label="Title"
+                  name="title"
+                  type="text"
+                  error={errors.title}
+                  id="title"
+                  value={this.state.title}
+                  onChange={this.handleInputChange}
+                  required={true}
                 />
-                <label className="form-check-label" htmlFor="current">
-                  I'm currently working here
-                </label>
-                {errors.current && (
-                  <div id="current" className="invalid-feedback">
-                    {errors.current.msg}
-                  </div>
-                )}
-              </div>
 
-              <div className="form-group">
-                <label>Description</label>
-                <ReactQuill
-                  theme="snow"
-                  modules={modules}
-                  value={this.state.description}
-                  onChange={this.handleDescriptionChange}
+                <InputFormGroup
+                  htmlFor="company"
+                  label="Company"
+                  name="company"
+                  type="text"
+                  error={errors.company}
+                  id="company"
+                  value={this.state.company}
+                  onChange={this.handleInputChange}
+                  required={true}
                 />
-                {errors.description && (
-                  <div className="invalid-feedback d-block">
-                    {errors.description.msg}
-                  </div>
-                )}
-              </div>
 
-              <div className="float-right mt-4 mb-4">
-                {this.state.editing ? (
-                  <button
-                    type="button"
-                    className="btn btn-secondary mr-4"
-                    onClick={this.deleteExperience}
-                  >
-                    Delete
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="btn btn-secondary mr-4"
-                    onClick={this.cancelAddExperience}
-                  >
-                    Cancel
-                  </button>
-                )}
+                <InputFormGroup
+                  htmlFor="location"
+                  label="Location"
+                  name="location"
+                  type="text"
+                  error={errors.location}
+                  id="location"
+                  value={this.state.location}
+                  onChange={this.handleInputChange}
+                />
 
-                <button type="submit" className="btn btn-primary">
-                  Save
-                </button>
-              </div>
-            </form>
+                <InputFormGroup
+                  htmlFor="from"
+                  label="From"
+                  name="from"
+                  type="date"
+                  error={errors.from}
+                  id="from"
+                  value={this.state.from}
+                  onChange={this.handleInputChange}
+                  required={true}
+                />
+
+                <InputFormGroup
+                  htmlFor="to"
+                  label="To"
+                  name="to"
+                  type="date"
+                  error={errors.to}
+                  id="to"
+                  value={this.state.to}
+                  onChange={this.handleInputChange}
+                  disabled={this.state.toDisabled}
+                  required={true}
+                />
+
+                <div className="form-group form-check">
+                  <input
+                    name="current"
+                    type="checkbox"
+                    className={classNames("form-check-input", {
+                      "is-invalid": errors.current,
+                    })}
+                    id="current"
+                    value={this.state.current}
+                    checked={this.state.current}
+                    onChange={this.handleCurrentChecked}
+                  />
+                  <label className="form-check-label" htmlFor="current">
+                    I'm currently working here
+                  </label>
+                  {errors.current && (
+                    <div id="current" className="invalid-feedback">
+                      {errors.current.msg}
+                    </div>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label>Description</label>
+                  <ReactQuill
+                    theme="snow"
+                    modules={modules}
+                    value={this.state.description}
+                    onChange={this.handleDescriptionChange}
+                  />
+                  {errors.description && (
+                    <div className="invalid-feedback d-block">
+                      {errors.description.msg}
+                    </div>
+                  )}
+                </div>
+
+                <div className="float-right mt-4 mb-4">
+                  {this.state.editing ? (
+                    <button
+                      type="button"
+                      className="btn btn-secondary mr-4"
+                      onClick={this.deleteExperience}
+                    >
+                      Delete
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn btn-secondary mr-4"
+                      onClick={this.cancelAddExperience}
+                    >
+                      Cancel
+                    </button>
+                  )}
+
+                  <button type="submit" className="btn btn-primary">
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
+        {this.state.discardChangesModalActive ? (
+          <ConfirmDiscardChangesModal
+            onDiscardChangesConfirmation={this.handleDiscardChangesConfirmation}
+            onDiscardChangesCancellation={this.handleDiscardChangesCancellation}
+          />
+        ) : null}
       </div>
     );
   }
