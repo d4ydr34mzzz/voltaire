@@ -4,6 +4,7 @@ import {
   addGitHubUsername,
   clearAddGitHubUsernameErrors,
 } from "./profileSlice.js";
+import ConfirmDiscardChangesModal from "./ConfirmDiscardChangesModal.js";
 import InputInputGroup from "../forms/InputInputGroup.js";
 
 class AddGitHubUsernameModal extends Component {
@@ -13,6 +14,8 @@ class AddGitHubUsernameModal extends Component {
       githubUsername: this.props.profile
         ? this.props.profile.profile.githubUsername
         : "",
+      changesMade: false,
+      discardChangesModalActive: false,
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -20,6 +23,12 @@ class AddGitHubUsernameModal extends Component {
       this
     );
     this.cancelAddGitHubUsername = this.cancelAddGitHubUsername.bind(this);
+    this.handleDiscardChangesConfirmation = this.handleDiscardChangesConfirmation.bind(
+      this
+    );
+    this.handleDiscardChangesCancellation = this.handleDiscardChangesCancellation.bind(
+      this
+    );
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
@@ -34,18 +43,33 @@ class AddGitHubUsernameModal extends Component {
 
     this.setState({
       [name]: value,
+      changesMade: true,
     });
   }
 
   handleClearGitHubUsernameButtonClick(event) {
     this.setState({
       githubUsername: "",
+      changesMade: true,
     });
   }
 
   cancelAddGitHubUsername(event) {
     event.preventDefault();
+
+    if (this.state.changesMade) {
+      this.setState({ discardChangesModalActive: true });
+    } else {
+      this.props.onModalAlteration("");
+    }
+  }
+
+  handleDiscardChangesConfirmation() {
     this.props.onModalAlteration("");
+  }
+
+  handleDiscardChangesCancellation() {
+    this.setState({ discardChangesModalActive: false });
   }
 
   handleSubmit(event) {
@@ -70,65 +94,77 @@ class AddGitHubUsernameModal extends Component {
       : {};
 
     return (
-      <div className="modal-overlay" onMouseDown={this.cancelAddGitHubUsername}>
+      <div>
         <div
-          className="modal__content card"
-          onMouseDown={(event) => {
-            event.stopPropagation();
-          }}
+          className="modal-overlay"
+          onMouseDown={this.cancelAddGitHubUsername}
         >
-          <div className="card-header">
-            GitHub
-            <a
-              href="#"
-              className="modal__exit-icon"
-              onClick={this.cancelAddGitHubUsername}
-            >
-              <i className="fas fa-times"></i>
-            </a>
-          </div>
-          <div className="card-body">
-            {errors.error ? (
-              <div class="alert alert-danger" role="alert">
-                {errors.error.msg}
-              </div>
-            ) : null}
-            <p className="mb-4">
-              If you would like a link to your GitHub page and your latest
-              public repositories displayed on your profile, please provide your
-              GitHub username below:
-            </p>
-            <form onSubmit={this.handleSubmit} noValidate>
-              <InputInputGroup
-                htmlFor="githubUsername"
-                icon="fab fa-github"
-                name="githubUsername"
-                type="url"
-                error={errors.githubUsername}
-                id="githubUsername"
-                value={this.state.githubUsername}
-                placeholder="GitHub username"
-                onChange={this.handleInputChange}
-                button={<i class="fas fa-eraser"></i>}
-                onButtonClick={this.handleClearGitHubUsernameButtonClick}
-              />
+          <div
+            className="modal__content card"
+            onMouseDown={(event) => {
+              event.stopPropagation();
+            }}
+          >
+            <div className="card-header">
+              GitHub
+              <a
+                href="#"
+                className="modal__exit-icon"
+                onClick={this.cancelAddGitHubUsername}
+              >
+                <i className="fas fa-times"></i>
+              </a>
+            </div>
+            <div className="card-body">
+              {errors.error ? (
+                <div className="alert alert-danger" role="alert">
+                  {errors.error.msg}
+                </div>
+              ) : null}
+              <p className="mb-4">
+                If you would like a link to your GitHub page and your latest
+                public repositories displayed on your profile, please provide
+                your GitHub username below:
+              </p>
+              <form onSubmit={this.handleSubmit} noValidate>
+                <InputInputGroup
+                  htmlFor="githubUsername"
+                  icon="fab fa-github"
+                  name="githubUsername"
+                  type="url"
+                  error={errors.githubUsername}
+                  id="githubUsername"
+                  value={this.state.githubUsername}
+                  placeholder="GitHub username"
+                  onChange={this.handleInputChange}
+                  button={<i class="fas fa-eraser"></i>}
+                  onButtonClick={this.handleClearGitHubUsernameButtonClick}
+                />
 
-              <div className="float-right mt-4 mb-4">
-                <button
-                  type="button"
-                  className="btn btn-secondary mr-4"
-                  onClick={this.cancelAddGitHubUsername}
-                >
-                  Cancel
-                </button>
+                <div className="float-right mt-4 mb-4">
+                  <button
+                    type="button"
+                    className="btn btn-secondary mr-4"
+                    onClick={this.cancelAddGitHubUsername}
+                  >
+                    Cancel
+                  </button>
 
-                <button type="submit" className="btn btn-primary">
-                  Save
-                </button>
-              </div>
-            </form>
+                  <button type="submit" className="btn btn-primary">
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
+        {this.state.discardChangesModalActive ? (
+          <ConfirmDiscardChangesModal
+            onDiscardChangesConfirmation={this.handleDiscardChangesConfirmation}
+            onDiscardChangesCancellation={this.handleDiscardChangesCancellation}
+            modalTopMargin={150}
+          />
+        ) : null}
       </div>
     );
   }
