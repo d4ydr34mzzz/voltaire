@@ -146,9 +146,13 @@
   overflow-y: auto;
 }
 
-.modal__content--discard_changes {
+.discard-changes {
   max-width: 500px;
   margin-top: 175px;
+}
+
+.discard-changes--margin-top-150 {
+  margin-top: 150px;
 }
 
 .modal__exit-icon {

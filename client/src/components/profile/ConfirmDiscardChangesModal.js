@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import classNames from "classnames";
 
 class ConfirmDiscardChangesModal extends Component {
   constructor(props) {
@@ -22,7 +23,10 @@ class ConfirmDiscardChangesModal extends Component {
     return (
       <div className="modal-overlay" onMouseDown={this.cancelDiscardChanges}>
         <div
-          className="modal__content card modal__content--discard_changes"
+          className={classNames("modal__content card discard-changes", {
+            "discard-changes--margin-top-150":
+              this.props.modalTopMargin === 150,
+          })}
           onMouseDown={(event) => {
             event.stopPropagation();
           }}
