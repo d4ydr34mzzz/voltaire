@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { addSkills, clearAddSkillsErrors } from "./profileSlice.js";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
+import ConfirmDiscardChangesModal from "./ConfirmDiscardChangesModal.js";
 import InputInputGroup from "../forms/InputInputGroup.js";
 import Skill from "./Skill.js";
 import shortid from "shortid";
@@ -12,10 +13,18 @@ class AddSkillModal extends Component {
     this.state = {
       skill: "",
       skills: this.getFormattedSkills(),
+      changesMade: false,
+      discardChangesModalActive: false,
     };
 
     this.onDragEnd = this.onDragEnd.bind(this);
     this.cancelAddSkill = this.cancelAddSkill.bind(this);
+    this.handleDiscardChangesConfirmation = this.handleDiscardChangesConfirmation.bind(
+      this
+    );
+    this.handleDiscardChangesCancellation = this.handleDiscardChangesCancellation.bind(
+      this
+    );
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleButtonClick = this.handleButtonClick.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -63,12 +72,26 @@ class AddSkillModal extends Component {
 
     this.setState({
       skills: newSkills,
+      changesMade: true,
     });
   }
 
   cancelAddSkill(event) {
     event.preventDefault();
+
+    if (this.state.changesMade) {
+      this.setState({ discardChangesModalActive: true });
+    } else {
+      this.props.onModalAlteration("");
+    }
+  }
+
+  handleDiscardChangesConfirmation() {
     this.props.onModalAlteration("");
+  }
+
+  handleDiscardChangesCancellation() {
+    this.setState({ discardChangesModalActive: false });
   }
 
   handleInputChange(event) {
@@ -78,6 +101,7 @@ class AddSkillModal extends Component {
 
     this.setState({
       [name]: value,
+      changesMade: true,
     });
   }
 
@@ -91,6 +115,7 @@ class AddSkillModal extends Component {
           ...state.skills,
           { id: shortid.generate(), content: state.skill },
         ],
+        changesMade: true,
       }));
     }
   }
@@ -106,6 +131,7 @@ class AddSkillModal extends Component {
             ...state.skills,
             { id: shortid.generate(), content: state.skill },
           ],
+          changesMade: true,
         }));
       }
     }
@@ -117,6 +143,7 @@ class AddSkillModal extends Component {
 
     this.setState({
       skills: newSkills,
+      changesMade: true,
     });
   }
 
@@ -147,86 +174,94 @@ class AddSkillModal extends Component {
       : {};
 
     return (
-      <DragDropContext onDragEnd={this.onDragEnd}>
-        <div className="modal-overlay" onMouseDown={this.cancelAddSkill}>
-          <div
-            className="modal__content card"
-            onMouseDown={(event) => {
-              event.stopPropagation();
-            }}
-          >
-            <div className="card-header">
-              Skills
-              <a
-                href="#"
-                className="modal__exit-icon"
-                onClick={this.cancelAddSkill}
-              >
-                <i className="fas fa-times"></i>
-              </a>
-            </div>
-            <div className="card-body">
-              {errors.error ? (
-                <div class="alert alert-danger" role="alert">
-                  {errors.error.msg}
-                </div>
-              ) : null}
-              {errors.skills ? (
-                <div class="alert alert-danger" role="alert">
-                  {errors.skills.msg}
-                </div>
-              ) : null}
-              <form onSubmit={this.handleSubmit} noValidate>
-                <InputInputGroup
-                  htmlFor="skill"
-                  name="skill"
-                  type="text"
-                  id="skill"
-                  value={this.state.skill}
-                  onChange={this.handleInputChange}
-                  button="Add"
-                  onButtonClick={this.handleButtonClick}
-                  onKeyDown={this.handleKeyDown}
-                />
+      <div>
+        <DragDropContext onDragEnd={this.onDragEnd}>
+          <div className="modal-overlay" onMouseDown={this.cancelAddSkill}>
+            <div
+              className="modal__content card"
+              onMouseDown={(event) => {
+                event.stopPropagation();
+              }}
+            >
+              <div className="card-header">
+                Skills
+                <a
+                  href="#"
+                  className="modal__exit-icon"
+                  onClick={this.cancelAddSkill}
+                >
+                  <i className="fas fa-times"></i>
+                </a>
+              </div>
+              <div className="card-body">
+                {errors.error ? (
+                  <div class="alert alert-danger" role="alert">
+                    {errors.error.msg}
+                  </div>
+                ) : null}
+                {errors.skills ? (
+                  <div class="alert alert-danger" role="alert">
+                    {errors.skills.msg}
+                  </div>
+                ) : null}
+                <form onSubmit={this.handleSubmit} noValidate>
+                  <InputInputGroup
+                    htmlFor="skill"
+                    name="skill"
+                    type="text"
+                    id="skill"
+                    value={this.state.skill}
+                    onChange={this.handleInputChange}
+                    button="Add"
+                    onButtonClick={this.handleButtonClick}
+                    onKeyDown={this.handleKeyDown}
+                  />
 
-                <Droppable droppableId={shortid.generate()}>
-                  {(provided, snapshot) => (
-                    <ul
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className="list-group list-group-flush"
+                  <Droppable droppableId={shortid.generate()}>
+                    {(provided, snapshot) => (
+                      <ul
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className="list-group list-group-flush"
+                      >
+                        {this.state.skills.map((skill, index) => (
+                          <Skill
+                            key={skill.id}
+                            skill={skill}
+                            index={index}
+                            onRemoveSkill={this.handleRemoveSkill}
+                          />
+                        ))}
+                        {provided.placeholder}
+                      </ul>
+                    )}
+                  </Droppable>
+
+                  <div className="float-right mt-4 mb-4">
+                    <button
+                      type="button"
+                      className="btn btn-secondary mr-4"
+                      onClick={this.cancelAddSkill}
                     >
-                      {this.state.skills.map((skill, index) => (
-                        <Skill
-                          key={skill.id}
-                          skill={skill}
-                          index={index}
-                          onRemoveSkill={this.handleRemoveSkill}
-                        />
-                      ))}
-                      {provided.placeholder}
-                    </ul>
-                  )}
-                </Droppable>
+                      Cancel
+                    </button>
 
-                <div className="float-right mt-4 mb-4">
-                  <button
-                    type="button"
-                    className="btn btn-secondary mr-4"
-                    onClick={this.cancelAddSkill}
-                  >
-                    Cancel
-                  </button>
-
-                  <button type="submit" className="btn btn-primary">
-                    Save
-                  </button>
-                </div>
-              </form>
+                    <button type="submit" className="btn btn-primary">
+                      Save
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
-      </DragDropContext>
+        </DragDropContext>
+        {this.state.discardChangesModalActive ? (
+          <ConfirmDiscardChangesModal
+            onDiscardChangesConfirmation={this.handleDiscardChangesConfirmation}
+            onDiscardChangesCancellation={this.handleDiscardChangesCancellation}
+          />
+        ) : null}
+      </div>
     );
   }
 }
