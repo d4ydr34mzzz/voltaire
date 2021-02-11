@@ -4,6 +4,7 @@ import {
   editGeneralInformation,
   clearEditGeneralInformationErrors,
 } from "./profileSlice.js";
+import ConfirmDiscardChangesModal from "./ConfirmDiscardChangesModal.js";
 import SelectFormGroup from "../forms/SelectFormGroup.js";
 import InputFormGroup from "../forms/InputFormGroup.js";
 
@@ -17,10 +18,18 @@ class EditGeneralInformationModal extends Component {
       header: this.props.profile.profile.header,
       location: this.props.profile.profile.location,
       status: this.props.profile.profile.status,
+      changesMade: false,
+      discardChangesModalActive: false,
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.cancelEditGeneralInformation = this.cancelEditGeneralInformation.bind(
+      this
+    );
+    this.handleDiscardChangesConfirmation = this.handleDiscardChangesConfirmation.bind(
+      this
+    );
+    this.handleDiscardChangesCancellation = this.handleDiscardChangesCancellation.bind(
       this
     );
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -37,12 +46,26 @@ class EditGeneralInformationModal extends Component {
 
     this.setState({
       [name]: value,
+      changesMade: true,
     });
   }
 
   cancelEditGeneralInformation(event) {
     event.preventDefault();
+
+    if (this.state.changesMade) {
+      this.setState({ discardChangesModalActive: true });
+    } else {
+      this.props.onModalAlteration("");
+    }
+  }
+
+  handleDiscardChangesConfirmation() {
     this.props.onModalAlteration("");
+  }
+
+  handleDiscardChangesCancellation() {
+    this.setState({ discardChangesModalActive: false });
   }
 
   handleSubmit(event) {
@@ -82,120 +105,128 @@ class EditGeneralInformationModal extends Component {
     ];
 
     return (
-      <div
-        className="modal-overlay"
-        onMouseDown={this.cancelEditGeneralInformation}
-      >
+      <div>
         <div
-          className="modal__content card"
-          onMouseDown={(event) => {
-            event.stopPropagation();
-          }}
+          className="modal-overlay"
+          onMouseDown={this.cancelEditGeneralInformation}
         >
-          <div className="card-header">
-            General information
-            <a
-              href="#"
-              className="modal__exit-icon"
-              onClick={this.cancelEditGeneralInformation}
-            >
-              <i className="fas fa-times"></i>
-            </a>
-          </div>
-          <div className="card-body">
-            {errors.error ? (
-              <div class="alert alert-danger" role="alert">
-                {errors.error.msg}
-              </div>
-            ) : null}
-            <form onSubmit={this.handleSubmit} noValidate>
-              <InputFormGroup
-                htmlFor="firstName"
-                label="First name"
-                name="firstName"
-                type="text"
-                error={errors.firstName}
-                id="firstName"
-                value={this.state.firstName}
-                onChange={this.handleInputChange}
-                required={true}
-              />
+          <div
+            className="modal__content card"
+            onMouseDown={(event) => {
+              event.stopPropagation();
+            }}
+          >
+            <div className="card-header">
+              General information
+              <a
+                href="#"
+                className="modal__exit-icon"
+                onClick={this.cancelEditGeneralInformation}
+              >
+                <i className="fas fa-times"></i>
+              </a>
+            </div>
+            <div className="card-body">
+              {errors.error ? (
+                <div class="alert alert-danger" role="alert">
+                  {errors.error.msg}
+                </div>
+              ) : null}
+              <form onSubmit={this.handleSubmit} noValidate>
+                <InputFormGroup
+                  htmlFor="firstName"
+                  label="First name"
+                  name="firstName"
+                  type="text"
+                  error={errors.firstName}
+                  id="firstName"
+                  value={this.state.firstName}
+                  onChange={this.handleInputChange}
+                  required={true}
+                />
 
-              <InputFormGroup
-                htmlFor="lastName"
-                label="Last name"
-                name="lastName"
-                type="text"
-                error={errors.lastName}
-                id="lastName"
-                value={this.state.lastName}
-                onChange={this.handleInputChange}
-                required={true}
-              />
+                <InputFormGroup
+                  htmlFor="lastName"
+                  label="Last name"
+                  name="lastName"
+                  type="text"
+                  error={errors.lastName}
+                  id="lastName"
+                  value={this.state.lastName}
+                  onChange={this.handleInputChange}
+                  required={true}
+                />
 
-              <InputFormGroup
-                htmlFor="handle"
-                label="Handle"
-                name="handle"
-                type="text"
-                error={errors.handle}
-                id="handle"
-                value={this.state.handle}
-                onChange={this.handleInputChange}
-                required={true}
-              />
+                <InputFormGroup
+                  htmlFor="handle"
+                  label="Handle"
+                  name="handle"
+                  type="text"
+                  error={errors.handle}
+                  id="handle"
+                  value={this.state.handle}
+                  onChange={this.handleInputChange}
+                  required={true}
+                />
 
-              <InputFormGroup
-                htmlFor="header"
-                label="Header"
-                name="header"
-                type="text"
-                error={errors.header}
-                id="header"
-                value={this.state.header}
-                onChange={this.handleInputChange}
-                required={true}
-              />
+                <InputFormGroup
+                  htmlFor="header"
+                  label="Header"
+                  name="header"
+                  type="text"
+                  error={errors.header}
+                  id="header"
+                  value={this.state.header}
+                  onChange={this.handleInputChange}
+                  required={true}
+                />
 
-              <InputFormGroup
-                htmlFor="location"
-                label="Location"
-                name="location"
-                type="text"
-                error={errors.location}
-                id="location"
-                value={this.state.location}
-                onChange={this.handleInputChange}
-              />
+                <InputFormGroup
+                  htmlFor="location"
+                  label="Location"
+                  name="location"
+                  type="text"
+                  error={errors.location}
+                  id="location"
+                  value={this.state.location}
+                  onChange={this.handleInputChange}
+                />
 
-              <SelectFormGroup
-                htmlFor="status"
-                label="Professional status"
-                name="status"
-                error={errors.status}
-                id="status"
-                value={this.state.status}
-                options={options}
-                onChange={this.handleInputChange}
-                required={true}
-              />
+                <SelectFormGroup
+                  htmlFor="status"
+                  label="Professional status"
+                  name="status"
+                  error={errors.status}
+                  id="status"
+                  value={this.state.status}
+                  options={options}
+                  onChange={this.handleInputChange}
+                  required={true}
+                />
 
-              <div className="float-right mt-4 mb-4">
-                <button
-                  type="button"
-                  className="btn btn-secondary mr-4"
-                  onClick={this.cancelEditGeneralInformation}
-                >
-                  Cancel
-                </button>
+                <div className="float-right mt-4 mb-4">
+                  <button
+                    type="button"
+                    className="btn btn-secondary mr-4"
+                    onClick={this.cancelEditGeneralInformation}
+                  >
+                    Cancel
+                  </button>
 
-                <button type="submit" className="btn btn-primary">
-                  Save
-                </button>
-              </div>
-            </form>
+                  <button type="submit" className="btn btn-primary">
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
+        {this.state.discardChangesModalActive ? (
+          <ConfirmDiscardChangesModal
+            onDiscardChangesConfirmation={this.handleDiscardChangesConfirmation}
+            onDiscardChangesCancellation={this.handleDiscardChangesCancellation}
+          />
+        ) : null}
       </div>
     );
   }
