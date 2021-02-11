@@ -5,6 +5,7 @@ import {
   editProfilePicture,
   clearEditProfilePictureErrors,
 } from "./profileSlice.js";
+import ConfirmDiscardChangesModal from "./ConfirmDiscardChangesModal.js";
 import AvatarEditor from "react-avatar-editor";
 
 class EditProfilePictureModal extends Component {
@@ -30,6 +31,8 @@ class EditProfilePictureModal extends Component {
         fileSize: "",
       },
       zoom: 1,
+      changesMade: false,
+      discardChangesModalActive: false,
       /* TODO: have x and y for editor in state as well */
     };
 
@@ -41,6 +44,12 @@ class EditProfilePictureModal extends Component {
     this.handleZoomChange = this.handleZoomChange.bind(this);
     this.setEditorRef = this.setEditorRef.bind(this);
     this.cancelEditProfilePicture = this.cancelEditProfilePicture.bind(this);
+    this.handleDiscardChangesConfirmation = this.handleDiscardChangesConfirmation.bind(
+      this
+    );
+    this.handleDiscardChangesCancellation = this.handleDiscardChangesCancellation.bind(
+      this
+    );
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
@@ -90,6 +99,7 @@ class EditProfilePictureModal extends Component {
     this.setState({
       profilePicture: "",
       uploadedImageDataURL: "",
+      changesMade: true,
     });
   }
 
@@ -108,6 +118,7 @@ class EditProfilePictureModal extends Component {
           this.setState({
             uploadedImageDataURL: reader.result,
             imageUploadErrors: {},
+            changesMade: true,
           });
         };
         reader.readAsDataURL(file);
@@ -124,6 +135,7 @@ class EditProfilePictureModal extends Component {
   handleZoomChange(event) {
     this.setState({
       zoom: Number(event.target.value),
+      changesMade: true,
     });
   }
 
@@ -132,7 +144,21 @@ class EditProfilePictureModal extends Component {
   }
 
   cancelEditProfilePicture(event) {
+    event.preventDefault();
+
+    if (this.state.changesMade) {
+      this.setState({ discardChangesModalActive: true });
+    } else {
+      this.props.onModalAlteration("");
+    }
+  }
+
+  handleDiscardChangesConfirmation() {
     this.props.onModalAlteration("");
+  }
+
+  handleDiscardChangesCancellation() {
+    this.setState({ discardChangesModalActive: false });
   }
 
   handleSubmit(event) {
@@ -226,151 +252,162 @@ class EditProfilePictureModal extends Component {
       : {};
 
     return (
-      <div
-        className="modal-overlay"
-        onMouseDown={this.cancelEditProfilePicture}
-      >
+      <div>
         <div
-          className="modal__content modal__content--edit-profile-picture card"
-          onMouseDown={(event) => {
-            event.stopPropagation();
-          }}
+          className="modal-overlay"
+          onMouseDown={this.cancelEditProfilePicture}
         >
-          <div className="card-header">
-            Profile picture
-            <a
-              href="#"
-              className="modal__exit-icon"
-              onClick={this.cancelEditProfilePicture}
-            >
-              <i className="fas fa-times"></i>
-            </a>
-          </div>
-          {this.state.imageUploadErrors.fileType ? (
-            <div className="alert alert-danger mb-0" role="alert">
-              {this.state.imageUploadErrors.fileType}
-            </div>
-          ) : null}
-          {this.state.imageUploadErrors.fileSize ? (
-            <div className="alert alert-danger mb-0" role="alert">
-              {this.state.imageUploadErrors.fileSize}
-            </div>
-          ) : null}
-          {errors.profilePicture ? (
-            <div className="alert alert-danger mb-0" role="alert">
-              {errors.profilePicture.msg}
-            </div>
-          ) : null}
-          <div className="profile-picture-editor">
-            {this.state.profilePicture || this.state.uploadedImageDataURL ? (
-              <div>
-                <AvatarEditor
-                  ref={this.setEditorRef}
-                  image={
-                    this.state.profilePicture
-                      ? this.state.profilePictureDataURL
-                      : this.state.uploadedImageDataURL
-                  }
-                  width={320}
-                  height={320}
-                  border={0}
-                  borderRadius={10000}
-                  color={[255, 255, 255, 0.6]}
-                  scale={0.9 + this.state.zoom / 10}
-                  rotate={0}
-                />
-                <div className="profile-picture-editor__zoom-selector">
-                  <div className="zoom-selector__zoom-out-button">
-                    <i className="fas fa-minus" aria-hidden="true"></i>
-                  </div>
-                  <div className="zoom-selector__slider-container">
-                    <input
-                      type="range"
-                      min="1"
-                      max="100"
-                      className="slider-container__slider"
-                      id="zoom"
-                      value={this.state.zoom}
-                      onChange={this.handleZoomChange}
-                    />
-                  </div>
-                  <div className="zoom-selector__zoom-in-button">
-                    <i className="fas fa-plus" aria-hidden="true"></i>
-                  </div>
-                </div>
-                {this.state.profilePicture ||
-                this.state.uploadedImageDataURL ? (
-                  <span
-                    className="profile-picture-editor__remove-image-button"
-                    role="button"
-                    tabIndex="0"
-                    onClick={this.handleRemoveImageClick}
-                  >
-                    <i className="far fa-trash-alt" aria-hidden="true"></i>
-                  </span>
-                ) : null}
-              </div>
-            ) : (
-              <div
-                className="profile-picture-editor__upload-photo-message"
-                role="button"
-                tabIndex="0"
-                onClick={this.handleUploadImageClick}
+          <div
+            className="modal__content modal__content--edit-profile-picture card"
+            onMouseDown={(event) => {
+              event.stopPropagation();
+            }}
+          >
+            <div className="card-header">
+              Profile picture
+              <a
+                href="#"
+                className="modal__exit-icon"
+                onClick={this.cancelEditProfilePicture}
               >
-                <i className="fas fa-image upload-photo-message__icon"></i>
-                <p>Select a photo to get started</p>
-              </div>
-            )}
-          </div>
-          <hr className="mt-0" />
-          <div className="card-body">
-            <div className="profile-picture-editor__upload-information">
-              <div className="row">
-                <div className="col-sm-6">
-                  <p className="upload-information__attribute-name">
-                    Supported formats:
-                  </p>
-                </div>
-                <div className="col-sm-6">
-                  <p>JPG / JPEG / PNG</p>
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-sm-6">
-                  <p className="upload-information__attribute-name">
-                    File size limit:
-                  </p>
-                </div>
-                <div className="col-sm-6">
-                  <p>10 MiB</p>
-                </div>
-              </div>
+                <i className="fas fa-times"></i>
+              </a>
             </div>
-
-            <form onSubmit={this.handleSubmit} noValidate>
-              <input
-                id="profilePicture"
-                name="profilePicture"
-                type="file"
-                className="invisible"
-                accept=".jpg, .jpeg, .png"
-                onChange={this.handleFileInputChange}
-              ></input>
-              <div className="float-right mt-4 mb-4">
-                <button
-                  type="button"
-                  className="btn btn-secondary mr-4"
-                  onClick={this.cancelEditProfilePicture}
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  Save
-                </button>
+            {this.state.imageUploadErrors.fileType ? (
+              <div className="alert alert-danger mb-0" role="alert">
+                {this.state.imageUploadErrors.fileType}
               </div>
-            </form>
+            ) : null}
+            {this.state.imageUploadErrors.fileSize ? (
+              <div className="alert alert-danger mb-0" role="alert">
+                {this.state.imageUploadErrors.fileSize}
+              </div>
+            ) : null}
+            {errors.profilePicture ? (
+              <div className="alert alert-danger mb-0" role="alert">
+                {errors.profilePicture.msg}
+              </div>
+            ) : null}
+            <div className="profile-picture-editor">
+              {this.state.profilePicture || this.state.uploadedImageDataURL ? (
+                <div>
+                  <AvatarEditor
+                    ref={this.setEditorRef}
+                    image={
+                      this.state.profilePicture
+                        ? this.state.profilePictureDataURL
+                        : this.state.uploadedImageDataURL
+                    }
+                    width={320}
+                    height={320}
+                    border={0}
+                    borderRadius={10000}
+                    color={[255, 255, 255, 0.6]}
+                    scale={0.9 + this.state.zoom / 10}
+                    rotate={0}
+                    onPositionChange={() => {
+                      this.setState({ changesMade: true });
+                    }}
+                  />
+                  <div className="profile-picture-editor__zoom-selector">
+                    <div className="zoom-selector__zoom-out-button">
+                      <i className="fas fa-minus" aria-hidden="true"></i>
+                    </div>
+                    <div className="zoom-selector__slider-container">
+                      <input
+                        type="range"
+                        min="1"
+                        max="100"
+                        className="slider-container__slider"
+                        id="zoom"
+                        value={this.state.zoom}
+                        onChange={this.handleZoomChange}
+                      />
+                    </div>
+                    <div className="zoom-selector__zoom-in-button">
+                      <i className="fas fa-plus" aria-hidden="true"></i>
+                    </div>
+                  </div>
+                  {this.state.profilePicture ||
+                  this.state.uploadedImageDataURL ? (
+                    <span
+                      className="profile-picture-editor__remove-image-button"
+                      role="button"
+                      tabIndex="0"
+                      onClick={this.handleRemoveImageClick}
+                    >
+                      <i className="far fa-trash-alt" aria-hidden="true"></i>
+                    </span>
+                  ) : null}
+                </div>
+              ) : (
+                <div
+                  className="profile-picture-editor__upload-photo-message"
+                  role="button"
+                  tabIndex="0"
+                  onClick={this.handleUploadImageClick}
+                >
+                  <i className="fas fa-image upload-photo-message__icon"></i>
+                  <p>Select a photo to get started</p>
+                </div>
+              )}
+            </div>
+            <hr className="mt-0" />
+            <div className="card-body">
+              <div className="profile-picture-editor__upload-information">
+                <div className="row">
+                  <div className="col-sm-6">
+                    <p className="upload-information__attribute-name">
+                      Supported formats:
+                    </p>
+                  </div>
+                  <div className="col-sm-6">
+                    <p>JPG / JPEG / PNG</p>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-sm-6">
+                    <p className="upload-information__attribute-name">
+                      File size limit:
+                    </p>
+                  </div>
+                  <div className="col-sm-6">
+                    <p>10 MiB</p>
+                  </div>
+                </div>
+              </div>
+
+              <form onSubmit={this.handleSubmit} noValidate>
+                <input
+                  id="profilePicture"
+                  name="profilePicture"
+                  type="file"
+                  className="invisible"
+                  accept=".jpg, .jpeg, .png"
+                  onChange={this.handleFileInputChange}
+                ></input>
+                <div className="float-right mt-4 mb-4">
+                  <button
+                    type="button"
+                    className="btn btn-secondary mr-4"
+                    onClick={this.cancelEditProfilePicture}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
+        {this.state.discardChangesModalActive ? (
+          <ConfirmDiscardChangesModal
+            onDiscardChangesConfirmation={this.handleDiscardChangesConfirmation}
+            onDiscardChangesCancellation={this.handleDiscardChangesCancellation}
+          />
+        ) : null}
       </div>
     );
   }
