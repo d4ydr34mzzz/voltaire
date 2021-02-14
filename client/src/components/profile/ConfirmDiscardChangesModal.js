@@ -23,8 +23,8 @@ class ConfirmDiscardChangesModal extends Component {
     return (
       <div className="modal-overlay" onMouseDown={this.cancelDiscardChanges}>
         <div
-          className={classNames("modal__content card discard-changes", {
-            "discard-changes--margin-top-150":
+          className={classNames("modal__content card secondary-modal", {
+            "secondary-modal--margin-top-150":
               this.props.modalTopMargin === 150,
           })}
           onMouseDown={(event) => {

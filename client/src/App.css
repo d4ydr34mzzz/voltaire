@@ -135,6 +135,10 @@
   display: block;
 }
 
+.modal-overlay--light-background {
+  background: rgba(245, 245, 245, 0.35);
+}
+
 .modal__content {
   min-width: 300px;
   max-width: 700px;
@@ -146,12 +150,16 @@
   overflow-y: auto;
 }
 
-.discard-changes {
+.modal__content--remove-background-color {
+  background-color: transparent;
+}
+
+.secondary-modal {
   max-width: 500px;
   margin-top: 175px;
 }
 
-.discard-changes--margin-top-150 {
+.secondary-modal--margin-top-150 {
   margin-top: 150px;
 }
 
