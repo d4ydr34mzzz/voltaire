@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { fetchCurrentUser, clearErrors } from "../auth/authSlice.js";
 import { editCoverImage, clearEditCoverImageErrors } from "./profileSlice.js";
 import ConfirmDiscardChangesModal from "./ConfirmDiscardChangesModal.js";
+import LoadingIconModal from "./LoadingIconModal.js";
 import AvatarEditor from "react-avatar-editor";
 
 class EditCoverImageModal extends Component {
@@ -48,6 +49,9 @@ class EditCoverImageModal extends Component {
       this
     );
     this.handleDiscardChangesCancellation = this.handleDiscardChangesCancellation.bind(
+      this
+    );
+    this.handleCloseLoadingIconModal = this.handleCloseLoadingIconModal.bind(
       this
     );
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -172,6 +176,10 @@ class EditCoverImageModal extends Component {
 
   handleDiscardChangesCancellation() {
     this.setState({ discardChangesModalActive: false });
+  }
+
+  handleCloseLoadingIconModal() {
+    this.props.onModalAlteration("");
   }
 
   handleSubmit(event) {
@@ -410,6 +418,12 @@ class EditCoverImageModal extends Component {
           <ConfirmDiscardChangesModal
             onDiscardChangesConfirmation={this.handleDiscardChangesConfirmation}
             onDiscardChangesCancellation={this.handleDiscardChangesCancellation}
+          />
+        ) : null}
+        {this.props.profile &&
+        this.props.profile.edit_cover_image_status === "loading" ? (
+          <LoadingIconModal
+            onCloseLoadingIconModal={this.handleCloseLoadingIconModal}
           />
         ) : null}
       </div>

@@ -6,6 +6,7 @@ import {
   clearEditProfilePictureErrors,
 } from "./profileSlice.js";
 import ConfirmDiscardChangesModal from "./ConfirmDiscardChangesModal.js";
+import LoadingIconModal from "./LoadingIconModal.js";
 import AvatarEditor from "react-avatar-editor";
 
 class EditProfilePictureModal extends Component {
@@ -48,6 +49,9 @@ class EditProfilePictureModal extends Component {
       this
     );
     this.handleDiscardChangesCancellation = this.handleDiscardChangesCancellation.bind(
+      this
+    );
+    this.handleCloseLoadingIconModal = this.handleCloseLoadingIconModal.bind(
       this
     );
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -159,6 +163,10 @@ class EditProfilePictureModal extends Component {
 
   handleDiscardChangesCancellation() {
     this.setState({ discardChangesModalActive: false });
+  }
+
+  handleCloseLoadingIconModal() {
+    this.props.onModalAlteration("");
   }
 
   handleSubmit(event) {
@@ -406,6 +414,12 @@ class EditProfilePictureModal extends Component {
           <ConfirmDiscardChangesModal
             onDiscardChangesConfirmation={this.handleDiscardChangesConfirmation}
             onDiscardChangesCancellation={this.handleDiscardChangesCancellation}
+          />
+        ) : null}
+        {this.props.profile &&
+        this.props.profile.edit_profile_picture_status === "loading" ? (
+          <LoadingIconModal
+            onCloseLoadingIconModal={this.handleCloseLoadingIconModal}
           />
         ) : null}
       </div>

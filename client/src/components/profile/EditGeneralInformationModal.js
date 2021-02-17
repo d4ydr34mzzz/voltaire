@@ -5,6 +5,7 @@ import {
   clearEditGeneralInformationErrors,
 } from "./profileSlice.js";
 import ConfirmDiscardChangesModal from "./ConfirmDiscardChangesModal.js";
+import LoadingIconModal from "./LoadingIconModal.js";
 import SelectFormGroup from "../forms/SelectFormGroup.js";
 import InputFormGroup from "../forms/InputFormGroup.js";
 
@@ -30,6 +31,9 @@ class EditGeneralInformationModal extends Component {
       this
     );
     this.handleDiscardChangesCancellation = this.handleDiscardChangesCancellation.bind(
+      this
+    );
+    this.handleCloseLoadingIconModal = this.handleCloseLoadingIconModal.bind(
       this
     );
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -66,6 +70,10 @@ class EditGeneralInformationModal extends Component {
 
   handleDiscardChangesCancellation() {
     this.setState({ discardChangesModalActive: false });
+  }
+
+  handleCloseLoadingIconModal() {
+    this.props.onModalAlteration("");
   }
 
   handleSubmit(event) {
@@ -225,6 +233,12 @@ class EditGeneralInformationModal extends Component {
           <ConfirmDiscardChangesModal
             onDiscardChangesConfirmation={this.handleDiscardChangesConfirmation}
             onDiscardChangesCancellation={this.handleDiscardChangesCancellation}
+          />
+        ) : null}
+        {this.props.profile &&
+        this.props.profile.edit_general_information_status === "loading" ? (
+          <LoadingIconModal
+            onCloseLoadingIconModal={this.handleCloseLoadingIconModal}
           />
         ) : null}
       </div>

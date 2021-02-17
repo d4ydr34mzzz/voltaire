@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { addSocialLinks, clearAddSocialLinksErrors } from "./profileSlice.js";
 import ConfirmDiscardChangesModal from "./ConfirmDiscardChangesModal.js";
+import LoadingIconModal from "./LoadingIconModal.js";
 import InputInputGroup from "../forms/InputInputGroup.js";
 
 class AddSocialLinksModal extends Component {
@@ -38,6 +39,9 @@ class AddSocialLinksModal extends Component {
       this
     );
     this.handleDiscardChangesCancellation = this.handleDiscardChangesCancellation.bind(
+      this
+    );
+    this.handleCloseLoadingIconModal = this.handleCloseLoadingIconModal.bind(
       this
     );
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -83,6 +87,10 @@ class AddSocialLinksModal extends Component {
 
   handleDiscardChangesCancellation() {
     this.setState({ discardChangesModalActive: false });
+  }
+
+  handleCloseLoadingIconModal() {
+    this.props.onModalAlteration("");
   }
 
   handleSubmit(event) {
@@ -230,6 +238,12 @@ class AddSocialLinksModal extends Component {
           <ConfirmDiscardChangesModal
             onDiscardChangesConfirmation={this.handleDiscardChangesConfirmation}
             onDiscardChangesCancellation={this.handleDiscardChangesCancellation}
+          />
+        ) : null}
+        {this.props.profile &&
+        this.props.profile.add_social_links_status === "loading" ? (
+          <LoadingIconModal
+            onCloseLoadingIconModal={this.handleCloseLoadingIconModal}
           />
         ) : null}
       </div>

@@ -9,6 +9,7 @@ import {
   clearDeleteEducationErrors,
 } from "./profileSlice.js";
 import ConfirmDiscardChangesModal from "./ConfirmDiscardChangesModal.js";
+import LoadingIconModal from "./LoadingIconModal.js";
 import InputFormGroup from "../forms/InputFormGroup.js";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -91,6 +92,9 @@ class AddEducationModal extends Component {
     this.handleDiscardChangesCancellation = this.handleDiscardChangesCancellation.bind(
       this
     );
+    this.handleCloseLoadingIconModal = this.handleCloseLoadingIconModal.bind(
+      this
+    );
     this.deleteEducation = this.deleteEducation.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -151,6 +155,10 @@ class AddEducationModal extends Component {
 
   handleDiscardChangesCancellation() {
     this.setState({ discardChangesModalActive: false });
+  }
+
+  handleCloseLoadingIconModal() {
+    this.props.onModalAlteration("");
   }
 
   deleteEducation(event) {
@@ -400,6 +408,14 @@ class AddEducationModal extends Component {
           <ConfirmDiscardChangesModal
             onDiscardChangesConfirmation={this.handleDiscardChangesConfirmation}
             onDiscardChangesCancellation={this.handleDiscardChangesCancellation}
+          />
+        ) : null}
+        {this.props.profile &&
+        (this.props.profile.add_education_status === "loading" ||
+          this.props.profile.edit_education_status === "loading" ||
+          this.props.profile.delete_education_status === "loading") ? (
+          <LoadingIconModal
+            onCloseLoadingIconModal={this.handleCloseLoadingIconModal}
           />
         ) : null}
       </div>

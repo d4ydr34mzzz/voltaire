@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { addInterests, clearAddInterestsErrors } from "./profileSlice.js";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import ConfirmDiscardChangesModal from "./ConfirmDiscardChangesModal.js";
+import LoadingIconModal from "./LoadingIconModal.js";
 import InputInputGroup from "../forms/InputInputGroup.js";
 import Interest from "./Interest.js";
 import shortid from "shortid";
@@ -23,6 +24,9 @@ class AddInterestsModal extends Component {
       this
     );
     this.handleDiscardChangesCancellation = this.handleDiscardChangesCancellation.bind(
+      this
+    );
+    this.handleCloseLoadingIconModal = this.handleCloseLoadingIconModal.bind(
       this
     );
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -87,6 +91,10 @@ class AddInterestsModal extends Component {
 
   handleDiscardChangesCancellation() {
     this.setState({ discardChangesModalActive: false });
+  }
+
+  handleCloseLoadingIconModal() {
+    this.props.onModalAlteration("");
   }
 
   handleInputChange(event) {
@@ -251,6 +259,12 @@ class AddInterestsModal extends Component {
           <ConfirmDiscardChangesModal
             onDiscardChangesConfirmation={this.handleDiscardChangesConfirmation}
             onDiscardChangesCancellation={this.handleDiscardChangesCancellation}
+          />
+        ) : null}
+        {this.props.profile &&
+        this.props.profile.add_interests_status === "loading" ? (
+          <LoadingIconModal
+            onCloseLoadingIconModal={this.handleCloseLoadingIconModal}
           />
         ) : null}
       </div>

@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { addSkills, clearAddSkillsErrors } from "./profileSlice.js";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import ConfirmDiscardChangesModal from "./ConfirmDiscardChangesModal.js";
+import LoadingIconModal from "./LoadingIconModal.js";
 import InputInputGroup from "../forms/InputInputGroup.js";
 import Skill from "./Skill.js";
 import shortid from "shortid";
@@ -23,6 +24,9 @@ class AddSkillModal extends Component {
       this
     );
     this.handleDiscardChangesCancellation = this.handleDiscardChangesCancellation.bind(
+      this
+    );
+    this.handleCloseLoadingIconModal = this.handleCloseLoadingIconModal.bind(
       this
     );
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -92,6 +96,10 @@ class AddSkillModal extends Component {
 
   handleDiscardChangesCancellation() {
     this.setState({ discardChangesModalActive: false });
+  }
+
+  handleCloseLoadingIconModal() {
+    this.props.onModalAlteration("");
   }
 
   handleInputChange(event) {
@@ -259,6 +267,12 @@ class AddSkillModal extends Component {
           <ConfirmDiscardChangesModal
             onDiscardChangesConfirmation={this.handleDiscardChangesConfirmation}
             onDiscardChangesCancellation={this.handleDiscardChangesCancellation}
+          />
+        ) : null}
+        {this.props.profile &&
+        this.props.profile.add_skills_status === "loading" ? (
+          <LoadingIconModal
+            onCloseLoadingIconModal={this.handleCloseLoadingIconModal}
           />
         ) : null}
       </div>

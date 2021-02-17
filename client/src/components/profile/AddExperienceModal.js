@@ -9,6 +9,7 @@ import {
   clearDeleteExperienceErrors,
 } from "./profileSlice.js";
 import ConfirmDiscardChangesModal from "./ConfirmDiscardChangesModal.js";
+import LoadingIconModal from "./LoadingIconModal.js";
 import InputFormGroup from "../forms/InputFormGroup.js";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -87,6 +88,9 @@ class AddExperienceModal extends Component {
     this.handleDiscardChangesCancellation = this.handleDiscardChangesCancellation.bind(
       this
     );
+    this.handleCloseLoadingIconModal = this.handleCloseLoadingIconModal.bind(
+      this
+    );
     this.deleteExperience = this.deleteExperience.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -140,6 +144,10 @@ class AddExperienceModal extends Component {
 
   handleDiscardChangesCancellation() {
     this.setState({ discardChangesModalActive: false });
+  }
+
+  handleCloseLoadingIconModal() {
+    this.props.onModalAlteration("");
   }
 
   deleteExperience(event) {
@@ -372,6 +380,14 @@ class AddExperienceModal extends Component {
           <ConfirmDiscardChangesModal
             onDiscardChangesConfirmation={this.handleDiscardChangesConfirmation}
             onDiscardChangesCancellation={this.handleDiscardChangesCancellation}
+          />
+        ) : null}
+        {this.props.profile &&
+        (this.props.profile.add_experience_status === "loading" ||
+          this.props.profile.edit_experience_status === "loading" ||
+          this.props.profile.delete_experience_status === "loading") ? (
+          <LoadingIconModal
+            onCloseLoadingIconModal={this.handleCloseLoadingIconModal}
           />
         ) : null}
       </div>
