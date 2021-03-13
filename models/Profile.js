@@ -1,5 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const mongooseAlgolia = require("mongoose-algolia");
+const algoliaIndexName = require("../config/algolia.js");
+require("dotenv").config();
 
 /**
  * Define the profile schema
@@ -155,5 +158,47 @@ const profileSchema = new Schema({
   },
 });
 
+profileSchema.plugin(mongooseAlgolia, {
+  appId: process.env.ALGOLIA_APPLICATION_ID,
+  apiKey: process.env.ALGOLIA_ADMIN_API_KEY,
+  indexName: algoliaIndexName,
+  selector:
+    "name handle location header skills githubUsername profilePictureCropped experience education user.picture",
+  populate: {
+    path: "user",
+    selector: "picture",
+  },
+  mappings: {
+    experience: function (value) {
+      let experiences = [];
+      if (Array.isArray(value)) {
+        experiences = value.map((entry) => {
+          return (({ title, company }) => ({ title, company }))(entry);
+        });
+      }
+      return experiences;
+    },
+    education: function (value) {
+      let education = [];
+      if (Array.isArray(value)) {
+        education = value.map((entry) => {
+          return (({ school, degree, fieldOfStudy }) => ({
+            school,
+            degree,
+            fieldOfStudy,
+          }))(entry);
+        });
+      }
+      return education;
+    },
+  },
+  virtuals: {
+    name: function (doc) {
+      return `${doc.firstName} ${doc.lastName}`;
+    },
+  },
+});
+
 // Convert the profileSchema into a model we can work with
-mongoose.model("Profile", profileSchema);
+let model = mongoose.model("Profile", profileSchema);
+// model.SyncToAlgolia();
