@@ -63,7 +63,7 @@ class Navbar extends Component {
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark navbar--background-color">
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">
-            DevConnector
+            Voltaire
           </Link>
           <button
             className="navbar-toggler"
