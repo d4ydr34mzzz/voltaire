@@ -3,12 +3,23 @@ import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { logoutUser } from "../auth/authSlice.js";
 import { withRouter } from "react-router-dom";
-import shortid from "shortid";
+import SearchBar from "../search/SearchBar.js";
 
 class Navbar extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      searchBarFocused: false,
+    };
+
+    this.handleSearchBarFocusChange = this.handleSearchBarFocusChange.bind(
+      this
+    );
     this.handleLogoutClick = this.handleLogoutClick.bind(this);
+  }
+
+  handleSearchBarFocusChange(focus) {
+    this.setState({ searchBarFocused: focus });
   }
 
   handleLogoutClick(event) {
@@ -39,7 +50,7 @@ class Navbar extends Component {
     );
 
     const authLinksLeft = (
-      <ul className="navbar-nav mr-auto" key={shortid.generate()}>
+      <ul className="navbar-nav mr-auto">
         <li className="nav-item">
           <Link className="nav-link" to="/explore">
             Explore
@@ -49,7 +60,7 @@ class Navbar extends Component {
     );
 
     const authLinksRight = (
-      <ul className="navbar-nav ml-auto" key={shortid.generate()}>
+      <ul className="navbar-nav ml-auto">
         <li className="nav-item">
           <a className="nav-link" href="#" onClick={this.handleLogoutClick}>
             Log out
@@ -60,7 +71,7 @@ class Navbar extends Component {
 
     /* Reference: https://stackoverflow.com/a/36913042 */
     return (
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark navbar--background-color">
+      <nav className="navbar fixed-top navbar-expand-lg navbar-dark bg-dark navbar--background-color navbar--padding">
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">
             Voltaire
@@ -78,9 +89,19 @@ class Navbar extends Component {
           </button>
 
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            {isAuthenticated ? [authLinksLeft, authLinksRight] : guestLinks}
+            {isAuthenticated ? authLinksLeft : null}
+            {isAuthenticated ? (
+              <SearchBar
+                onSearchBarFocusChange={this.handleSearchBarFocusChange}
+              />
+            ) : null}
+            {isAuthenticated ? authLinksRight : null}
+            {!isAuthenticated ? guestLinks : null}
           </div>
         </div>
+        {this.state.searchBarFocused ? (
+          <div className="modal-overlay modal-overlay--navbar-search-results"></div>
+        ) : null}
       </nav>
     );
   }

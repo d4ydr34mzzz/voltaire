@@ -17,6 +17,11 @@
   background-color: var(--main-grey-color) !important;
 }
 
+.navbar--padding {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
 .nav-link:hover {
   color: white !important;
 }
@@ -46,6 +51,7 @@
 .profile__header {
   background-color: var(--main-light-grey-color);
   height: 250px;
+  margin-top: 70px;
 }
 
 .profile__profile-picture {
@@ -137,6 +143,12 @@
 
 .modal-overlay--light-background {
   background: rgba(245, 245, 245, 0.35);
+}
+
+.modal-overlay--navbar-search-results {
+  z-index: 1;
+  margin-left: -1rem;
+  top: 70px;
 }
 
 .modal__content {
@@ -424,6 +436,7 @@
 
 .explore__header {
   height: 250px;
+  margin-top: 70px;
 }
 
 .explore__body {
@@ -518,6 +531,71 @@
   height: 250px !important;
 }
 
+.react-autosuggest__container {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: 50%;
+  height: 40px;
+  float: none;
+}
+
+.react-autosuggest__input {
+  width: 100%;
+  height: 100%;
+  outline: none;
+  border: none;
+  padding-left: 25px;
+  border-radius: 100px;
+}
+
+.ais-Hits__profile-picture {
+  height: 4rem;
+  border-radius: 50%;
+}
+
+.ai-Hits-item__profile-info {
+  vertical-align: middle;
+}
+
+.ais-Hits__name {
+  display: inline;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.ais-Hits__profile-header {
+  font-size: 1rem;
+  font-weight: 400;
+  color: grey;
+  display: block;
+}
+
+.react-autosuggest__suggestions-list {
+  list-style: none;
+  margin-top: 0.5rem;
+  padding-left: 0px;
+  background-color: white;
+  border-radius: 10px;
+  position: relative;
+  z-index: 100;
+}
+
+.react-autosuggest__suggestion {
+  cursor: pointer;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+}
+
+.react-autosuggest__suggestion--highlighted {
+  background-color: #e7e7e7;
+  transition: background-color 0.2s linear;
+}
+
 @media (min-width: 576px) {
   .connect-icon-padding-compensation {
     margin-left: -15px;
@@ -531,5 +609,11 @@
     right: 0;
     margin: auto;
     height: 120px;
+  }
+}
+
+@media (min-width: 992px) {
+  .react-autosuggest__container {
+    display: block;
   }
 }
