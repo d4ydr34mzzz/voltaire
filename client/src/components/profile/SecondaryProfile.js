@@ -20,6 +20,12 @@ class SecondaryProfile extends Component {
     this.props.fetchProfileByHandle(this.props.match.params.handle);
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.match.params.handle !== prevProps.match.params.handle) {
+      this.props.fetchProfileByHandle(this.props.match.params.handle);
+    }
+  }
+
   render() {
     let profile = this.props.profile && this.props.profile.secondaryProfile;
 
