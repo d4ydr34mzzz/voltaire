@@ -88,6 +88,7 @@ class InitializeProfile extends Component {
     ];
     return (
       <div className="create-profile">
+        <div className="container-fluid page-header"></div>
         <div className="container-fluid pt-5 pb-5">
           <div className="container">
             <div className="row">

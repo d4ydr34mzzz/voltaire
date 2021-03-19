@@ -609,6 +609,11 @@
   font-size: 1.5rem;
 }
 
+.page-header {
+  height: 150px;
+  margin-top: 70px;
+}
+
 @media (min-width: 576px) {
   .connect-icon-padding-compensation {
     margin-left: -15px;
