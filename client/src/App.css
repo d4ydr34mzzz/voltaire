@@ -435,7 +435,7 @@
 }
 
 .explore__header {
-  height: 250px;
+  height: 150px;
   margin-top: 70px;
 }
 
@@ -532,7 +532,6 @@
 }
 
 .react-autosuggest__container {
-  display: none;
   position: absolute;
   left: 0;
   right: 0;
@@ -549,6 +548,10 @@
   border: none;
   padding-left: 25px;
   border-radius: 100px;
+}
+
+.ais-Hits-list {
+  list-style: none;
 }
 
 .ais-Hits__profile-picture {
@@ -596,6 +599,16 @@
   transition: background-color 0.2s linear;
 }
 
+.search-results__no-results-found-message {
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.search-results__error-message {
+  text-align: center;
+  font-size: 1.5rem;
+}
+
 @media (min-width: 576px) {
   .connect-icon-padding-compensation {
     margin-left: -15px;
@@ -614,6 +627,6 @@
 
 @media (min-width: 992px) {
   .react-autosuggest__container {
-    display: block;
+    position: absolute;
   }
 }

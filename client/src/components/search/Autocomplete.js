@@ -8,7 +8,7 @@ class Autocomplete extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: "",
+      value: this.props.currentQuery ? this.props.currentQuery : "",
       suggestions: [],
     };
 
@@ -17,6 +17,7 @@ class Autocomplete extends Component {
     this.onChange = this.onChange.bind(this);
     this.onFocus = this.onFocus.bind(this);
     this.onBlur = this.onBlur.bind(this);
+    this.onKeyPress = this.onKeyPress.bind(this);
     this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(
       this
     );
@@ -36,6 +37,13 @@ class Autocomplete extends Component {
 
   onBlur(event, _) {
     this.props.onSearchBarFocusChange(false);
+  }
+
+  onKeyPress(event) {
+    if (event.key === "Enter") {
+      this.props.onSearchEntered();
+      this.textInput.current.blur();
+    }
   }
 
   onSuggestionsFetchRequested({ value, reason }) {
@@ -59,10 +67,6 @@ class Autocomplete extends Component {
     return <SearchBarHit hit={hit} />;
   }
 
-  shouldRenderSuggestions(value, reason) {
-    return value.trim().length > 1;
-  }
-
   render() {
     const { hits } = this.props;
     const { value } = this.state;
@@ -72,6 +76,7 @@ class Autocomplete extends Component {
       onChange: this.onChange,
       onFocus: this.onFocus,
       onBlur: this.onBlur,
+      onKeyPress: this.onKeyPress,
       placeholder: "Search",
       ref: this.textInput,
     };
@@ -85,7 +90,6 @@ class Autocomplete extends Component {
         renderSuggestion={this.renderSuggestion}
         inputProps={inputProps}
         onSuggestionSelected={this.onSuggestionSelected}
-        shouldRenderSuggestions={this.shouldRenderSuggestions}
         focusInputOnSuggestionClick={false}
       />
     );

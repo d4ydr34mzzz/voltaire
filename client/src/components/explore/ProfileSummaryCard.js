@@ -4,7 +4,7 @@ import SocialLinks from "../shared/SocialLinks.js";
 
 export default class ProfileSummaryCard extends Component {
   render() {
-    const { profile } = this.props;
+    const profile = this.props.hit;
 
     return (
       <div className="row user-card">
@@ -28,9 +28,7 @@ export default class ProfileSummaryCard extends Component {
             to={`/profile/${profile.handle}`}
             className="remove-anchor-style"
           >
-            <h1 className="user-card__name d-inline-block">
-              {profile.user.firstName} {profile.user.lastName}
-            </h1>
+            <h1 className="user-card__name d-inline-block">{profile.name}</h1>
           </Link>
           <h2 className="user-card__header">{profile.header}</h2>
           <h3 className="user-card__location">{profile.location}</h3>
