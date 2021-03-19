@@ -163,7 +163,7 @@ profileSchema.plugin(mongooseAlgolia, {
   apiKey: process.env.ALGOLIA_ADMIN_API_KEY,
   indexName: algoliaIndexName,
   selector:
-    "name handle location header skills githubUsername profilePictureCropped experience education user.picture",
+    "name handle location header skills githubUsername profilePictureCropped experience education social user.picture",
   populate: {
     path: "user",
     selector: "picture",
