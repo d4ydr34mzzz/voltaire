@@ -178,8 +178,16 @@ router.post(
 router.post(
   "/login",
   [
-    body("email").isEmail().withMessage("Email is invalid"),
-    body("password").notEmpty().withMessage("Password is invalid"),
+    body("email")
+      .isEmail()
+      .withMessage("Email is invalid")
+      .bail()
+      .trim()
+      .toLowerCase()
+      .normalizeEmail(),
+    body("password")
+      .isLength({ min: 1, max: 100 })
+      .withMessage("Incorrect password"),
   ],
   function (req, res, next) {
     const errors = validationResult(req);
@@ -206,21 +214,12 @@ router.post(
       });
     })(req, res, next);
   },
-  function (req, res) {
+  function (req, res, next) {
     // *** Important reference: https://stackoverflow.com/questions/59690923/handlebars-access-has-been-denied-to-resolve-the-property-from-because-it-is *** //
-    const newUserObject = {
-      _id: req.user._id,
-      email: req.user.email,
-      firstName: req.user.firstName,
-      lastName: req.user.lastName,
-      internalAuth: { _id: req.user.internalAuth._id },
-      picture: req.user.picture,
-      fullName: req.user.firstName + " " + req.user.lastName,
-      joined: req.user.joined,
-    };
-
-    res.json(newUserObject);
-  }
+    res.locals.user = req.user;
+    next();
+  },
+  safelyReturnCurrentUsersDocument
 );
 
 /**
