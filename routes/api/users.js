@@ -37,40 +37,26 @@ router.get("/test", (req, res) => {
  * @access public
  * @description Get request route handler for the /api/users/current path (i.e. return the document corresponding to the current user)
  */
-router.get("/current", ensureAuthenticated, (req, res) => {
-  User.findOne({ _id: req.user.id })
-    .then((user) => {
-      // *** Important reference: https://stackoverflow.com/questions/59690923/handlebars-access-has-been-denied-to-resolve-the-property-from-because-it-is *** //
-      const newUserObject = {
-        _id: user._id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        internalAuth: { _id: user.internalAuth._id },
-        picture: user.picture,
-        profilePicturePublicId: user.profilePicturePublicId,
-        profilePicture: user.profilePicture,
-        profilePictureCroppingRectangle: user.profilePictureCroppingRectangle,
-        coverImagePublicId: user.coverImagePublicId,
-        coverImage: user.coverImage,
-        coverImageCroppingRectangle: user.coverImageCroppingRectangle,
-        fullName: user.firstName + " " + user.lastName,
-        joined: user.joined,
-      };
-
-      res.json(newUserObject);
-    })
-    .catch((err) => {
-      res.status(500).json({
-        errors: [
-          {
+router.get(
+  "/current",
+  ensureAuthenticated,
+  (req, res, next) => {
+    User.findOne({ _id: req.user.id })
+      .then((user) => {
+        res.locals.user = user;
+        next();
+      })
+      .catch((err) => {
+        res.status(500).json({
+          error: {
             msg:
               "There was an issue processing the request. Please try again later.",
           },
-        ],
+        });
       });
-    });
-});
+  },
+  safelyReturnCurrentUsersDocument
+);
 
 /**
  * @route POST /api/users/register
