@@ -21,7 +21,7 @@ require("../../models/Profile.js");
 const User = mongoose.model("User");
 
 // Retrieve the Profile model defined in Profile.js
-const Profile = mongoose.model("Profile");
+// const Profile = mongoose.model("Profile");
 
 /**
  * @route GET /api/users/test
@@ -227,7 +227,7 @@ router.post(
  * @access private
  * @description Delete request route handler for the /api/users/:user_id path (delete a user from DevConnector)
  */
-router.delete("/:user_id", ensureAuthenticated, (req, res) => {
+/* router.delete("/:user_id", ensureAuthenticated, (req, res) => {
   if (req.user.id !== req.params.user_id) {
     return res.status(403).json({
       errors: [
@@ -266,6 +266,6 @@ router.delete("/:user_id", ensureAuthenticated, (req, res) => {
         });
       });
   }
-});
+}); */
 
 module.exports = router;
