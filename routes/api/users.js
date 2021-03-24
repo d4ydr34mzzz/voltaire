@@ -5,7 +5,10 @@ const gravatar = require("gravatar");
 const passport = require("passport");
 const router = express.Router();
 const { body, validationResult } = require("express-validator");
-const { ensureAuthenticated } = require("../../helpers/auth.js");
+const {
+  ensureAuthenticated,
+  safelyReturnCurrentUsersDocument,
+} = require("../../helpers/auth.js");
 const saltRounds = 10;
 
 // Run the code in User.js (no exports)
@@ -77,77 +80,108 @@ router.get("/current", ensureAuthenticated, (req, res) => {
 router.post(
   "/register",
   [
-    // TODO: Better server-side validation for the form fields being saved to the database
-    body("email").isEmail().withMessage("Email is invalid"),
-    body("firstName").not().isEmpty().withMessage("First name is required"),
-    body("lastName").not().isEmpty().withMessage("Last name is required"),
-    body("password")
-      .isLength({ min: 8 })
-      .withMessage("Password must be at least 8 characters long"),
-    body("confirmPassword")
+    body("email")
+      .isEmail()
+      .withMessage("Email is invalid")
+      .bail()
+      .trim()
+      .toLowerCase()
+      .normalizeEmail(),
+    body("firstName")
       .not()
       .isEmpty()
-      .withMessage("Confirm password is required")
+      .withMessage("First name is required")
+      .bail()
+      .trim()
+      .isLength({ max: 100 })
+      .withMessage("First name needs to be between 1 and 100 characters long")
+      .bail()
+      .isAlphanumeric()
+      .withMessage("First name can only contain letters and numbers"),
+    body("lastName")
+      .not()
+      .isEmpty()
+      .withMessage("Last name is required")
+      .bail()
+      .trim()
+      .isLength({ max: 100 })
+      .withMessage("Last name needs to be between 1 and 100 characters long")
+      .bail()
+      .isAlphanumeric()
+      .withMessage("Last name can only contain letters and numbers"),
+    body("password")
+      .isLength({ max: 100 })
+      .withMessage("Password cannot be more than 100 characters long")
+      .bail()
+      .isStrongPassword()
+      .withMessage(
+        "Password must be at least 8 characters long with at least one uppercase letter, one lowercase letter, one number, and one symbol"
+      ),
+    body("confirmPassword")
+      .isLength({ min: 8, max: 100 })
+      .withMessage("Password needs to be confirmed")
+      .bail()
       .custom((value, { req }) => {
         return value === req.body.password;
       })
       .withMessage("Passwords must match"),
   ],
-  (req, res) => {
+  (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json(errors.mapped());
     }
 
-    console.log(req.body);
-    User.findOne({ email: req.body.email }).then((user) => {
-      if (user) {
-        res.status(403).json({ errors: [{ msg: "Email already exists" }] });
-      } else {
-        bcrypt
-          .genSalt(saltRounds)
-          .then((salt) => {
-            return bcrypt.hash(req.body.password, salt);
-          })
-          .then((hash) => {
-            const picture = gravatar.url(req.body.email, {
-              s: 200,
-              r: "pg",
-              d: "mp",
-            });
+    User.findOne({ email: req.body.email })
+      .collation({ locale: "en", strength: 2 })
+      .then((user) => {
+        if (user) {
+          res.status(403).json({ email: { msg: "Email already exists" } });
+        } else {
+          bcrypt
+            .genSalt(saltRounds)
+            .then((salt) => {
+              return bcrypt.hash(req.body.password, salt);
+            })
+            .then((hash) => {
+              const picture = gravatar.url(req.body.email, {
+                s: 200,
+                r: "pg",
+                d: "mp",
+              });
 
-            const newUser = {
-              email: req.body.email,
-              firstName: req.body.firstName,
-              lastName: req.body.lastName,
-              internalAuth: { password: hash },
-              externalAuth: undefined,
-              picture: picture,
-            };
+              const newUser = {
+                email: req.body.email,
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                internalAuth: { password: hash },
+                externalAuth: undefined,
+                picture: picture,
+              };
 
-            let user = new User(newUser);
-            return user.save();
-          })
-          .then((user) => {
-            if (user) {
-              res.json(user);
-            } else {
-              throw new Error();
-            }
-          })
-          .catch((err) => {
-            res.status(500).json({
-              errors: [
-                {
+              let user = new User(newUser);
+              return user.save();
+            })
+            .then((user) => {
+              if (user) {
+                res.locals.user = user;
+                next();
+              } else {
+                throw new Error();
+              }
+            })
+            .catch((err) => {
+              res.status(500).json({
+                error: {
                   msg:
-                    "There was an issue registering the account. Please try again later.",
+                    "There was an issue processing the request. Please try again later.",
                 },
-              ],
+              });
             });
-          });
-      }
-    });
-  }
+        }
+      });
+  },
+  safelyReturnCurrentUsersDocument
 );
 
 /**

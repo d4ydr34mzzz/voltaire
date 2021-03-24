@@ -43,7 +43,7 @@ module.exports = function (passport) {
                 });
             }
           }
-        });
+        }).collation({ locale: "en", strength: 2 });
       }
     )
   );
