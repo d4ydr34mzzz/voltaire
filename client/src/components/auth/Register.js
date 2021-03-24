@@ -103,6 +103,8 @@ class Register extends Component {
                   error={errors.password}
                   value={this.state.password}
                   onChange={this.handleInputChange}
+                  info="Use 8 or more characters with at least one uppercase letter, one lowercase letter, one number, and one symbol"
+                  hideInfoOnError={true}
                 />
                 <InputFormGroup
                   htmlFor="confirmPassword"

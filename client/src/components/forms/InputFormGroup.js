@@ -18,6 +18,7 @@ function InputFormGroup({
   info,
   disabled,
   required,
+  hideInfoOnError,
 }) {
   return (
     <div className="form-group">
@@ -40,7 +41,9 @@ function InputFormGroup({
         disabled={disabled}
         required={required}
       />
-      {info && <small className="form-text text-muted">{info}</small>}
+      {info && (hideInfoOnError ? error === undefined : false) && (
+        <small className="form-text text-muted">{info}</small>
+      )}
       {error && <div className="invalid-feedback">{error.msg}</div>}
     </div>
   );
