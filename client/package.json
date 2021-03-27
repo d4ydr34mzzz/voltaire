@@ -20,6 +20,7 @@
     "react-avatar-editor": "^11.0.9",
     "react-beautiful-dnd": "^13.0.0",
     "react-dom": "^16.13.1",
+    "react-google-login": "^5.2.2",
     "react-instantsearch-dom": "^6.10.3",
     "react-moment": "^1.0.0",
     "react-paginate": "^6.5.0",
