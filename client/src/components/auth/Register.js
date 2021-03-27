@@ -1,9 +1,14 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { registerUser, clearErrors } from "./authSlice.js";
+import {
+  registerUser,
+  authenticateWithGoogle,
+  clearErrors,
+} from "./authSlice.js";
 import { withRouter } from "react-router-dom";
 import InputFormGroup from "../forms/InputFormGroup";
+import GoogleLogin from "react-google-login";
 
 // TODO: Convert the class component into a function component to use hooks (ex. useDispatch() and useSelector() from react-redux)?
 class Register extends Component {
@@ -19,6 +24,7 @@ class Register extends Component {
     };
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleGoogleLogin = this.handleGoogleLogin.bind(this);
   }
 
   componentDidMount() {
@@ -57,6 +63,16 @@ class Register extends Component {
         this.props.history.push("/login");
       }
     });
+  }
+
+  handleGoogleLogin(response) {
+    if (response.error === undefined) {
+      this.props.authenticateWithGoogle(response.tokenId).then(() => {
+        if (this.props.auth.login_status === "succeeded") {
+          this.props.history.push("/dashboard");
+        }
+      });
+    }
   }
 
   render() {
@@ -133,9 +149,21 @@ class Register extends Component {
                   </div>
                 </div>
 
-                <Link to="" className="btn btn-secondary btn-block mt-3 mb-3">
-                  <i className="fab fa-google mr-2"></i> Sign up with Google
-                </Link>
+                <GoogleLogin
+                  clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
+                  render={(renderProps) => (
+                    <button
+                      onClick={renderProps.onClick}
+                      className="btn btn-secondary btn-block mt-3 mb-3"
+                    >
+                      <i className="fab fa-google mr-2"></i> Continue with
+                      Google
+                    </button>
+                  )}
+                  buttonText="Sign up with Google"
+                  onSuccess={this.handleGoogleLogin}
+                  onFailure={this.handleGoogleLogin}
+                />
 
                 <h2 className="sign-up-prompt pt-2">
                   Already have an account?{" "}
@@ -166,6 +194,7 @@ const mapStateToProps = (state) => ({
  */
 const mapDispatchToProps = {
   registerUser,
+  authenticateWithGoogle,
   clearErrors,
 };
 
