@@ -10,6 +10,7 @@ const apiProfileRouter = require("./routes/api/profile.js");
 const apiProfilesRouter = require("./routes/api/profiles.js");
 const apiUploadRouter = require("./routes/api/upload.js");
 const apiUsersRouter = require("./routes/api/users.js");
+const apiShowcaseRouter = require("./routes/api/showcase.js");
 const app = express();
 const port = process.env.PORT || 3001;
 require("dotenv").config();
@@ -75,6 +76,9 @@ app.use("/api/profile", apiProfileRouter);
 
 // Mount the router module for profiles on the /api/profiles path in the main app
 app.use("/api/profiles", apiProfilesRouter);
+
+// Mount the router module for showcase on the /api/showcase path in the main app
+app.use("/api/showcase", apiShowcaseRouter);
 
 // Mount the router module for upload on the /api/upload path in the main app
 app.use("/api/upload", apiUploadRouter);
