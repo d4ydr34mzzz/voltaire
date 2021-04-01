@@ -1,6 +1,5 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const passport = require("passport");
 const router = express.Router();
 const { safelyReturnCurrentUsersDocument } = require("../../helpers/auth.js");
 const { passportLoginMethod } = require("../../promises/passport.js");
@@ -22,16 +21,6 @@ const User = mongoose.model("User");
 router.get("/test", (req, res) => {
   res.json({ msg: "auth" });
 });
-
-/**
- * @route GET /api/auth/google
- * @access public
- * @description Route path for Google OAuth 2.0
- */
-router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
 
 /**
  * @route POST /api/auth/google/tokensignin
@@ -126,16 +115,6 @@ router.post(
       });
   },
   safelyReturnCurrentUsersDocument
-);
-
-/**
- * @route GET /api/auth/google/callback
- * @access public
- * @description Route path Google will redirect the user to after authorization
- */
-router.get(
-  "/google/callback",
-  passport.authenticate("google", { successRedirect: "/" })
 );
 
 /**
