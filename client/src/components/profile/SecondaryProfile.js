@@ -10,6 +10,7 @@ import EducationSection from "./EducationSection.js";
 import SkillSection from "./SkillSection.js";
 import InterestsSection from "./InterestsSection.js";
 import SocialLinksSection from "./SocialLinksSection.js";
+import GitHubSection from "./GitHubSection.js";
 
 class SecondaryProfile extends Component {
   constructor(props) {
@@ -88,7 +89,12 @@ class SecondaryProfile extends Component {
                 onModalAlteration={this.handleModalAlteration}
               />
             ) : null}
-
+            {profile.githubUsername ? (
+              <GitHubSection
+                username={profile.githubUsername}
+                onModalAlteration={this.handleModalAlteration}
+              />
+            ) : null}
             {profile.skills && profile.skills.length > 0 ? (
               <SkillSection
                 skills={profile.skills}

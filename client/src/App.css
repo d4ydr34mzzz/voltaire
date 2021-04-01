@@ -613,6 +613,53 @@
   margin-top: 70px;
 }
 
+.section__repo-name {
+  color: unset;
+  text-decoration: none !important;
+}
+
+.section__repo-name:hover {
+  color: var(--main-blue-color);
+  font-weight: 500;
+}
+
+.section__repo-icon {
+  margin-right: 5px;
+}
+
+.section__repo-description {
+  margin-left: 21px;
+}
+
+.section__repo-badge {
+  margin-left: 21px;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.section__external-link {
+  color: unset;
+  text-decoration: none !important;
+}
+
+.section__external-link:hover {
+  color: var(--main-blue-color);
+}
+
+.section__external-link-icon {
+  margin-left: 5px;
+  margin-bottom: 3px;
+}
+
+.section__empty-set-icon {
+  height: 30px;
+  margin-top: 40px;
+}
+
+.section__loading-icon {
+  height: 35px;
+}
+
 @media (min-width: 576px) {
   .connect-icon-padding-compensation {
     margin-left: -15px;
