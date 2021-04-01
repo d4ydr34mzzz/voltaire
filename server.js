@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const passport = require("passport");
 const bodyParser = require("body-parser");
 const apiAuthRouter = require("./routes/api/auth.js");
+const apiGitHubRouter = require("./routes/api/github.js");
 // const apiPostsRouter = require("./routes/api/posts.js");
 const apiProfileRouter = require("./routes/api/profile.js");
 const apiProfilesRouter = require("./routes/api/profiles.js");
@@ -67,6 +68,9 @@ app.use(passport.session());
 
 // Mount the router module for auth on the /api/auth path in the main app
 app.use("/api/auth", apiAuthRouter);
+
+// Mount the router module for github on the /api/github path in the main app
+app.use("/api/github", apiGitHubRouter);
 
 // Mount the router module for posts on the /api/posts path in the main app
 // app.use("/api/posts", apiPostsRouter);
