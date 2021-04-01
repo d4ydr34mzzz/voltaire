@@ -30,7 +30,7 @@ router.get("/test", (req, res) => {
 
 /**
  * @route GET /api/profiles/:page-:limit
- * @access public
+ * @access private
  * @description Get request route handler for the /api/profiles/:page-:limit path (returns a page with the given limit from the list of all profiles on the site)
  */
 router.get(
