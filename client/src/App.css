@@ -660,6 +660,10 @@
   height: 35px;
 }
 
+.clear-both {
+  clear: both;
+}
+
 @media (min-width: 576px) {
   .connect-icon-padding-compensation {
     margin-left: -15px;
