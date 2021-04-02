@@ -54,7 +54,7 @@ class ConfirmDiscardChangesModal extends Component {
 
               <button
                 type="button"
-                className="btn btn-primary"
+                className="btn btn-danger"
                 onClick={this.confirmDiscardChanges}
               >
                 Discard changes
