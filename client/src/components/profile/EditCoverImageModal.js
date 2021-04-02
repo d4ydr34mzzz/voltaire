@@ -365,7 +365,7 @@ class EditCoverImageModal extends Component {
               )}
             </div>
             <hr className="mt-0" />
-            <div className="card-body">
+            <div className="card-body card-body--overflow-y-auto">
               <div className="profile-picture-editor__upload-information">
                 <div className="row">
                   <div className="col-sm-6">
@@ -398,7 +398,7 @@ class EditCoverImageModal extends Component {
                   accept=".jpg, .jpeg, .png"
                   onChange={this.handleFileInputChange}
                 ></input>
-                <div className="float-right mt-4 mb-4">
+                <div className="text-right mt-4 mb-4">
                   <button
                     type="button"
                     className="btn btn-secondary mr-4"

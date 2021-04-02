@@ -60,8 +60,9 @@ class AddSectionModal extends Component {
               <i className="fas fa-times"></i>
             </a>
           </div>
-
-          <ul className="list-group list-group-flush">{listItems}</ul>
+          <div className="card-body card-body--overflow-y-auto p-0">
+            <ul className="list-group list-group-flush">{listItems}</ul>
+          </div>
         </div>
       </div>
     );

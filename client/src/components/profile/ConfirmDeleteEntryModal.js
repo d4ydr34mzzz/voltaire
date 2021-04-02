@@ -41,11 +41,11 @@ class ConfirmDeleteEntryModal extends Component {
               <i className="fas fa-times"></i>
             </a>
           </div>
-          <div className="card-body">
+          <div className="card-body card-body--overflow-y-auto">
             <p>
               Are you sure you want to delete this entry? This cannot be undone.
             </p>
-            <div className="float-right mt-4 mb-4">
+            <div className="text-right mt-4 mb-4">
               <button
                 type="button"
                 className="btn btn-secondary mr-4"

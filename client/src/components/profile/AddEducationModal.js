@@ -283,7 +283,7 @@ class AddEducationModal extends Component {
                 <i className="fas fa-times"></i>
               </a>
             </div>
-            <div className="card-body">
+            <div className="card-body card-body--overflow-y-auto">
               {errors.error ? (
                 <div class="alert alert-danger" role="alert">
                   {errors.error.msg}
@@ -403,7 +403,7 @@ class AddEducationModal extends Component {
                   )}
                 </div>
 
-                <div className="float-right mt-4 mb-4">
+                <div className="text-right mt-4 mb-4">
                   {this.state.editing ? (
                     <button
                       type="button"

@@ -136,7 +136,7 @@
   background-color: rgba(0, 0, 0, 0.45);
   position: fixed;
   top: 0;
-  z-index: 1000;
+  z-index: 1040;
   display: block;
 }
 
@@ -154,11 +154,11 @@
   min-width: 300px;
   max-width: 700px;
   background-color: white;
-  margin-top: 170px;
+  margin-top: 15vh;
   margin-left: auto;
   margin-right: auto;
-  max-height: calc(100vh - 140px);
-  overflow-y: auto;
+  max-height: 70vh;
+  overflow-y: hidden;
 }
 
 .modal__content--remove-background-color {
@@ -658,6 +658,10 @@
 
 .section__loading-icon {
   height: 35px;
+}
+
+.card-body--overflow-y-auto {
+  overflow-y: auto;
 }
 
 @media (min-width: 576px) {

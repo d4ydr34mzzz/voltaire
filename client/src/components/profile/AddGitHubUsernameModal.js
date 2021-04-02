@@ -123,7 +123,7 @@ class AddGitHubUsernameModal extends Component {
                 <i className="fas fa-times"></i>
               </a>
             </div>
-            <div className="card-body">
+            <div className="card-body card-body--overflow-y-auto">
               {errors.error ? (
                 <div className="alert alert-danger" role="alert">
                   {errors.error.msg}
@@ -149,7 +149,7 @@ class AddGitHubUsernameModal extends Component {
                   onButtonClick={this.handleClearGitHubUsernameButtonClick}
                 />
 
-                <div className="float-right mt-4 mb-4">
+                <div className="text-right mt-4 mb-4">
                   <button
                     type="button"
                     className="btn btn-secondary mr-4"
