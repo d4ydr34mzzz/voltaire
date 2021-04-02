@@ -9,6 +9,7 @@ import {
   clearDeleteEducationErrors,
 } from "./profileSlice.js";
 import ConfirmDiscardChangesModal from "./ConfirmDiscardChangesModal.js";
+import ConfirmDeleteEntryModal from "./ConfirmDeleteEntryModal.js";
 import LoadingIconModal from "./LoadingIconModal.js";
 import InputFormGroup from "../forms/InputFormGroup.js";
 import ReactQuill from "react-quill";
@@ -49,6 +50,8 @@ class AddEducationModal extends Component {
           activities: education.activities ? education.activities : "",
           changesMade: false,
           discardChangesModalActive: false,
+          deleteEntryModalActive: false,
+          proceedWithDelete: false,
         };
       } else {
         this.state = {
@@ -90,6 +93,12 @@ class AddEducationModal extends Component {
       this
     );
     this.handleDiscardChangesCancellation = this.handleDiscardChangesCancellation.bind(
+      this
+    );
+    this.handleDeleteEntryConfirmation = this.handleDeleteEntryConfirmation.bind(
+      this
+    );
+    this.handleDeleteEntryCancellation = this.handleDeleteEntryCancellation.bind(
       this
     );
     this.handleCloseLoadingIconModal = this.handleCloseLoadingIconModal.bind(
@@ -157,23 +166,40 @@ class AddEducationModal extends Component {
     this.setState({ discardChangesModalActive: false });
   }
 
+  handleDeleteEntryConfirmation() {
+    this.setState({ proceedWithDelete: true }, () => {
+      this.deleteEducation();
+    });
+  }
+
+  handleDeleteEntryCancellation() {
+    this.setState({ deleteEntryModalActive: false });
+  }
+
   handleCloseLoadingIconModal() {
     this.props.onModalAlteration("");
   }
 
   deleteEducation(event) {
-    event.preventDefault();
-    this.props.clearEditEducationErrors();
+    if (event) {
+      event.preventDefault();
+    }
 
-    const educationData = {
-      entryId: this.props.entryId,
-    };
+    if (this.state.proceedWithDelete) {
+      this.props.clearEditEducationErrors();
 
-    this.props.deleteEducation(educationData).then(() => {
-      if (this.props.profile.delete_education_status === "succeeded") {
-        this.props.onModalAlteration("");
-      }
-    });
+      const educationData = {
+        entryId: this.props.entryId,
+      };
+
+      this.props.deleteEducation(educationData).then(() => {
+        if (this.props.profile.delete_education_status === "succeeded") {
+          this.props.onModalAlteration("");
+        }
+      });
+    } else {
+      this.setState({ deleteEntryModalActive: true });
+    }
   }
 
   handleSubmit(event) {
@@ -404,7 +430,14 @@ class AddEducationModal extends Component {
             </div>
           </div>
         </div>
-        {this.state.discardChangesModalActive ? (
+        {this.state.deleteEntryModalActive ? (
+          <ConfirmDeleteEntryModal
+            onDeleteEntryConfirmation={this.handleDeleteEntryConfirmation}
+            onDeleteEntryCancellation={this.handleDeleteEntryCancellation}
+          />
+        ) : null}
+        {this.state.discardChangesModalActive &&
+        !this.state.deleteEntryModalActive ? (
           <ConfirmDiscardChangesModal
             onDiscardChangesConfirmation={this.handleDiscardChangesConfirmation}
             onDiscardChangesCancellation={this.handleDiscardChangesCancellation}
