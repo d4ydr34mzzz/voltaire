@@ -9,6 +9,7 @@ import {
   clearDeleteExperienceErrors,
 } from "./profileSlice.js";
 import ConfirmDiscardChangesModal from "./ConfirmDiscardChangesModal.js";
+import ConfirmDeleteEntryModal from "./ConfirmDeleteEntryModal";
 import LoadingIconModal from "./LoadingIconModal.js";
 import InputFormGroup from "../forms/InputFormGroup.js";
 import ReactQuill from "react-quill";
@@ -48,6 +49,8 @@ class AddExperienceModal extends Component {
           description: experience.description ? experience.description : "",
           changesMade: false,
           discardChangesModalActive: false,
+          deleteEntryModalActive: false,
+          proceedWithDelete: false,
         };
       } else {
         this.state = {
@@ -86,6 +89,12 @@ class AddExperienceModal extends Component {
       this
     );
     this.handleDiscardChangesCancellation = this.handleDiscardChangesCancellation.bind(
+      this
+    );
+    this.handleDeleteEntryConfirmation = this.handleDeleteEntryConfirmation.bind(
+      this
+    );
+    this.handleDeleteEntryCancellation = this.handleDeleteEntryCancellation.bind(
       this
     );
     this.handleCloseLoadingIconModal = this.handleCloseLoadingIconModal.bind(
@@ -146,23 +155,40 @@ class AddExperienceModal extends Component {
     this.setState({ discardChangesModalActive: false });
   }
 
+  handleDeleteEntryConfirmation() {
+    this.setState({ proceedWithDelete: true }, () => {
+      this.deleteExperience();
+    });
+  }
+
+  handleDeleteEntryCancellation() {
+    this.setState({ deleteEntryModalActive: false });
+  }
+
   handleCloseLoadingIconModal() {
     this.props.onModalAlteration("");
   }
 
   deleteExperience(event) {
-    event.preventDefault();
-    this.props.clearEditExperienceErrors();
+    if (event) {
+      event.preventDefault();
+    }
 
-    const experienceData = {
-      entryId: this.props.entryId,
-    };
+    if (this.state.proceedWithDelete) {
+      this.props.clearEditExperienceErrors();
 
-    this.props.deleteExperience(experienceData).then(() => {
-      if (this.props.profile.delete_experience_status === "succeeded") {
-        this.props.onModalAlteration("");
-      }
-    });
+      const experienceData = {
+        entryId: this.props.entryId,
+      };
+
+      this.props.deleteExperience(experienceData).then(() => {
+        if (this.props.profile.delete_experience_status === "succeeded") {
+          this.props.onModalAlteration("");
+        }
+      });
+    } else {
+      this.setState({ deleteEntryModalActive: true });
+    }
   }
 
   handleSubmit(event) {
@@ -376,7 +402,14 @@ class AddExperienceModal extends Component {
             </div>
           </div>
         </div>
-        {this.state.discardChangesModalActive ? (
+        {this.state.deleteEntryModalActive ? (
+          <ConfirmDeleteEntryModal
+            onDeleteEntryConfirmation={this.handleDeleteEntryConfirmation}
+            onDeleteEntryCancellation={this.handleDeleteEntryCancellation}
+          />
+        ) : null}
+        {this.state.discardChangesModalActive &&
+        !this.state.deleteEntryModalActive ? (
           <ConfirmDiscardChangesModal
             onDiscardChangesConfirmation={this.handleDiscardChangesConfirmation}
             onDiscardChangesCancellation={this.handleDiscardChangesCancellation}
