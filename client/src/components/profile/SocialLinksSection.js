@@ -20,12 +20,15 @@ class SocialLinksSection extends Component {
             <i className="fas fa-pen"></i>
           </a>
         ) : null}
-        <ul className="mt-3 pt-4 pb-4 pl-0 pr-0 connect-icon-padding-compensation">
+        <ul className="mt-3 pt-lg-4 pb-lg-4 pl-0 pr-0 clear-both connect-icon-padding-compensation">
           {Object.keys(this.props.links).map((key) => {
             switch (key) {
               case "youtube":
                 return (
-                  <li className="d-inline-block mr-3" key={shortid.generate()}>
+                  <li
+                    className="d-inline-block mr-3 ml-3 mb-4 mb-lg-0"
+                    key={shortid.generate()}
+                  >
                     <a
                       rel="external"
                       target="_blank"
@@ -38,7 +41,10 @@ class SocialLinksSection extends Component {
                 );
               case "twitter":
                 return (
-                  <li className="d-inline-block mr-3" key={shortid.generate()}>
+                  <li
+                    className="d-inline-block mr-3 ml-3 mb-4 mb-lg-0"
+                    key={shortid.generate()}
+                  >
                     <a
                       rel="external"
                       target="_blank"
@@ -51,7 +57,10 @@ class SocialLinksSection extends Component {
                 );
               case "facebook":
                 return (
-                  <li className="d-inline-block mr-3" key={shortid.generate()}>
+                  <li
+                    className="d-inline-block mr-3 ml-3 mb-4 mb-lg-0"
+                    key={shortid.generate()}
+                  >
                     <a
                       rel="external"
                       target="_blank"
@@ -64,7 +73,10 @@ class SocialLinksSection extends Component {
                 );
               case "linkedin":
                 return (
-                  <li className="d-inline-block mr-3" key={shortid.generate()}>
+                  <li
+                    className="d-inline-block mr-3 ml-3 mb-4 mb-lg-0"
+                    key={shortid.generate()}
+                  >
                     <a
                       rel="external"
                       target="_blank"
@@ -77,7 +89,10 @@ class SocialLinksSection extends Component {
                 );
               case "instagram":
                 return (
-                  <li className="d-inline-block mr-3" key={shortid.generate()}>
+                  <li
+                    className="d-inline-block mr-3 ml-3 mb-4 mb-lg-0"
+                    key={shortid.generate()}
+                  >
                     <a
                       rel="external"
                       target="_blank"
@@ -85,6 +100,22 @@ class SocialLinksSection extends Component {
                       className="section__connect-icon"
                     >
                       <i className="fab fa-instagram-square"></i>
+                    </a>
+                  </li>
+                );
+              case "github":
+                return (
+                  <li
+                    className="d-inline-block mr-3 ml-3 mb-4 mb-lg-0"
+                    key={shortid.generate()}
+                  >
+                    <a
+                      rel="external"
+                      target="_blank"
+                      href={this.props.links[key]}
+                      className="section__connect-icon"
+                    >
+                      <i className="fab fa-github"></i>
                     </a>
                   </li>
                 );

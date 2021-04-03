@@ -15,6 +15,7 @@ class AddSocialLinksModal extends Component {
         facebook: this.props.profile.profile.social.facebook || "",
         linkedin: this.props.profile.profile.social.linkedin || "",
         instagram: this.props.profile.profile.social.instagram || "",
+        github: this.props.profile.profile.social.github || "",
         changesMade: false,
         discardChangesModalActive: false,
       };
@@ -25,6 +26,7 @@ class AddSocialLinksModal extends Component {
         facebook: "",
         linkedin: "",
         instagram: "",
+        github: "",
         changesMade: false,
         discardChangesModalActive: false,
       };
@@ -102,6 +104,7 @@ class AddSocialLinksModal extends Component {
       facebook: this.state.facebook,
       linkedin: this.state.linkedin,
       instagram: this.state.instagram,
+      github: this.state.github,
     };
 
     this.props.addSocialLinks(socialData).then(() => {
@@ -215,6 +218,21 @@ class AddSocialLinksModal extends Component {
                   button={<i class="fas fa-eraser"></i>}
                   onButtonClick={this.handleClearSocialButtonClick}
                   buttonDataAttributes={{ "data-socialid": "instagram" }}
+                />
+
+                <InputInputGroup
+                  htmlFor="github"
+                  icon="fab fa-github"
+                  name="github"
+                  type="url"
+                  error={errors.github}
+                  id="github"
+                  value={this.state.github}
+                  placeholder="github"
+                  onChange={this.handleInputChange}
+                  button={<i class="fas fa-eraser"></i>}
+                  onButtonClick={this.handleClearSocialButtonClick}
+                  buttonDataAttributes={{ "data-socialid": "github" }}
                 />
 
                 <div className="text-right mt-4 mb-4">

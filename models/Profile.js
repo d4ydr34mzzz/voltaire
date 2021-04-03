@@ -151,6 +151,9 @@ const profileSchema = new Schema({
     instagram: {
       type: String,
     },
+    github: {
+      type: String,
+    },
   },
   date: {
     type: Date,
