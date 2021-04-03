@@ -883,6 +883,8 @@ router.put(
           });
         } else if (updateProfile) {
           return profile.save();
+        } else {
+          return profile;
         }
       })
       .then((profile) => {
