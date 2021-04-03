@@ -1189,6 +1189,20 @@ router.put(
       .customSanitizer((value, { req }) => {
         return addHttpsProtocolToValidatedSocialURLWithoutProtocol(value);
       }),
+    body("github")
+      .if((value, { req }) => {
+        return req.body.github;
+      })
+      .trim()
+      .isURL({
+        protocols: ["http", "https"],
+        host_whitelist: ["www.github.com"],
+      })
+      .withMessage("Invalid URL")
+      .bail()
+      .customSanitizer((value, { req }) => {
+        return addHttpsProtocolToValidatedSocialURLWithoutProtocol(value);
+      }),
   ],
   (req, res) => {
     const errors = validationResult(req);
@@ -1227,6 +1241,9 @@ router.put(
             editedSocial.instagram = req.body.instagram
               ? req.body.instagram
               : null;
+          }
+          if (req.body.github) {
+            editedSocial.github = req.body.github ? req.body.github : null;
           }
 
           profile.social = editedSocial;
