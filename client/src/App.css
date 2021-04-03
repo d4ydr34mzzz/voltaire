@@ -551,6 +551,7 @@
 
 .ais-Hits-list {
   list-style: none;
+  padding-left: 0px;
 }
 
 .ais-Hits__profile-picture {
