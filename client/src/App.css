@@ -147,7 +147,7 @@
 .modal-overlay--navbar-search-results {
   z-index: 1;
   margin-left: -1rem;
-  top: 70px;
+  top: 80px;
 }
 
 .modal__content {
@@ -531,7 +531,7 @@
 }
 
 .react-autosuggest__container {
-  position: absolute;
+  /* position: relative; */
   left: 0;
   right: 0;
   margin: auto;
@@ -669,6 +669,16 @@
   clear: both;
 }
 
+.logo {
+  height: 40px;
+}
+
+.react-autosuggest__suggestions-container {
+  position: absolute;
+  width: 100vw;
+  left: 0;
+}
+
 @media (min-width: 576px) {
   .connect-icon-padding-compensation {
     margin-left: -15px;
@@ -686,7 +696,16 @@
 }
 
 @media (min-width: 992px) {
+  .modal-overlay--navbar-search-results {
+    top: 70px;
+  }
+
   .react-autosuggest__container {
     position: absolute;
+  }
+
+  .react-autosuggest__suggestions-container {
+    position: static;
+    width: 100%;
   }
 }

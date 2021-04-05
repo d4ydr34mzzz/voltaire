@@ -16,10 +16,10 @@ class SearchBarHit extends Component {
               ? hit.profilePictureCropped
               : hit.user.picture
           }
-          className="ais-Hits__profile-picture"
+          className="ais-Hits__profile-picture mb-3"
           alt=""
         />
-        <div className="ai-Hits-item__profile-info d-md-inline-block ml-4">
+        <div className="ai-Hits-item__profile-info d-md-inline-block ml-md-4">
           <h2 className="ais-Hits__name">{hit.name}</h2>
           <span className="ais-Hits__profile-header">{hit.header}</span>
         </div>

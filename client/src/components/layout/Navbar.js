@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { logoutUser } from "../auth/authSlice.js";
 import { withRouter } from "react-router-dom";
 import SearchBar from "../search/SearchBar.js";
+import logo from "../../images/logo.png";
 
 class Navbar extends Component {
   constructor(props) {
@@ -74,8 +75,16 @@ class Navbar extends Component {
       <nav className="navbar fixed-top navbar-expand-lg navbar-dark bg-dark navbar--background-color navbar--padding">
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">
-            Voltaire
+            <span className="d-none d-lg-block">Voltaire</span>
+            <img src={logo} alt="logo" className="logo d-lg-none" />
           </Link>
+
+          {isAuthenticated ? (
+            <SearchBar
+              onSearchBarFocusChange={this.handleSearchBarFocusChange}
+            />
+          ) : null}
+
           <button
             className="navbar-toggler"
             type="button"
@@ -90,11 +99,6 @@ class Navbar extends Component {
 
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             {isAuthenticated ? authLinksLeft : null}
-            {isAuthenticated ? (
-              <SearchBar
-                onSearchBarFocusChange={this.handleSearchBarFocusChange}
-              />
-            ) : null}
             {isAuthenticated ? authLinksRight : null}
             {!isAuthenticated ? guestLinks : null}
           </div>

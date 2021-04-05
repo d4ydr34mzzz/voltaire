@@ -7,7 +7,10 @@ function SocialLinks(props) {
     switch (key) {
       case "youtube":
         return (
-          <li className="d-inline-block mr-3" key={shortid.generate()}>
+          <li
+            className="d-inline-block mr-3 mb-3 mb-md-0"
+            key={shortid.generate()}
+          >
             <a
               rel="external"
               target="_blank"
@@ -22,7 +25,10 @@ function SocialLinks(props) {
         );
       case "twitter":
         return (
-          <li className="d-inline-block mr-3" key={shortid.generate()}>
+          <li
+            className="d-inline-block mr-3 mb-3 mb-md-0"
+            key={shortid.generate()}
+          >
             <a
               rel="external"
               target="_blank"
@@ -37,7 +43,10 @@ function SocialLinks(props) {
         );
       case "facebook":
         return (
-          <li className="d-inline-block mr-3" key={shortid.generate()}>
+          <li
+            className="d-inline-block mr-3 mb-3 mb-md-0"
+            key={shortid.generate()}
+          >
             <a
               rel="external"
               target="_blank"
@@ -52,7 +61,10 @@ function SocialLinks(props) {
         );
       case "linkedin":
         return (
-          <li className="d-inline-block mr-3" key={shortid.generate()}>
+          <li
+            className="d-inline-block mr-3 mb-3 mb-md-0"
+            key={shortid.generate()}
+          >
             <a
               rel="external"
               target="_blank"
@@ -67,7 +79,10 @@ function SocialLinks(props) {
         );
       case "instagram":
         return (
-          <li className="d-inline-block mr-3" key={shortid.generate()}>
+          <li
+            className="d-inline-block mr-3 mb-3 mb-md-0"
+            key={shortid.generate()}
+          >
             <a
               rel="external"
               target="_blank"
@@ -77,6 +92,24 @@ function SocialLinks(props) {
               })}
             >
               <i className="fab fa-instagram-square"></i>
+            </a>
+          </li>
+        );
+      case "github":
+        return (
+          <li
+            className="d-inline-block mr-3 mb-3 mb-md-0"
+            key={shortid.generate()}
+          >
+            <a
+              rel="external"
+              target="_blank"
+              href={props.links[key]}
+              className={classNames("section__connect-icon", {
+                [`fs-${props.alternativeFontSize}`]: props.alternativeFontSize,
+              })}
+            >
+              <i className="fab fa-github"></i>
             </a>
           </li>
         );
