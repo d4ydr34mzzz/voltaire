@@ -31,9 +31,6 @@ class Explore extends Component {
       searchState: urlToSearchState(this.props.location),
     };
 
-    document.getElementsByTagName("html")[0].style.minWidth = "500px";
-    document.getElementsByTagName("body")[0].style.minWidth = "500px";
-
     this.onSearchStateChange = this.onSearchStateChange.bind(this);
   }
 
@@ -41,11 +38,6 @@ class Explore extends Component {
     if (this.props.location.search !== prevProps.location.search) {
       this.setState({ searchState: urlToSearchState(this.props.location) });
     }
-  }
-
-  componentWillUnmount() {
-    document.getElementsByTagName("html")[0].style.minWidth = "0px";
-    document.getElementsByTagName("body")[0].style.minWidth = "0px";
   }
 
   onSearchStateChange(searchState) {
