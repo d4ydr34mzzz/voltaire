@@ -170,7 +170,6 @@ class AddGitHubUsernameModal extends Component {
           <ConfirmDiscardChangesModal
             onDiscardChangesConfirmation={this.handleDiscardChangesConfirmation}
             onDiscardChangesCancellation={this.handleDiscardChangesCancellation}
-            modalTopMargin={150}
           />
         ) : null}
         {this.props.profile &&
