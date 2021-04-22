@@ -1,4 +1,4 @@
-<h1 align="center">🌌 Voltaire</h1>
+<h1 align="center">:telescope: Voltaire</h1>
 
 <p align="center">Voltaire is a platform for online professional networking.</p>
 
@@ -15,7 +15,7 @@
 
 <br>
 
-![Voltaire application walkthrough video](https://user-images.githubusercontent.com/50305023/115659271-29606a00-a2ef-11eb-8bc4-3193e3c74f7a.mp4)
+https://user-images.githubusercontent.com/50305023/115661798-df798300-a2f2-11eb-9125-f94c22fa0a3e.mp4
 
 <br>
 
