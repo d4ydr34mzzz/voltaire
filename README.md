@@ -5,11 +5,11 @@
 <br>
 
 <p align="center">
-    <a href="https://github.com/d4ydr34mzzz/newt/commits/master">
-        <img src="https://img.shields.io/github/last-commit/d4ydr34mzzz/newt?style=flat-square" alt="Last commit">
+    <a href="https://github.com/d4ydr34mzzz/voltaire/commits/master">
+        <img src="https://img.shields.io/github/last-commit/d4ydr34mzzz/voltaire?style=flat-square" alt="Last commit">
     </a>
-    <a href="https://github.com/d4ydr34mzzz/newt/blob/master/LICENSE">
-        <img src="https://img.shields.io/github/license/d4ydr34mzzz/newt" alt="Project license">
+    <a href="https://github.com/d4ydr34mzzz/voltaire/blob/master/LICENSE">
+        <img src="https://img.shields.io/github/license/d4ydr34mzzz/voltaire" alt="Project license">
     </a>
 </p>
 
@@ -26,7 +26,7 @@ https://user-images.githubusercontent.com/50305023/115661798-df798300-a2f2-11eb-
 
 ## Credits
 
-The initial feature set for Newt was inspired by the following [online video series](https://www.oreilly.com/library/view/mern-stack-front/9781789343120/).
+The initial feature set for Voltaire was inspired by the following [online video series](https://www.oreilly.com/library/view/mern-stack-front/9781789343120/).
 
 ## License
 
