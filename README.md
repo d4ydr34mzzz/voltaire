@@ -1,4 +1,6 @@
-<h1 align="center">:telescope: Voltaire</h1>
+<h1 align="center"> 
+    <img src="./client/src/images/logo.png" width=35 height=35 alt="Voltaire logo">&nbsp Voltaire
+</h1>
 
 <p align="center">Voltaire is a platform for online professional networking.</p>
 
@@ -9,7 +11,7 @@
         <img src="https://img.shields.io/github/last-commit/d4ydr34mzzz/voltaire?style=flat-square" alt="Last commit">
     </a>
     <a href="https://github.com/d4ydr34mzzz/voltaire/blob/master/LICENSE">
-        <img src="https://img.shields.io/github/license/d4ydr34mzzz/voltaire" alt="Project license">
+        <img src="https://img.shields.io/github/license/d4ydr34mzzz/voltaire?style=flat-square" alt="Project license">
     </a>
 </p>
 
